@@ -1,0 +1,113 @@
+<html>
+ <head>
+  <script src="remixml.js"></script>
+  <title>Test suite for Remixml</title>
+ </head>
+ <body>
+  <h1>Test suite for <a href="//remixml.org/">Remixml</a></h1>
+  <p id="log">
+  </p>
+  <script id="self">
+   "use strict";
+   var t = document.getElementById("self");
+   t.parentNode.removeChild(t);		// Take ourself out of the equation
+   var logid = document.getElementById("log");
+   var curpage = document.head.parentNode;
+   var oldhtml = curpage.innerHTML;
+   var newdoc = Remixml.parse(curpage);
+   var errors = 0, res;
+   function log(x) { logid.innerHTML += x + "<br />"; }
+   function error(x) { log("<strong>ERROR:<strong> " + x); errors++; }
+   function htmlmap(s) {
+     return "&" + {"<":"lt",">":"gt","&":"amp","'":"apos",'"':"quot"}[s] + ";";
+   }
+   function escape(j) {
+     return j.replace(/[<>&'"]/g, htmlmap);
+   }
+   function runtest(x, y) {
+     if (x != y) {
+       error("Mismatch <br /><code>" + escape(x) +
+        "</code> (" + x.length + ") !=<br /><code>" +
+        escape(y) + "</code> (" + y.length + ")");
+     }
+     else
+       log("Found " + x.length + " == " + y.length);
+   }
+   var newhtml = curpage.innerHTML;
+   log("Parsing current document " + oldhtml.length + " bytes.");
+   if (newdoc != curpage)
+     error("Different document returned");
+   if (newhtml != oldhtml)
+     error("Differences found after parsing");
+
+   res = Remixml.parse2txt('<set var="_.foobar">juice</set>xx&_.foobar;yy');
+   runtest(res, "xxjuiceyy");
+   res = Remixml.parse2txt('<set var="_.foobar">juice</set>xx&_.foo;yy',
+    {_:{foo:123}});
+   runtest(res, "xx123yy");
+   res = Remixml.parse2txt('<set var="_.foobar">juice</set>xx&_.foo;yy',
+    {_:{foo:123}});
+   runtest(res, "xx123yy");
+   res = Remixml.parse2txt('<set var="_.foobar">12</set>'
+    + '<set var="_.new" expr="+_.foobar + _.foo"></set>xx&_.new;yyy',
+    {_:{foo:123}});
+   runtest(res, "xx135yyy");
+   res = Remixml.parse2txt('<set var="_.foobar">12</set>'
+    + '<for from="3" to="9">&_._index;</for>'
+    + '<set var="_.new" expr="+_.foobar + _.foo"></set>xx&_.new;yyy',
+    {_:{foo:123}});
+   runtest(res, "3456789xx135yyy");
+   res = Remixml.parse2txt('<set var="_.foobar">12</set>'
+    + '<for from="9" to="3" step="-2">&_._index;</for>'
+    + '<set var="_.new" expr="+_.foobar + _.foo"></set>xx&_.new;yyy',
+    {_:{foo:123}});
+   runtest(res, "9753xx135yyy");
+   res = Remixml.parse2txt('<set var="_.foobar">12</set>'
+    + '<for from="9" to="3" step="-2">'
+    + '<if expr="_._index > 6">&_._index;</if><else>N</else></for>'
+    + '<then>then</then><else>else</else>'
+    + '<set var="_.new" expr="+_.foobar + _.foo"></set>xx&_.new;yyy',
+    {_:{foo:123}});
+   runtest(res, "97NNthenxx135yyy");
+   res = Remixml.parse2txt('<set var="_.foobar">12</set>'
+    + '<for from="3" to="9" step="-2">'
+    + '<if expr="_._index > 6">&_._index;</if><else>N</else></for>'
+    + '<then>then</then><else>else</else>'
+    + '<set var="_.new" expr="+_.foobar + _.foo"></set>xx&_.new;yyy',
+    {_:{foo:123}});
+   runtest(res, "elsexx135yyy");
+   res = Remixml.parse2txt('<!-- hello -->'
+    + '<set var="_.foobar">12</set>'
+    + '<!-- there -->'
+    + '<for from="9" to="3" step="-2">'
+    + '<if expr="_._index > 6">&_._index;</if><else>N</else></for>'
+    + '<then>then</then><else>else</else>'
+    + '<set var="_.new" expr="+_.foobar + _.foo"></set>xx&_.new;yyy',
+    {_:{foo:123}});
+   runtest(res, "<!-- hello --><!-- there -->97NNthenxx135yyy");
+   res = Remixml.parse2txt('<comment><!-- hello -->'
+    + '<set var="_.foobar">12</set>'
+    + '<!-- there -->'
+    + '<for from="9" to="3" step="-2">'
+    + '<if expr="_._index > 6">&_._index;</if><else>N</else></for>'
+    + '<then>then</then><else>else</else>'
+    + '<set var="_.new" expr="+_.foobar + _.foo"></set>xx&_.new;yyy</comment>',
+    {_:{foo:123}});
+   runtest(res, "");
+   res = Remixml.dom2txt(Remixml.trim(Remixml.parse(`
+    <set var="_.foo" split=",">aa,b,cc,d,eee,f</set>
+    <for in="_.foo">
+     <delimiter>,</delimiter>&_._recno; &_._value;
+    </for>
+    `,
+    {_:{foo:123}})));
+   runtest(res, "1 aa ,2 b ,3 cc ,4 d ,5 eee ,6 f");
+
+
+   if (errors)
+     error("Found " + errors + " errors");
+   else
+     log("SUCCESS: All checks passed.");
+  </script>
+ </body>
+</html>
