@@ -64,14 +64,23 @@ Remixml.parse('<h1>Title of &_.sitename; for &_.description;</h1>'
   Specifies the encoding to be used when substituting the variable.
   The encodings available are:
     - `html`<br />
-      Default, encodes using
+      Default: encodes using
       [HTML entities](https://dev.w3.org/html5/html-author/charref).
     - `uric`<br />
-      URI component, encodes URI arguments in an URL.
+      URI component: encodes URI arguments in an URL.
+    - `path`<br />
+      Path component: performs a lossy transformation of the
+      value into a format that can be inserted into a path.
+      The transformation casts it to lowercase, then replaces all strings of
+      non-alphanumeric characters with single dashes, except at the start
+      and end, where it merely strips them.
     - `json`<br />
       Encodes as a [JSON](https://www.json.org/) string.
     - `none`<br />
       No encoding, as is, can be abbreviated as ":;".
+    - `recurse` or `r`<br />
+      Like `none` but immediately searches for new entities to substitute
+      inside the replaced content.
 - `formatting` (optional)<br />
   [printf()-like formatting
    specification](https://en.wikipedia.org/wiki/Printf_format_string)
@@ -87,9 +96,10 @@ entity reference).
 
 ### Language tags
 
-- `<set var="" expr="" split="" join="" tag="" scope="">...</set>`<br />
+- `<set var="" variable="" expr="" split="" join="" tag=""
+    scope="">...</set>`<br />
    Attributes:
-   - `var`<br />
+   - `var` or `variable`<br />
      Assign to the named variable.
    - `expr`<br />
      Use the javascript expression specified in this attribute.
@@ -161,16 +171,16 @@ entity reference).
 - `<delimiter>...</delimiter>`<br />
    Should be used inside a <b>for</b> loop.  It will suppress its content
    upon the first iteration.
-- `<insert var="" quote="" format="" offset="" limit=""
+- `<insert var="" variable="" quote="" format="" offset="" limit=""
      variables="" scope=""></insert>`<br />
    More explicit way to access variable content instead of through
    entities.<br />
    Attributes:
-   - `var`<br />
+   - `var` or `variable`<br />
      Variable name to be inserted.  Typically convenient to index objects
      using a different variable content as the index.
    - `quote`<br />
-     Quote method (see entities).
+     Quote method (see entities), defaults to `none`.
    - `format`<br />
      Format method (see entities).
    - `offset`<br />
@@ -276,28 +286,30 @@ Specified parameters:
 - `context`<br />
   Optional argument which specifies an object which can be referenced
   from within Remixml code.  The toplevel entries are the toplevel scopes
-  in Remixml.  Within the Remixml Javascript, this object will always be
+  in Remixml.  Within Remixml Javascript, this object will always be
   referenced using a single `$`.  The local scope will always exist
   as `$._` and that can always be referenced using a direct `_`
   shortcut.  I.e. in Javascript `$._.foo` and `_.foo` will both refer
   to the same variable.
 
 Exposed API-list:
-- `template = Remixml.parse(template, context);`<br />
-  Destructively parses the template.  If you want to reuse the template,
-  clone it first.
-- `txt = Remixml.parse2txt(template, context);`<br />
+- `Remixml.parse(template, context)`<br />
+  In-situ parses the template and returns it.  If you want to reuse the
+  template, clone it first.
+- `Remixml.parse2txt(template, context)`<br />
   Destructively parses the template, returns the result as a string
   (convenience function for dom2txt(parse())).
-- `template = Remixml.parse_tagged(template, context);`<br />
-  Destructively parses the template, but only touches regions
+- `Remixml.parse_tagged(template, context)`<br />
+  In-situ parses the template and returns it, but only touches regions
   enclosed in `<remixml>...</remixml>` tags.
-- `domtop = Remixml.parse_document(context);`<br />
-  Destructively parses the whole current page document.
-- `txt = Remixml.dom2txt(template);`<br />
-  Destructively converts the domNode(s) to a string.
-- `template = Remixml.trim(template);`<br />
-  Trims whitespace like the Remixml `<trim>` tag.
+- `Remixml.parse_document(context)`<br />
+  In-situ parses the whole current page document (head *and* body) and returns
+  it.
+- `Remixml.dom2txt(template)`<br />
+  Destructively converts the domNode(s) to a string and returns it.
+- `Remixml.trim(template)`<br />
+  In-situ trims whitespace like the Remixml `<trim>` tag and returns the
+  trimmed template..
 
 #### Reserved object variables
 
@@ -307,7 +319,8 @@ Exposed API-list:
 
 ## References
 
-- The [Remixml website](http://remixml.org/).
+- The [Remixml website](http://remixml.org/) uses the smallest and
+  fastest [lockandload AMD-loader](https://www.npmjs.com/package/lockandload).
 - For historical reference:<br />
   Remixml was originally inspired by
 [RXML, the Roxen webserver macro language](http://docs.roxen.com/).
