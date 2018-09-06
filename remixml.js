@@ -15,10 +15,6 @@
   { return {"+":"%2B"," ":"+","?":"%3F","&":"%26","#":"%23"}[s];
   }
 
-  function htmlmap(s)
-  { return "&" + {"<":"lt",">":"gt","&":"amp","'":"apos",'"':"quot"}[s] + ";";
-  }
-
   function fvar(s, $, val)
   { let i, j;
     i = (s = s.split(".")).shift();
@@ -84,9 +80,10 @@
 	case "path":
 	  j = j.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
           break;
-	default: j = j.replace(/[<>&'"]/g, htmlmap);
+	default: j = D.createTextNode(j);
 	case "none": case "":case "recurse": case "r":;
       }
+      $._._ok = 1;
     } else
       $._._ok = 0, j = "";
     return j;
