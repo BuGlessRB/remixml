@@ -233,6 +233,19 @@ entity reference).
 - `<comment>...</comment>`<br />
    Skip the content of this tag.
 
+#### Javascript helperfunctions
+
+These are extra helperfunctions which will be available
+in the inline Remixml Javascript scripts.
+
+- `sizeof(x)`<br />
+  Returns the number of elements in an array or object, or the size of the
+  string.
+
+- `desc(x)`<br />
+  This function is only available inside the `orderby` parameter of the
+  `for` loop.  It causes the argument to be sorted in reverse.
+
 ### Examples
 
 Simple assigment:

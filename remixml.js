@@ -15,6 +15,10 @@
   { return {"+":"%2B"," ":"+","?":"%3F","&":"%26","#":"%23"}[s];
   }
 
+  W.sizeof = function(s)
+  { return s ? s.nodeType ? dfnone(s).length : s.length || O.keys(s).length : 0;
+  }
+
   function fvar(s, $, val)
   { let i, j;
     i = (s = s.split(".")).shift();
