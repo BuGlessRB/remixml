@@ -82,7 +82,8 @@
       { case "json": j = JSON.stringify(j); break;
 	case "uric": j = j.replace(/[+ ?&#]/g, eumap); break;
 	case "path":
-	  j = j.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+	  j = j.toLowerCase().replace(/(?:&(?:[^&;\s]*;)?|[^&a-z0-9])+/g, "-")
+			     .replace(/^-|-$/g, "");
           break;
 	default: j = D.createTextNode(j);
 	case "none": case "":case "recurse": case "r":;
