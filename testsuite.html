@@ -1,5 +1,7 @@
+<!DOCTYPE html>
 <html>
  <head>
+  <meta charset="utf-8" />
   <script src="remixml.js"></script>
   <title>Test suite for Remixml</title>
  </head>
@@ -110,6 +112,11 @@
     `,
     {_:{foo:123}})));
    runtest(res, "a=bhb=b==c=abc=d=def=e=etc=");
+   res = Remixml.dom2txt(Remixml.trim(Remixml.parse(`
+   <set var="_.h">abÄcäbïßb</set>xx&_.h:path;yy
+    `,
+    {_:{foo:123}})));
+   runtest(res, "xxabaecaebissbyy");
 
    if (errors)
      error("Found " + errors + " errors");
