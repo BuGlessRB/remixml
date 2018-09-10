@@ -11,6 +11,8 @@
   { return O.prototype.toString.call(s) === "[object String]";
   }
 
+  function isa(s) { return Array.isArray(s); }
+
   function eumap(s)
   { return {"+":"%2B"," ":"+","?":"%3F","&":"%26","#":"%23"}[s];
   }
@@ -85,7 +87,9 @@
 	  j = j.toLowerCase().replace(/(?:&(?:[^&;\s]*;)?|[^&a-z0-9])+/g, "-")
 			     .replace(/^-|-$/g, "");
           break;
-	default: j = D.createTextNode(j);
+	default:
+          if (isstring(j))
+            j = D.createTextNode(j);
 	case "none": case "":case "recurse": case "r":;
       }
       $._._ok = 1;
@@ -120,12 +124,27 @@
 	  { case "recurse":case "r":
 	      j = r(j);
 	  }
-	  if (j.nodeType)
-	  { if (!s.lastChild)
-	      s = txt2node(s);
-	    s.appendChild(j); j = "";
-	  }
-	  if (j += i.shift())
+          c = i.shift();
+          if (!isstring(j))
+	  { if (j.nodeType)
+	    { if (!s.lastChild)
+	        s = txt2node(s);
+	      s.appendChild(j); j = "";
+	    } else
+            { if (!s)
+              { s = c ? [j, c]: j;
+                continue;
+              }
+              if (!isa(s))
+                s = [s];
+            }
+          }
+          if (isa(s))
+          { s.push(j);
+            if (c)
+              s.push(j);
+          }
+          else if (j += c)
 	    if (c = s.lastChild)
               if (c.nodeType == 3 && j.search(al) < 0)
 	        c.nodeValue += j;
@@ -232,18 +251,25 @@ next:
 	return !j;
       }
       function newctx(k, j, e)
-      { let o$ = $, at;
+      { let o$ = $, at, _, i, v, r;
 	if (e)
-	  at = e.attributes, e = eparse(e);
-	($ = O.assign({}, $))._ = {_:$._, _tag:O.assign({}, $._._tag)};
+	{ at = e.attributes;
+          if (k[2])             // !noparse
+            e = eparse(e);
+        }
+	($ = O.assign({}, $))._ = _ = {_:$._, _tag:O.assign({}, $._._tag)};
 	if (k[1])
-	  $[k[1]] = $._;
+	  $[k[1]] = _;
 	if (e)
-	{ $._._contents = e;
-	  for (e = at.length; e--; $._[at[e].name] = at[e].value);
+	{ _._contents = e; _._restargs = r = {};
+	  for (i = at.length; i--; )
+          { v = _[e = at[i].name] = at[i].value;
+            if (!k[3][e])       // args
+              r[e] = v;
+          }
 	}
 	if (j)
-	  O.assign($._, j);
+	  O.assign(_, j);
 	j = eparse(k[0].cloneNode(1)); ($ = o$)._ = o$._;
 	return j;
       }
@@ -262,13 +288,24 @@ next:
       }
       do
       { if (k = n.attributes)
-	  for (j = k.length; j--; )
+	{ let x = 0;
+          for (j = k.length; j--; )
 	  { let i, s;
 	    if ((e = replent(s = (i = k[j]).value, $)).nodeType)
 	      e = dfnone(e);
+            else if (i.name == "::")
+            { x = e;
+              continue;
+            }
 	    if (s != e)
 	      i.value = e;
 	  }
+          if (x)
+          { n.removeAttribute("::");
+            for (j in x)
+	      n.setAttribute(j, x[j]);
+          }
+        }
 	if (k = $._._tag[j = n.tagName])
 	{ if (repltag(newctx(k, 0, n)))
 	    continue;
@@ -299,7 +336,12 @@ keep:     switch (j)
 		  k = JSON.parse(dfnone(k));
 		fvar(e, $, k);
 	      } else if (e = gatt("tag"))
-		$._._tag[e.toUpperCase()] = [getdf(n), gatt("scope")];
+	      { if (!isa(k = gatt("args") || []))
+                  k = k.split(/\s*,\s*/);
+                $._._tag[e.toUpperCase()] = [getdf(n),
+                 gatt("scope"), gatt("noparse") == null,
+                 k.reduce(function(a,i) { a[i] = 1; return a; }, {})];
+              }
 	      continue;
 	    case "ELIF":
 	      if ($._._ok)
@@ -339,7 +381,7 @@ keep:     switch (j)
 		      x = ord(e[a], $); y = ord(e[b], $);
 		      for (i = 0, n = x.length; i < n; i++)
 		      { r = 0;
-			if (Array.isArray(x[i]))
+			if (isa(x[i]))
 			  r = 1, x[i] = x[i][0], y[i] = y[i][0];
 			if (ret = x[i] > y[i] || -(x[i] != y[i]))
 			  return r ? -ret : ret;

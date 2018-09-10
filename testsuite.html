@@ -102,7 +102,14 @@
     `,
     {_:{foo:123}})));
    runtest(res, "1 aa ,2 b ,3 cc ,4 d ,5 eee ,6 f");
-
+   res = Remixml.dom2txt(Remixml.trim(Remixml.parse(`
+    <set tag="test">a=&_.a;=b=&_.b;=c=&_.c;=d=&_.d;=e=&_.e;=</set>
+    <set tag="foo" args="a,b"><test
+      a="&_.b;" ::="&_._restargs;">&_._contents;</test></set>
+    <foo a="aha" b="bhb" c="abc" d="def" e="etc">whatever</foo>
+    `,
+    {_:{foo:123}})));
+   runtest(res, "a=bhb=b==c=abc=d=def=e=etc=");
 
    if (errors)
      error("Found " + errors + " errors");

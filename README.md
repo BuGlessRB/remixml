@@ -96,7 +96,7 @@ entity reference).
 
 ### Language tags
 
-- `<set var="" variable="" expr="" split="" join="" tag=""
+- `<set var="" variable="" expr="" split="" join="" tag="" args="" noparse=""
     scope="">...</set>`<br />
    Attributes:
    - `var` or `variable`<br />
@@ -117,6 +117,14 @@ entity reference).
      the contents of the tag.  All argument values are accessible
      as variables from the local scope (`_`).  E.g. an attribute
      `foo="bar"` can be referenced as `&_.foo;` inside the tag definition.
+   - `args`<br />
+     Specifies which arguments this tag expects.  All other arguments are
+     accessible through `&_._restargs;`.
+     Using something like `<img ::="&_._restargs;" />` allows you to pass
+     on all the remaining arguments.  The special argument `::` accepts
+     an object and spreads out the elements as individual attributes.
+   - `noparse`<br />
+     Causes `&_._contents;` to be returned unparsed in this tag definition.
    - `scope`<br />
      Create a toplevel alias for the local scope in this tag definition.
 - `<if expr="">...</if>`<br />
@@ -240,7 +248,7 @@ in the inline Remixml Javascript scripts.
 
 - `sizeof(x)`<br />
   Returns the number of elements in an array or object, or the size of the
-  string.
+  string.  It is implemented as a definition in the global scope.
 
 - `desc(x)`<br />
   This function is only available inside the `orderby` parameter of the
