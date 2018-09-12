@@ -69,11 +69,12 @@ Remixml.parse('<h1>Title of &_.sitename; for &_.description;</h1>'
     - `uric`<br />
       URI component: encodes URI arguments in an URL.
     - `path`<br />
-      Path component: performs a lossy transformation of the
-      value into a format that can be inserted into a path.
-      The transformation casts it to lowercase, then replaces all strings of
-      non-alphanumeric characters with single dashes, except at the start
-      and end, where it merely strips them.
+      Path component; performs a lossy transformation of the
+      value into a format that can be inserted into a path:
+      - Cast to lowercase.
+      - Replace diacritics by their ASCII equivalent.
+      - Replace all strings of non-alphanumeric characters with single dashes.
+      - Strip dashes from start and end.
     - `json`<br />
       Encodes as a [JSON](https://www.json.org/) string.
     - `none`<br />
@@ -188,7 +189,8 @@ entity reference).
      Variable name to be inserted.  Typically convenient to index objects
      using a different variable content as the index.
    - `quote`<br />
-     Quote method (see entities), defaults to `none`.
+     Quote method (see entities), defaults to `none` (contrary to the
+     entities, which default to `html`).
    - `format`<br />
      Format method (see entities).
    - `offset`<br />
