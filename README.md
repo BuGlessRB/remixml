@@ -316,6 +316,10 @@ Specified parameters:
   to the same variable.
 
 Exposed API-list:
+- `Remixml.preparse(template, context)`<br />
+  Clones and parses the template.  It returns the parsed version, the
+  original template is left in a preparsed/precompiled state to accellerate
+  repeated parsing.
 - `Remixml.parse(template, context)`<br />
   In-situ parses the template and returns it.  If you want to reuse the
   template, clone it first.
@@ -330,6 +334,9 @@ Exposed API-list:
   it.
 - `Remixml.dom2txt(template)`<br />
   Destructively converts the domNode(s) to a string and returns it.
+- `Remixml.txt2dom(template)`<br />
+  Turns the string template into a domNode structure.  If passed a domNode
+  object, it returns it unchanged.
 - `Remixml.trim(template)`<br />
   In-situ trims whitespace like the Remixml `<trim>` tag and returns the
   trimmed template..

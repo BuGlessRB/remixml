@@ -5,17 +5,15 @@
 
 !function(W, D, O)
 { "use strict";
-  var al = /[&<]/, diacr = {};
+  const al = /[&<]/;
 
   function isstring(s)
-  { return O.prototype.toString.call(s) === "[object String]";
-  }
+  { return O.prototype.toString.call(s) === "[object String]"; }
 
   function isa(s) { return Array.isArray(s); }
 
   function eumap(s)
-  { return {"+":"%2B"," ":"+","?":"%3F","&":"%26","#":"%23"}[s];
-  }
+  { return {"+":"%2B"," ":"+","?":"%3F","&":"%26","#":"%23"}[s]; }
 
   W.sizeof = function(s)
   { return s ? s.nodeType ? dfnone(s).length : s.length || O.keys(s).length : 0;
@@ -205,6 +203,8 @@ nostr:
 
   function replelm(n, o) { return o.parentNode.replaceChild(n, o); }
   function gattr(n, k) { return n.getAttribute(k); }
+  function sattr(n, k, v) { n.setAttribute(k, v); }
+  function rattr(n, k) { n.removeAttribute(k); }
 
   function jsfunc(j)
   { let e;
@@ -237,12 +237,13 @@ nostr:
     return e;
   }
 
-  function parse(tpl, $)
-  { function eparse(n) { return parse(getdf(n), $); }
-    var j, n = tpl.firstChild;
+  function parse(n, $)
+  { function eparse(n) { var k; parse(k = getdf(n), $); return k; }
+    var j, rt, cc = bref && {};
+    n = n.firstChild;
 next:
     while (n)
-    { let k, e;
+    { let k, e, c, ca;
       function gatt(k) { return gattr(n, k); }
       function repltag(e)
       { let j, t;
@@ -266,7 +267,7 @@ next:
 	{ _._contents = e; _._restargs = r = {};
 	  for (i = at.length; i--; )
 	  { v = _[e = at[i].name] = at[i].value;
-	    if (!k[3][e])	// args
+	    if (!k[3][e])       // args
 	      r[e] = v;
 	  }
 	}
@@ -285,218 +286,266 @@ next:
 	return (j = gatt("regexp")) != null
 	    && (rcache[j] || (rcache[j] = RegExp(j)));
       }
-      function ret(e)
-      { return repltag(txt2node(e));
-      }
-      do
-      { if (k = n.attributes)
-	{ let x = 0;
-	  for (j = k.length; j--; )
-	  { let i = k[j], s = i.value;
-	    if (s.length > 4 && s.indexOf("&") >= 0)
-	    { if ((e = replent(s, $)).nodeType)
-		e = dfnone(e);
-	      else if (i.name == "::")
-	      { x = e;
-		continue;
-	      }
-	      if (s != e)
-		i.value = e;
-	    }
-	  }
-	  if (x)
-	  { n.removeAttribute("::");
-	    for (j in x)
-	      n.setAttribute(j, x[j]);
-	  }
-	}
-keep:   switch (j = n.tagName)
-	{ case "SET":
-	    if (e = gatt("var")||gatt("variable"))
-	    { if (k = pexpr(n))
-	      { if (gatt("expr") != null)
-		  k = k($);
-	      } else
-		switch ((k = eparse(n)).childNodes.length)
-		{ case 0: k = "";
-		    break;
-		  case 1:
-		    if ((j = k.firstChild).nodeType == 3)
-		      k = j.nodeValue;
+      function ret(e) { return repltag(txt2node(e)); }
+      function pret() { return repltag(eparse(n)); }
+drop:  do {
+keep:   do
+	{ c = 0;
+	  function cp(x) { c && c.push(x); }
+	  if (k = n.attributes)
+	  { let x = 0;
+	    function prat(j)
+	    { let e, i = k[j], s = i.value;
+	      if (!c || s.length > 4 && s.indexOf("&") >= 0)
+	      { if ((e = replent(s, $)).nodeType)
+		  e = dfnone(e);
+		else if (i.name == "::")
+		{ x = e; cp(j);
+		  return;
 		}
-	      { let s = gatt("split");
-		if (j = pregx())
-		  k = dfnone(k), k = s != null ? k.split(j) : k.match(j);
-		else if (s != null)
-		  k = dfnone(k).split(s);
+		if (s != e)
+		  i.value = e, cp(j);
 	      }
-	      if ((j = gatt("join")) != null)
-		k = k.join(j);
-	      if (gatt("json") != null)
-		k = JSON.parse(dfnone(k));
-	      fvar(e, $, k);
-	    } else if (e = gatt("tag"))
-	    { if (!isa(k = gatt("args") || []))
-		k = k.split(/\s*,\s*/);
-	      $._._tag[e.toUpperCase()] = [getdf(n),
-	       gatt("scope"), gatt("noparse") == null,
-	       k.reduce(function(a,i) { a[i] = 1; return a; }, {})];
 	    }
-	    continue;
-	  case "ELIF":
-	    if ($._._ok)
-	      continue;
-	  case "IF":
-	    e = pexpr(); $._._ok = e && e($);
-	  case "THEN":
-	    if (!$._._ok || repltag(eparse(n)))
-	      continue;
-	    break;
-	  case "ELSE":
-	    if ($._._ok || repltag(eparse(n)))
-	      continue;
-	    break;
-	  case "FOR":
-	  { let i = 0, res = D.createDocumentFragment(),
-	     sc = gatt("scope");
-	    function forloop()
-	    { let t = {_index: j, _recno: ++i};
-	      if (e)
-		t = O.assign(t, t._value = e[j]);
-	      res.appendChild(newctx([n, sc], t)); $._._ok = 1;
+	    function prost()
+	    { if (x)
+	      { let j;
+		rattr(n, "::");
+		for (j in x)
+		  sattr(n, j, x[j]);
+	      }
 	    }
-	    $._._ok = 0;
-	    if (j = gatt("in"))
-	      if ((e = fvar(j, $)) && e.length >= 0)
-		while ((j = i) < e.length)
-		  forloop();
-	      else
-		if (j = gatt("orderby"))
-		{ let ord = jsfunc(""
-		    + function desc(i)
-		{ return -(-i) === i ? -i : [i, 1];
-		} + "return[" + j + "];"), keys = O.keys(e);
-		  keys.sort(function(a, b)
-		  { var x, y, i, n, ret, r;
-		    x = ord(e[a], $); y = ord(e[b], $);
-		    for (i = 0, n = x.length; i < n; i++)
-		    { r = 0;
-		      if (isa(x[i]))
-			r = 1, x[i] = x[i][0], y[i] = y[i][0];
-		      if (ret = x[i] > y[i] || -(x[i] != y[i]))
-			return r ? -ret : ret;
-		    }
-		    return r ? -ret : ret;
-		  });
-		  while (i < keys.length)
-		    j = keys[i], forloop();
-		} else
-		  for (j in e)
-		    forloop();
+	    if (ca = gatt(":"))
+	      rattr(n, ":");
+	    if (ca && isa(ca = JSON.parse(ca)))
+	      for (j in ca)
+		if (ca[j] < 0)
+		{ prost();
+		  break keep;
+		}
+		else
+		  prat(ca[j]);
 	    else
-	    { let step, to = +gatt("to");
-	      step = +gatt("step") || 1;
-	      for (j = +gatt("from"); step > 0 ? j <= to : to <= j; j += step)
-		forloop();
+	    { c = ca && cc && [];
+	      for (j = k.length; j--; )
+		prat(j);
 	    }
-	    if (repltag(res))
-	      continue;
-	    break;
+	    prost();
 	  }
-	  case "DELIMITER":
-	    if ($._._recno < 2 || repltag(eparse(n)))
-	      continue;
-	    break;
-	  case "INSERT":
-	    if (e = gatt("var")||gat("variable"))
-	    { $._._ok = 1;
-	      e = insert(e, gatt("quote") || "", gatt("format"), $);
-	      if ((j = +gatt("offset")) || (k = gatt("limit")) != null)
-		e = dfnone(e).substr(j, +k);
-	      if (ret(e))
-		continue;
+	  switch (j = n.tagName)
+	  { case "SET":
+	      if (e = gatt("var")||gatt("variable"))
+	      { if (k = pexpr(n))
+		{ if (gatt("expr") != null)
+		    k = k($);
+		} else
+		  switch ((k = eparse(n)).childNodes.length)
+		  { case 0: k = "";
+		      break;
+		    case 1:
+		      if ((j = k.firstChild).nodeType == 3)
+			k = j.nodeValue;
+		  }
+		{ let s = gatt("split");
+		  if (j = pregx())
+		    k = dfnone(k), k = s != null ? k.split(j) : k.match(j);
+		  else if (s != null)
+		    k = dfnone(k).split(s);
+		}
+		if ((j = gatt("join")) != null)
+		  k = k.join(j);
+		if (gatt("json") != null)
+		  k = JSON.parse(dfnone(k));
+		fvar(e, $, k);
+	      } else if (e = gatt("tag"))
+	      { if (!isa(k = gatt("args") || []))
+		  k = k.split(/\s*,\s*/);
+		$._._tag[e.toUpperCase()] = [getdf(n),
+		 gatt("scope"), gatt("noparse") == null,
+		 k.reduce(function(a,i) { a[i] = 1; return a; }, {})];
+	      }
+	      continue drop;
+	    case "ELIF":
+	      if ($._._ok)
+		continue drop;
+	    case "IF":
+	      e = pexpr(); $._._ok = e && e($);
+	    case "THEN":
+	      if (!$._._ok || pret())
+		continue drop;
+	      break;
+	    case "ELSE":
+	      if ($._._ok || pret())
+		continue drop;
+	      break;
+	    case "FOR":
+	    { let i = 0, res = D.createDocumentFragment(),
+	       sc = gatt("scope");
+	      function forloop()
+	      { let t = {_index: j, _recno: ++i};
+		if (e)
+		  t = O.assign(t, t._value = e[j]);
+		res.appendChild(newctx([n, sc], t)); $._._ok = 1;
+	      }
+	      $._._ok = 0;
+	      if (j = gatt("in"))
+		if ((e = fvar(j, $)) && e.length >= 0)
+		  while ((j = i) < e.length)
+		    forloop();
+		else
+		  if (j = gatt("orderby"))
+		  { let ord = jsfunc(""
+		      + function desc(i)
+		  { return -(-i) === i ? -i : [i, 1];
+		  } + "return[" + j + "];"), keys = O.keys(e);
+		    keys.sort(function(a, b)
+		    { var x, y, i, n, ret, r;
+		      x = ord(e[a], $); y = ord(e[b], $);
+		      for (i = 0, n = x.length; i < n; i++)
+		      { r = 0;
+			if (isa(x[i]))
+			  r = 1, x[i] = x[i][0], y[i] = y[i][0];
+			if (ret = x[i] > y[i] || -(x[i] != y[i]))
+			  return r ? -ret : ret;
+		      }
+		      return r ? -ret : ret;
+		    });
+		    while (i < keys.length)
+		      j = keys[i], forloop();
+		  } else
+		    for (j in e)
+		      forloop();
+	      else
+	      { let step, to = +gatt("to");
+		step = +gatt("step") || 1;
+		for (j = +gatt("from"); step > 0 ? j <= to : to <= j; j += step)
+		  forloop();
+	      }
+	      if (repltag(res))
+		continue drop;
 	      break;
 	    }
-	    switch (gatt("variables"))
-	    { case "dump":
-		if (ret(JSON.stringify((e = gatt("scope")) ? $[e] : $)))
-		  continue;
-		break keep;
-	    }
-	    continue;
-	  case "REPLACE":
-	    if (ret(dfnone(eparse(n)).replace((k = pregx())
-		? RegExp(k, (e = gatt("flags")) == null ? "g" : e)
-		: gatt("from"), pexpr() || gatt("to"))))
-	      continue;
-	    break;
-	  case "TRIM":
-	    if (repltag(btrim(eparse(n))))
-	      continue;
-	    break;
-	  case "MAKETAG":
-	    e = eparse(k = n); replelm(n = newel(gattr(k, "name")), k);
-	    while((j = e.firstElementChild) && j.tagName == "ATTRIB")
-	    { n.setAttribute(gattr(j, "name"), j.innerHTML);
-	      e.removeChild(j);
-	    }
-	    n.appendChild(e);
-	    break;
-	  case "EVAL":
-	    j = (j = gatt("recurse")) == null ? 0 : j === "" ? j : +j;
-	    for (k = "", e = n; j === "" || j-- >= 0; e = txt2node(k = e))
-	      if ((e = dfnone(eparse(e))) == k)
-		j = -1;
-	    if (repltag(parse(e, $)))
-	      continue;
-	    break;
-	  case "NOPARSE":
-	    if (repltag(getdf(n)))
-	      continue;
-	    break;
-	  case "NOOUTPUT":
-	    eparse(n);
-	  case "COMMENT":
-	    continue;
-	  default:
-	    if (k = $._._tag[j])
-	    { if (repltag(newctx(k, 0, n)))
-		continue;
-	    } else if (n.firstElementChild)	// Avoid unnecessary recursion
-	      parse(n, $);
-	    else if (n.firstChild && (k = n.textContent).length > 4
-		  && k.indexOf("&") >= 0)
-	    { if ((e = replent(k, $)).nodeType)
-		if (e.childNodes.length == 1 && e.firstChild.nodeType == 3)
-		  e = e.firstChild.nodeValue;
+	    case "DELIMITER":
+	      if ($._._recno < 2 || pret())
+		continue drop;
+	      break;
+	    case "INSERT":
+	      if (e = gatt("var")||gat("variable"))
+	      { $._._ok = 1;
+		e = insert(e, gatt("quote") || "", gatt("format"), $);
+		if ((j = +gatt("offset")) || (k = gatt("limit")) != null)
+		  e = dfnone(e).substr(j, +k);
+		if (ret(e))
+		  continue drop;
+		break;
+	      }
+	      switch (gatt("variables"))
+	      { case "dump":
+		  if (ret(JSON.stringify((e = gatt("scope")) ? $[e] : $)))
+		    continue drop;
+		  break keep;
+	      }
+	      continue drop;
+	    case "REPLACE":
+	      if (ret(dfnone(eparse(n)).replace((k = pregx())
+		  ? RegExp(k, (e = gatt("flags")) == null ? "g" : e)
+		  : gatt("from"), pexpr() || gatt("to"))))
+		continue drop;
+	      break;
+	    case "TRIM":
+	      if (repltag(btrim(eparse(n))))
+		continue drop;
+	      break;
+	    case "MAKETAG":
+	      e = eparse(k = n); replelm(n = newel(gattr(k, "name")), k);
+	      while((j = e.firstElementChild) && j.tagName == "ATTRIB")
+	      { sattr(n, gattr(j, "name"), j.innerHTML);
+		e.removeChild(j);
+	      }
+	      n.appendChild(e);
+	      break;
+	    case "EVAL":
+	      j = (j = gatt("recurse")) == null ? 0 : j === "" ? j : +j;
+	      for (k = "", e = n; j === "" || j-- >= 0; e = txt2node(k = e))
+		if ((e = dfnone(eparse(e))) == k)
+		  j = -1;
+	      parse(e, $);
+	      if (repltag(e))
+		continue drop;
+	      break;
+	    case "NOPARSE":
+	      if (repltag(getdf(n)))
+		continue drop;
+	      break;
+	    case "NOOUTPUT":
+	      eparse(n);
+	    case "COMMENT":
+	      continue drop;
+	    default:
+	      if (k = $._._tag[j])
+	      { if (repltag(newctx(k, 0, n)))
+		  continue drop;
+	      } else if (n.firstElementChild)	// Avoid unnecessary recursion
+	      { if (parse(n, $))		// Parse unnecessary?
+		  cp(-1);
+	      }
+	      else if (n.firstChild && (k = n.textContent).length > 4
+		    && k.indexOf("&") >= 0)
+	      { if ((e = replent(k, $)).nodeType)
+		  if (e.childNodes.length == 1 && e.firstChild.nodeType == 3)
+		    e = e.firstChild.nodeValue;
+		  else
+		  { n.textContent = ""; n.appendChild(e);
+		    break;
+		  }
+		if (e != k)
+		  n.textContent = e;
 		else
-		{ n.textContent = ""; n.appendChild(e);
-		  break;
+		  cp(-1);
+	      } else
+		  cp(-1);
+	      break;
+	    case undefined:		// Leave comment nodes untouched
+	      if (n.nodeType != 8 && (k = n.nodeValue).length > 4
+		&& k.indexOf("&") >= 0)
+	      { if ((e = replent(n.nodeValue, $)).nodeType)
+		{ rt = 1;
+		  if (e.childNodes.length == 1 && e.firstChild.nodeType == 3)
+		    e = e.firstChild.nodeValue;
+		  else if (repltag(e))
+		    continue drop;
+		  else
+		    break;
 		}
-	      if (e != k)
-		n.textContent = e;
-	    }
-	    break;
-	  case undefined:		// Leave comment nodes untouched
-	    if (n.nodeType != 8 && (k = n.nodeValue).length > 4
-	      && k.indexOf("&") >= 0)
-	    { if ((e = replent(n.nodeValue, $)).nodeType)
-		if (e.childNodes.length == 1 && e.firstChild.nodeType == 3)
-		  e = e.firstChild.nodeValue;
-		else if (repltag(e))
-		  continue;
-		else
-		  break;
-	      if (e != n.nodeValue)
-		n.nodeValue = e;
-	    }
-	}
+		if (e != n.nodeValue)
+		  n.nodeValue = e, rt = 1;
+	      }
+	  }
+	} while(0);
+	if (c)
+	  cc[ca] = c;
 	n = n.nextSibling;
 	continue next;
       } while (0);
+      if (c)
+	cc[ca] = c;
       k = n; n = n.nextSibling; k.parentNode.removeChild(k);
     }
-    return tpl;
+    if (!cc)
+      return;
+    if (!rt)
+    { j = 1;
+      for (n in cc)
+	if (($ = cc[n]).length != 1 || $[0] >= 0)
+	{ j = 0;
+	  break;
+	}
+      if (j)
+	return 1;
+    }
+    for (n in cc)
+      bref[n].push(cc[n]);
+    return 0;
   }
 
   function initctx($)
@@ -512,8 +561,7 @@ keep:   switch (j = n.tagName)
   }
 
   function txt2node(t)
-  { return t.nodeType ? t : (diva.innerHTML = t, getdf(diva));
-  }
+  { return t.nodeType ? t : (diva.innerHTML = t, getdf(diva)); }
 
   if (!O.assign)
     O.defineProperty(O, "assign",
@@ -530,6 +578,48 @@ keep:   switch (j = n.tagName)
     { return this.replace(/^\s+/, ''); };
     String.prototype.trimEnd = function () { return this.replace(/\s+$/, ''); };
   }
+
+  var fcache = {}, rcache = {}, txta = newel("textarea"), diva = newel("div"),
+   diacr = {}, bref, g =
+  { preparse: function(tpl, $)
+      { var c, i, k;
+	if (c = tpl)
+	{ bref = [0]; c = c.querySelectorAll("*");
+	  for (i = 0; i < c.length; i++)
+	    sattr((k = c[i]), ":", i + 1), bref.push([k]);
+	  k = parse(c = tpl.cloneNode(1), initctx($));
+	  while (i = bref.pop())
+	    if (i[1])
+	      sattr(i[0], ":", JSON.stringify(i[1]));
+	    else
+	      rattr(i[0], ":");
+	  bref = 0;
+	  if (k)
+	    if (tpl.nodeType == 1)
+	      sattr(tpl, ":", "[-1]");
+	    else
+	      (k = newel("noparse")).appendChild(tpl).appendChild(k);
+	}
+	return c;
+      },
+    parse: function(tpl, $)
+      { if (tpl)
+	  tpl = txt2node(tpl), parse(tpl, initctx($));
+	return tpl;
+      },
+    parse2txt: function(tpl, $) { return dfnone(g.parse(tpl, $)); },
+    parse_tagged: function(tpl, $)
+      { var i, j = (tpl = txt2node(tpl)).querySelectorAll("remixml"), k;
+	$ = initctx($);
+	for (i = 0; i < j.length; i++)
+	  parse(k = getdf(j[i]), $), replelm(k, j[i]);
+	return tpl;
+      },
+    parse_document: function($) { return g.parse(D.head.parentNode, $); },
+    dom2txt: function(tpl) { return dfnone(tpl); },
+    txt2dom: function(tpl) { return txt2node(tpl); },
+    trim: function(tpl) { return btrim(txt2node(tpl)); }
+  };
 
   { let i, j, p, fm = { "a":[53980,1941,1561,-10,7,153,7089,41,36,2,6,26,2,17,
 	201,-1,28,2,1,1,1,127,97],"aa":[42803],"ae":[26,253,2,228],"ao":[42805],
@@ -563,26 +653,6 @@ keep:   switch (j = n.tagName)
 	  j++;
 	}
   }
-
-  var fcache = {}, rcache = {}, txta = newel("textarea"), diva = newel("div"),
-   g =
-  { parse: function(tpl, $)
-      { if (tpl)
-	  tpl = txt2node(tpl), parse(tpl, initctx($));
-	return tpl;
-      },
-    parse2txt: function(tpl, $) { return dfnone(g.parse(tpl, $)); },
-    parse_tagged: function(tpl, $)
-      { var i, j = (tpl = txt2node(tpl)).querySelectorAll("remixml");
-	$ = initctx($);
-	for (i = 0; i < j.length; i++)
-	  replelm(parse(getdf(j[i]), $), j[i]);
-	return tpl;
-      },
-    parse_document: function($) { return g.parse(D.head.parentNode, $); },
-    dom2txt: function(tpl) { return dfnone(tpl); },
-    trim: function(tpl) { return btrim(txt2node(tpl)); }
-  };
 
   W.Remixml = g; W.define && define.amd && define(g);
   if (W.exports)
