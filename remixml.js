@@ -15,9 +15,56 @@
   function eumap(s)
   { return {"+":"%2B"," ":"+","?":"%3F","&":"%26","#":"%23"}[s]; }
 
+  function newel(n) { return D.createElement(n); }
+  function replelm(n, o) { return o.parentNode.replaceChild(n, o); }
+  function gattr(n, k) { return n.getAttribute(k); }
+  function sattr(n, k, v) { n.setAttribute(k, v); }
+  function rattr(n, k) { n.removeAttribute(k); }
+
+  function getdf(n)
+  { let k = D.createRange();
+    k.selectNodeContents(n);
+    return k.extractContents();
+  }
+
+  function dfhtml(n)
+  { let k = newel("div"); k.appendChild(n); return k.innerHTML; }
+
+  function dfnone(n)
+  { var j;
+nostr:
+    switch (n.nodeType)
+    { case 11:
+	switch (n.childNodes.length)
+	{ case 0: return "";
+	  default:
+	    break nostr;
+	  case 1:
+	    if ((j = n.firstChild).nodeType == 3)
+	      n = j.nodeValue;
+	    else
+	      break nostr;
+	}
+      case undefined:
+	if ((j = n.indexOf("&")) < 0 || n.indexOf(";", j + 2) < 0)
+	  return n;
+    }
+    j = txta;
+    switch (n.nodeType)
+    { case 11: j.appendChild(n); n = j;
+      default: n = n.innerHTML;
+      case undefined:
+    }
+    j.innerHTML = n; n = j.value; j.textContent = "";
+    return n;
+  }
+
+  function txt2node(t)
+  { return t.nodeType ? t : (diva.innerHTML = t, getdf(diva)); }
+
   W.sizeof = function(s)
   { return s ? s.nodeType ? dfnone(s).length : s.length || O.keys(s).length : 0;
-  }
+  };
 
   function fvar(s, $, val)
   { let i, j;
@@ -67,7 +114,7 @@
 	  case "x": j = (parseInt(j, 10) >>> 0).toString(16); break;
 	  case "s":
 	    if (p > "")
-	      j = j.substr(0, p)
+	      j = j.substr(0, p);
 	    break;
 	  default:
 	    if (fmt[4].length == 3)
@@ -160,51 +207,6 @@
     }
     return r(s);
   }
-
-  function newel(n) { return D.createElement(n); }
-
-  function getdf(n)
-  { let k = D.createRange();
-    k.selectNodeContents(n);
-    return k.extractContents();
-  }
-
-  function dfhtml(n)
-  { let k = newel("div"); k.appendChild(n); return k.innerHTML; }
-
-  function dfnone(n)
-  { var j;
-nostr:
-    switch (n.nodeType)
-    { case 11:
-	switch (n.childNodes.length)
-	{ case 0: return "";
-	  default:
-	    break nostr;
-	  case 1:
-	    if ((j = n.firstChild).nodeType == 3)
-	      n = j.nodeValue;
-	    else
-	      break nostr;
-	}
-      case undefined:
-	if ((j = n.indexOf("&")) < 0 || n.indexOf(";", j + 2) < 0)
-	  return n;
-    }
-    j = txta;
-    switch (n.nodeType)
-    { case 11: j.appendChild(n); n = j;
-      default: n = n.innerHTML;
-      case undefined:
-    }
-    j.innerHTML = n; n = j.value; j.textContent = "";
-    return n;
-  }
-
-  function replelm(n, o) { return o.parentNode.replaceChild(n, o); }
-  function gattr(n, k) { return n.getAttribute(k); }
-  function sattr(n, k, v) { n.setAttribute(k, v); }
-  function rattr(n, k) { n.removeAttribute(k); }
 
   function jsfunc(j)
   { let e;
@@ -430,7 +432,7 @@ keep:   do
 		continue drop;
 	      break;
 	    case "INSERT":
-	      if (e = gatt("var")||gat("variable"))
+	      if (e = gatt("var")||gatt("variable"))
 	      { $._._ok = 1;
 		e = insert(e, gatt("quote") || "", gatt("format"), $);
 		if ((j = +gatt("offset")) || (k = gatt("limit")) != null)
@@ -559,9 +561,6 @@ keep:   do
       $.var = $.__;
     return $;
   }
-
-  function txt2node(t)
-  { return t.nodeType ? t : (diva.innerHTML = t, getdf(diva)); }
 
   if (!O.assign)
     O.defineProperty(O, "assign",
