@@ -337,6 +337,9 @@ Exposed API-list:
 - `Remixml.txt2dom(template)`<br />
   Turns the string template into a domNode structure.  If passed a domNode
   object, it returns it unchanged.
+- `Remixml.path_encode(string)`<br />
+  Strips and encodes `string` to something which can be safely inserted in
+  an url (compare `path` encoding for entities).
 - `Remixml.trim(template)`<br />
   In-situ trims whitespace like the Remixml `<trim>` tag and returns the
   trimmed template..

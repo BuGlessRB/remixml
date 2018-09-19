@@ -1,4 +1,4 @@
-   // RemixML v1.0: XML/HTML-like macro language
+   // RemixML v1.3: XML/HTML-like macro language
   // Copyright (c) 2018 by Stephen R. van den Berg <srb@cuci.nl>
  // License: ISC OR GPL-3.0
 // Sponsored by: Cubic Circle, The Netherlands
@@ -10,11 +10,10 @@
   function isstring(s)
   { return O.prototype.toString.call(s) === "[object String]"; }
 
-  function isa(s) { return Array.isArray(s); }
-
   function eumap(s)
   { return {"+":"%2B"," ":"+","?":"%3F","&":"%26","#":"%23"}[s]; }
 
+  function isa(s) { return Array.isArray(s); }
   function newel(n) { return D.createElement(n); }
   function replelm(n, o) { return o.parentNode.replaceChild(n, o); }
   function gattr(n, k) { return n.getAttribute(k); }
@@ -81,6 +80,13 @@ nostr:
     $[i] = val;
   }
 
+  function encpath(s)
+  { return s.toLowerCase()
+		.replace(/[^\0-~]/g, function(a) { return diacr[a] || a; })
+		.replace(/(?:&(?:[^&;\s]*;)?|[^&a-z0-9])+/g, "-")
+		.replace(/^-|[\u0300-\u036f]|-$/g, "");
+  }
+
   function insert(j, quot, fmt, $)
   { if ((j = fvar(j, $)) != null)
     { if (j.nodeType)
@@ -128,12 +134,7 @@ nostr:
       switch (quot)
       { case "json": j = JSON.stringify(j); break;
 	case "uric": j = j.replace(/[+ ?&#]/g, eumap); break;
-	case "path":
-	  j = j.toLowerCase()
-		.replace(/[^\0-~]/g, function(a) { return diacr[a] || a; })
-		.replace(/(?:&(?:[^&;\s]*;)?|[^&a-z0-9])+/g, "-")
-		.replace(/^-|[\u0300-\u036f]|-$/g, "");
-	  break;
+	case "path": j = encpath(j); break;
 	default:
 	  if (isstring(j))
 	    j = D.createTextNode(j);
@@ -617,7 +618,8 @@ keep:   do
     parse_document: function($) { return g.parse(D.head.parentNode, $); },
     dom2txt: function(tpl) { return dfnone(tpl); },
     txt2dom: function(tpl) { return txt2node(tpl); },
-    trim: function(tpl) { return btrim(txt2node(tpl)); }
+    trim: function(tpl) { return btrim(txt2node(tpl)); },
+    path_encode: encpath
   };
 
   { let i, j, p, fm = { "a":[53980,1941,1561,-10,7,153,7089,41,36,2,6,26,2,17,
