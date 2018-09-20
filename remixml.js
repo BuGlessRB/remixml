@@ -655,7 +655,7 @@ keep:   do
 	}
   }
 
-  W.Remixml = g; W.define && define.amd && define(g);
+  W.Remixml = g; W.define && define.amd && define([], g);
   if (W.exports)
     W.exports.Remixml = g, W.exports.document = D;
 
