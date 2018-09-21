@@ -62,7 +62,8 @@ nostr:
   { return t.nodeType ? t : (diva.innerHTML = t, getdf(diva)); }
 
   W.sizeof = function(s)
-  { return s ? s.nodeType ? dfnone(s).length : s.length || O.keys(s).length : 0;
+  { return Number(s) === s ? 1
+     : s ? s.nodeType ? dfnone(s).length : s.length || O.keys(s).length : 0;
   };
 
   function fvar(s, $, val)
