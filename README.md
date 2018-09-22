@@ -236,12 +236,17 @@ entity reference).
      Specifying no value sets the maximum depth to unlimited.
      Evaluation stops automatically as soon as no changes are detected
      anymore.
+- `<script>...</script>`<br />
+   Copy the contents of this tag verbatim without further parsing
+   (and leave the `script` tag itself).  To force parsing inside
+   `script` tags use `<maketag name="script">...</maketag>` instead.
 - `<noparse>...</noparse>`<br />
-   Copy the contents of this tag verbatim without further parsing.
+   Copy the contents of this tag verbatim without further parsing
+   (but strip the `noparse` tag itself).
 - `<nooutput>...</nooutput>`<br />
    Suppress output inside this tag.
 - `<comment>...</comment>`<br />
-   Skip the content of this tag.
+   Strip and skip this tag with content.
 
 #### Javascript helperfunctions
 

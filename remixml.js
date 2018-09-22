@@ -466,7 +466,7 @@ keep:   do
 	      { sattr(n, gattr(j, "name"), j.innerHTML);
 		e.removeChild(j);
 	      }
-	      n.appendChild(e);
+	      e.normalize(); n.appendChild(e);
 	      break;
 	    case "EVAL":
 	      j = (j = gatt("recurse")) == null ? 0 : j === "" ? j : +j;
