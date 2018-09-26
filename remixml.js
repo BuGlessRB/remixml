@@ -463,7 +463,7 @@ keep:   do
 	    case "MAKETAG":
 	      e = eparse(k = n); replelm(n = newel(gattr(k, "name")), k);
 	      while((j = e.firstElementChild) && j.tagName == "ATTRIB")
-	      { sattr(n, gattr(j, "name"), j.innerHTML);
+	      { sattr(n, gattr(j, "name"), j.textContent);
 		e.removeChild(j);
 	      }
 	      e.normalize(); n.appendChild(e);
