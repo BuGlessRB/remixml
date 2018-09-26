@@ -52,7 +52,7 @@ nostr:
     switch (n.nodeType)
     { case 11: j.appendChild(n); n = j;
       default: n = n.innerHTML;
-      case undefined:
+      case undefined:;
     }
     j.innerHTML = n; n = j.value; j.textContent = "";
     return n;
@@ -656,9 +656,11 @@ keep:   do
 	}
   }
 
-  W.Remixml = g; W.define && define.amd && define([], g);
-  if (W.exports)
+  if (W.define && define.amd)
+    define([], g);
+  else if (W.exports)
     W.exports.Remixml = g, W.exports.document = D;
-
+  else
+    W.Remixml = g;
 }(typeof window == "object" ? window : global,
   typeof document == "object" ? document : require("minidom")(''), Object);
