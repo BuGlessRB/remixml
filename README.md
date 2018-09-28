@@ -89,7 +89,13 @@ Remixml.parse('<h1>Title of &_.sitename; for &_.description;</h1>'
   Supported formats: %c, %d, %e, %f, %g, %s, %x.<br />
   If the formatting string equals a three-letter currency (all capitals),
   the value will be formatted like a currency (including currency symbol)
-  in the current locale.
+  in the current locale.<br />
+  There is a special format `%t`: any string following it will be parsed
+  as a [strftime()-like formatting
+   specification](http://www.cplusplus.com/reference/ctime/strftime/)
+  .<br />
+  Most formats are supported.  Unsupported formats will stay in the
+  string unchanged.
 
 Note: the entity reference must not contain spaces (the spaces shown
 above are there to clarify the format, they should not be used in a real

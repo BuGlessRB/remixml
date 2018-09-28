@@ -1,4 +1,4 @@
-   // RemixML v1.3: XML/HTML-like macro language
+   // RemixML v1.4: XML/HTML-like macro language
   // Copyright (c) 2018 by Stephen R. van den Berg <srb@cuci.nl>
  // License: ISC OR GPL-3.0
 // Sponsored by: Cubic Circle, The Netherlands
@@ -19,6 +19,81 @@
   function gattr(n, k) { return n.getAttribute(k); }
   function sattr(n, k, v) { n.setAttribute(k, v); }
   function rattr(n, k) { n.removeAttribute(k); }
+  function udate(t) { return t.valueOf() - t.getTimezoneOffset * 60000; }
+
+  function pad0(i, p)
+  { for (i < 0 && p--, i = i + ""; i.length < p; i = "0" + i);
+    return i;
+  }
+
+  function strftime(fmt, d, lang)
+  { if (!(d instanceof Date))
+    { let t = d.match && /[A-Za-z]/.test(d);
+      d = new Date(d);
+      if (t)
+	d = new Date(2 * d.valueOf() - udate(t));	// Adjust to localtime
+    }
+    const dy = d.getDay(), md = d.getDate(), m = d.getMonth(),
+     y = d.getFullYear(), h = d.getHours(), h24 = 86400000;
+    function ifm(t, f)
+    { var o = {};
+      o[t || "weekday"] = f || "short";
+      return new Intl.DateTimeFormat(lang, o)
+	.format(d);
+    }
+    function thu()
+    { var t = new Date(d);
+      t.setDate(md - ((dy + 6) % 7) + 3);
+      return t;
+    }
+    return fmt.replace(/%([A-Za-z%])/g, function(a, p)
+    { switch(p)
+      { case "a": return ifm();
+	case "A": return ifm(0, "long");
+	case "b": return ifm("month");
+	case "B": return ifm("month", "long");
+	case "G": return thu().getFullYear();
+	case "g": return (thu().getFullYear() + "").slice(2);
+	case "k": return h;
+	case "n": return m + 1;
+	case "e": return md;
+	case "d": return pad0(md, 2);
+	case "H": return pad0(h, 2);
+	case "j": return pad0(Math.floor((udate(d) - udate(Date(y))) / h24) + 1,
+				3);
+	case "C": return Math.floor(y / 100);
+	case "s": return Math.round(d.valueOf() / 1000);
+	case "l": return (h + 11) % 12 + 1;
+	case "I": return pad0((h + 11) % 12 + 1, 2);
+	case "m": return pad0(m + 1, 2);
+	case "M": return pad0(d.getMinutes(), 2);
+	case "S": return pad0(d.getSeconds(), 2);
+	case "p": return h<12 ? "AM" : "PM";
+	case "P": return h<12 ? "am" : "pm";
+	case "%": return "%";
+	case "R": return strftime("%H:%M", d, lang);
+	case "T": return strftime("%H:%M:%S", d, lang);
+	case "V":
+	{ let t = thu(), ut = t.valueOf(), j1;
+	  t.setMonth(0, 1);
+	  if ((j1 = t.getDay()) != 4)
+	    t.setMonth(0, 1 + (11 - j1) % 7);
+	  return pad0(1 + Math.ceil((ut - t) / (h24 * 7)), 2);
+	}
+	case "u": return dy || 7;
+	case "w": return dy;
+	case "Y": return y;
+	case "y": return (y + "").slice(2);
+	case "F": return d.toISOString().slice(0, 10);
+	case "c": return d.toUTCString();
+	case "x": return d.toLocaleDateString();
+	case "X": return d.toLocaleTimeString();
+	case "z": return d.toTimeString().match(/.+GMT([+-]\d+).+/)[1];
+	case "Z": return d.toTimeString().match(/.+\((.+?)\)$/)[1];
+      }
+      return a;
+    });
+  }
 
   function getdf(n)
   { let k = D.createRange();
@@ -104,7 +179,7 @@ nostr:
 	j = j($._, $);
       if (fmt && isstring(j))
       { fmt = fmt.match(
-	 /^([-+0]+)?([1-9][0-9]*)?(?:\.([0-9]+))?([a-zA-Z]|[A-Z]{3})?$/);
+/^([-+0]+)?([1-9][0-9]*)?(?:\.([0-9]+))?(t([^%]*%.+)|[a-zA-Z]|[A-Z]{3})?$/);
 	let p = fmt[3], lang = $.sys && $.sys.lang || undefined;
 	switch (fmt[4])
 	{ case "c": j = String.fromCharCode(+j); break;
@@ -124,13 +199,28 @@ nostr:
 	      j = j.substr(0, p);
 	    break;
 	  default:
-	    if (fmt[4].length == 3)
+	    if (fmt[4][0] == "t")
+	      j = strftime(fmt[5], j, lang);
+	    else if (/[A-Z]{3}/.test(fmt[4]))
 	      j = (+j).toLocaleString(lang,
 	       {style:"currency", currency:fmt[4]});
 	}
-	if (fmt[1] && fmt[1].test("+"))
-	  j = j.replace("-", "+");
-	// Explicitly do not support padding (yet?)
+	if (fmt[1])
+	{ if (fmt[1].indexOf("0") >= 0 && (p = +fmt[2]))
+	    if (+j < 0)
+	    { j = pad0(-j, p);
+	      if (j[0] == "0")
+		j[0] = "-";
+	      else
+		j = "-" + j;
+	    } else
+	      j = pad0(j, p);
+	  if (fmt[1].indexOf("+") >= 0 && +j >= 0)
+	    if (j[0] == "0")
+	      j[0] = "+";
+	    else
+	      j = "+" + j;
+	}
       }
       switch (quot)
       { case "json": j = JSON.stringify(j); break;
@@ -163,7 +253,7 @@ nostr:
 	}
 	s = c.nodeValue;
       }
-      if ((i = s.split(/&(\w+\.\w+(?:\.\w+)*)(?::(\w*))?(?:%([-+\w.]*))?;/))
+      if ((i = s.split(/&(\w+\.\w+(?:\.\w+)*)(?::(\w*))?(?:%([^;]*))?;/))
        .length > 1)
       { s = i.shift();
 	do
@@ -195,14 +285,14 @@ nostr:
 	  }
 	  else if (j += c)
 	    if (c = s.lastChild)
-	      if (c.nodeType == 3 && j.search(al) < 0)
+	      if (c.nodeType == 3 && !al.test(j))
 		c.nodeValue += j;
 	      else
 		s.appendChild(txt2node(j));
-	    else if (j.search(al) < 0)
-	      s += j;
-	    else
+	    else if (al.test(j))
 	      s = txt2node(s + j);
+	    else
+	      s += j;
 	} while (i.length);
       }
       return s;
