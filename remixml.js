@@ -163,6 +163,14 @@ nostr:
 		.replace(/^-|[\u0300-\u036f]|-$/g, "");
   }
 
+  function sp(j, s)
+  { if (j[0] == "0")
+      j[0] = s;
+    else
+      j = s + j;
+    return j;
+  }
+
   function insert(j, quot, fmt, $)
   { if ((j = fvar(j, $)) != null)
     { if (j.nodeType)
@@ -207,19 +215,9 @@ nostr:
 	}
 	if (fmt[1])
 	{ if (fmt[1].indexOf("0") >= 0 && (p = +fmt[2]))
-	    if (+j < 0)
-	    { j = pad0(-j, p);
-	      if (j[0] == "0")
-		j[0] = "-";
-	      else
-		j = "-" + j;
-	    } else
-	      j = pad0(j, p);
+	    j = +j < 0 ? sp(pad0(-j, p), "-") : pad0(j, p);
 	  if (fmt[1].indexOf("+") >= 0 && +j >= 0)
-	    if (j[0] == "0")
-	      j[0] = "+";
-	    else
-	      j = "+" + j;
+	    j = sp(j, "+");
 	}
       }
       switch (quot)
@@ -551,12 +549,15 @@ keep:   do
 		continue drop;
 	      break;
 	    case "MAKETAG":
-	      e = eparse(k = n); replelm(n = newel(gattr(k, "name")), k);
+	      e = eparse(k = n); n = newel(gattr(k, "name"));
 	      while((j = e.firstElementChild) && j.tagName == "ATTRIB")
-	      { sattr(n, gattr(j, "name"), j.textContent);
-		e.removeChild(j);
-	      }
-	      e.normalize(); n.appendChild(e);
+		sattr(n, gattr(j, "name"), j.textContent), e.removeChild(j);
+	      e.normalize(); n.appendChild(e); replelm(n, k);
+	      break;
+	    case "SCRIPT":
+	      e = (k = n).attributes; n = newel("SCRIPT");
+	      for (j = -1; ++j < e.length; sattr(n, e[j].name, e[j].value));
+	      n.textContent = k.textContent; replelm(n, k);
 	      break;
 	    case "EVAL":
 	      j = (j = gatt("recurse")) == null ? 0 : j === "" ? j : +j;
