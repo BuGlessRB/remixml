@@ -549,11 +549,19 @@ keep:   do
 		continue drop;
 	      break;
 	    case "MAKETAG":
+            { let p;
 	      e = eparse(k = n); n = newel(gattr(k, "name"));
-	      while((j = e.firstElementChild) && j.tagName == "ATTRIB")
-		sattr(n, gattr(j, "name"), j.textContent), e.removeChild(j);
+	      for (j = e.firstChild; j; j = p)
+              { p = j.nextSibling;      // IE11 lacks nextElementSibling
+                if (j.nodeType == 1)
+                  if (j.tagName == "ATTRIB")
+                    sattr(n, gattr(j, "name"), j.textContent), e.removeChild(j);
+                  else
+                    break;
+              }
 	      e.normalize(); n.appendChild(e); replelm(n, k);
 	      break;
+            }
 	    case "SCRIPT":
 	      e = (k = n).attributes; n = newel("SCRIPT");
 	      for (j = -1; ++j < e.length; sattr(n, e[j].name, e[j].value));
