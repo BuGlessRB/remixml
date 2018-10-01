@@ -407,8 +407,8 @@ keep:   do
 		  sattr(n, j, x[j]);
 	      }
 	    }
-	    if (ca = gatt(":"))
-	      rattr(n, ":");
+	    if (ca = gatt(":c"))
+	      rattr(n, ":c");
 	    if (ca && isa(ca = JSON.parse(ca)))
 	      for (j in ca)
 		if (ca[j] < 0)
@@ -678,17 +678,17 @@ keep:   do
 	if (c = tpl)
 	{ bref = [0]; c = c.querySelectorAll("*");
 	  for (i = 0; i < c.length; i++)
-	    sattr((k = c[i]), ":", i + 1), bref.push([k]);
+	    sattr((k = c[i]), ":c", i + 1), bref.push([k]);
 	  k = parse(c = tpl.cloneNode(1), initctx($));
 	  while (i = bref.pop())
 	    if (i[1])
-	      sattr(i[0], ":", JSON.stringify(i[1]));
+	      sattr(i[0], ":c", JSON.stringify(i[1]));
 	    else
-	      rattr(i[0], ":");
+	      rattr(i[0], ":c");
 	  bref = 0;
 	  if (k)
 	    if (tpl.nodeType == 1)
-	      sattr(tpl, ":", "[-1]");
+	      sattr(tpl, ":c", "[-1]");
 	    else
 	      (k = newel("noparse")).appendChild(tpl).appendChild(k);
 	}
