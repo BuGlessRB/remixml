@@ -186,7 +186,7 @@ entity reference).
 - `<delimiter>...</delimiter>`<br />
    Should be used inside a <b>for</b> loop.  It will suppress its content
    upon the first iteration.
-- `<insert var="" variable="" quote="" format="" offset="" limit=""
+- `<insert var="" variable="" quote="" format="" offset="" limit="" join=""
      variables="" scope=""></insert>`<br />
    More explicit way to access variable content instead of through
    entities.<br />
@@ -203,6 +203,8 @@ entity reference).
      Substring index starting at this offset.
    - `limit`<br />
      Substring limit the total number of characters.
+   - `join`<br />
+     If it is an array, join it to a string using the provided separator.
    - `variables`<br />
      Insert a variable group:
      - `dump`<br />

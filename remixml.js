@@ -530,6 +530,8 @@ keep:   do
 		e = insert(e, gatt("quote") || "", gatt("format"), $);
 		if ((j = +gatt("offset")) || (k = gatt("limit")) != null)
 		  e = dfnone(e).substr(j, +k);
+                if (isa(e) && (j = gatt("join")) != null)
+                  e = e.join(j);
 		if (ret(e))
 		  continue drop;
 		break;
