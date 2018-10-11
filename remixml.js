@@ -5,7 +5,9 @@
 
 !function(W, D, O)
 { "use strict";
-  const al = /[&<]/;
+  const al = /[&<]/, splc = /\s*,\s*/, fcache = {}, rcache = {},
+   txta = newel("textarea"), diva = newel("div"), diacr = {};
+  var bref;	// For preparse state, not re-entry-safe
 
   function isstring(s)
   { return O.prototype.toString.call(s) === "[object String]"; }
@@ -96,13 +98,13 @@
   }
 
   function getdf(n)
-  { let k = D.createRange();
+  { var k = D.createRange();
     k.selectNodeContents(n);
     return k.extractContents();
   }
 
   function dfhtml(n)
-  { let k = newel("div"); k.appendChild(n); return k.innerHTML; }
+  { var k = newel("div"); k.appendChild(n); return k.innerHTML; }
 
   function dfnone(n)
   { var j;
@@ -142,7 +144,7 @@ nostr:
   };
 
   function fvar(s, $, val)
-  { let i, j;
+  { var i, j;
     i = (s = s.split(".")).shift();
     if (val === undefined)
     { for ($ = $[i]; $ && ($ = $[s.shift()], s.length); );
@@ -237,7 +239,7 @@ nostr:
 
   function replent(s, $)
   { function r(s)
-    { let c, i;
+    { var c, i;
       if (s.nodeType)
       { if (c = s.firstChild)
 	{ do
@@ -281,7 +283,7 @@ nostr:
 	    if (c)
 	      s.push(j);
 	  }
-	  else if (j += c)
+	  else if (j = j + c)
 	    if (c = s.lastChild)
 	      if (c.nodeType == 3 && !al.test(j))
 		c.nodeValue += j;
@@ -299,7 +301,7 @@ nostr:
   }
 
   function jsfunc(j)
-  { let e;
+  { var e;
     if (!(e = fcache[j]))
       fcache[j] = e = Function("$", '"use strict";var _=$._;' + j);
     return e;
@@ -346,7 +348,7 @@ next:
 	return !j;
       }
       function newctx(k, j, e)
-      { let o$ = $, at, _, i, v, r;
+      { var o$ = $, at, _, i, v, r;
 	if (e)
 	{ at = e.attributes;
 	  if (k[2])		// !noparse
@@ -369,12 +371,12 @@ next:
 	return j;
       }
       function pexpr(c)
-      { let j;
+      { var j;
 	return (j = gatt("expr")) != null && (c || j)
 	    && jsfunc(!j && c ? dfnone(c) : "return(" + dfnone(j) + ");");
       }
       function pregx()
-      { let j;
+      { var j;
 	return (j = gatt("regexp")) != null
 	    && (rcache[j] || (rcache[j] = RegExp(j)));
       }
@@ -387,7 +389,7 @@ keep:   do
 	  if (k = n.attributes)
 	  { let x = 0;
 	    function prat(j)
-	    { let e, i = k[j], s = i.value;
+	    { var e, i = k[j], s = i.value;
 	      if (!c || s.length > 4 && s.indexOf("&") >= 0)
 	      { if ((e = replent(s, $)).nodeType)
 		  e = dfnone(e);
@@ -451,7 +453,7 @@ keep:   do
 		fvar(e, $, k);
 	      } else if (e = gatt("tag"))
 	      { if (!isa(k = gatt("args") || []))
-		  k = k.split(/\s*,\s*/);
+		  k = k.split(splc);
 		$._._tag[e.toUpperCase()] = [getdf(n),
 		 gatt("scope"), gatt("noparse") == null,
 		 k.reduce(function(a,i) { a[i] = 1; return a; }, {})];
@@ -471,10 +473,10 @@ keep:   do
 		continue drop;
 	      break;
 	    case "FOR":
-	    { let i = 0, res = D.createDocumentFragment(),
-	       sc = gatt("scope");
+	    { let i = 0, res = D.createDocumentFragment(), mkm,
+               sc = gatt("scope");
 	      function forloop()
-	      { let t = {_index: j, _recno: ++i};
+	      { var t = {_index: j, _recno: ++i};
 		if (e)
 		  t = O.assign(t, t._value = e[j]);
 		res.appendChild(newctx([n, sc], t)); $._._ok = 1;
@@ -482,14 +484,15 @@ keep:   do
 	      $._._ok = 0;
 	      if (j = gatt("in"))
 		if ((e = fvar(j, $)) && e.length >= 0)
-		  while ((j = i) < e.length)
+		{ mkm = gatt("mkmapping");
+                  while ((j = i) < e.length)
 		    forloop();
+                }
 		else
 		  if (j = gatt("orderby"))
-		  { let ord = jsfunc(""
-		      + function desc(i)
-		  { return -(-i) === i ? -i : [i, 1];
-		  } + "return[" + j + "];"), keys = O.keys(e);
+		  { let ord = jsfunc("" + function desc(i)
+		      { return -(-i) === i ? -i : [i, 1];
+		      } + "return[" + j + "];"), keys = O.keys(e);
 		    keys.sort(function(a, b)
 		    { var x, y, i, n, ret, r;
 		      x = ord(e[a], $); y = ord(e[b], $);
@@ -679,8 +682,7 @@ keep:   do
     String.prototype.trimEnd = function () { return this.replace(/\s+$/, ''); };
   }
 
-  var fcache = {}, rcache = {}, txta = newel("textarea"), diva = newel("div"),
-   diacr = {}, bref, g =
+  const g =
   { preparse: function(tpl, $)
       { var c, i, k;
 	if (c = tpl)
@@ -747,7 +749,7 @@ keep:   do
 	2,7699,120],"y":[55921,1513,6,-2,90,10,7232,28,127,61,120,2,132,121],
 	"z":[22519,31479,1923,1620,-1,7249,27,111,56,-1,256,122] };
     for (i in fm)
-      for (p = 0; j = fm[i].pop(); diacr[String.fromCharCode(p += j)] = i)
+      for (p = 0; j = fm[i].pop(); diacr[String.fromCharCode(p = p + j)] = i)
 	if (j < 0)
 	{ while (j++ < 0)
 	    fm[i].push(2);
@@ -755,7 +757,7 @@ keep:   do
 	}
   }
 
-  if (W.define && define.amd)
+  if (typeof define == "function" && define.amd)
     define([], g);
   else if (W.exports)
     W.exports.Remixml = g, W.exports.document = D;
