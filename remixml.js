@@ -198,7 +198,6 @@ nostr:
 	  case "f":
 	    if (!(p > ""))
 	      p = 6;
-	    p++;
 	    j = (+j).toLocaleString(lang,
 	     {minimumFractionDigits: p, maximumFractionDigits: p});
 	    break;
