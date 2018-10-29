@@ -222,7 +222,7 @@ nostr:
 	}
       }
       switch (quot)
-      { case "json": j = JSON.stringify(j); break;
+      { case "json": j = JSON.stringify(j).replace(/</g, "\\u003c"); break;
 	case "uric": j = j.replace(/[+ ?&#]/g, eumap); break;
 	case "path": j = encpath(j); break;
 	default:
