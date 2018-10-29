@@ -250,7 +250,7 @@ nostr:
 	  while(c = c.nextChild);
 	  return s;
 	}
-	s = c.nodeValue;
+	s = s.nodeValue;
       }
       if ((i = s.split(/&(\w+\.\w+(?:\.\w+)*)(?::(\w*))?(?:%([^;]*))?;/))
        .length > 1)
