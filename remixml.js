@@ -29,8 +29,9 @@
   }
 
   function strftime(fmt, d, lang)
-  { if (!(d instanceof Date))
-    { let t = d.match && /[A-Za-z]/.test(d);
+  { var t, j1, ut;
+    if (!(d instanceof Date))
+    { t = d.match && /[A-Za-z]/.test(d);
       d = new Date(d);
       if (t)
 	d = new Date(2 * d.valueOf() - udate(t));	// Adjust to localtime
@@ -76,12 +77,10 @@
 	case "R": return strftime("%H:%M", d, lang);
 	case "T": return strftime("%H:%M:%S", d, lang);
 	case "V":
-	{ let t = thu(), ut = t.valueOf(), j1;
-	  t.setMonth(0, 1);
+	  t = thu(); ut = t.valueOf(); t.setMonth(0, 1);
 	  if ((j1 = t.getDay()) != 4)
 	    t.setMonth(0, 1 + (11 - j1) % 7);
 	  return pad0(1 + Math.ceil((ut - t) / (h24 * 7)), 2);
-	}
 	case "u": return dy || 7;
 	case "w": return dy;
 	case "Y": return y;
@@ -190,7 +189,7 @@ nostr:
       if (fmt && isstring(j))
       { fmt = fmt.match(
 /^([-+0]+)?([1-9][0-9]*)?(?:\.([0-9]+))?(t([^%]*%.+)|[a-zA-Z]|[A-Z]{3})?$/);
-	let p = fmt[3], lang = $.sys && $.sys.lang || undefined;
+	var p = fmt[3], lang = $.sys && $.sys.lang || undefined;
 	switch (fmt[4])
 	{ case "c": j = String.fromCharCode(+j); break;
 	  case "d": j = parseInt(j, 10).toLocaleString(); break;
@@ -238,7 +237,7 @@ nostr:
 
   function replent(s, $)
   { function r(s)
-    { var c, i;
+    { var c, i, j;
       if (s.nodeType)
       { if (c = s.firstChild)
 	{ do
@@ -256,7 +255,7 @@ nostr:
        .length > 1)
       { s = i.shift();
 	do
-	{ let j = i.shift();
+	{ j = i.shift();
 	  c = i.shift(); j = insert(j, c, i.shift(), $);
 	  switch (c)
 	  { case "recurse":case "r":
@@ -332,14 +331,13 @@ nostr:
 
   function parse(n, $)
   { function eparse(n) { var k; parse(k = getdf(n), $); return k; }
-    var j, rt, cc = bref && {};
+    var j, rt, cc = bref && {}, k, e, c, ca, x, i, res, mkm, sc, ord, to;
     n = n.firstChild;
 next:
     while (n)
-    { let k, e, c, ca;
-      function gatt(k) { return gattr(n, k); }
+    { function gatt(k) { return gattr(n, k); }
       function repltag(e)
-      { let j, t;
+      { var j, t;
 	if (j = e.lastChild)
 	  t = n, n = j, replelm(e, t);
 	else if (j = e.nodeValue)
@@ -381,12 +379,12 @@ next:
       }
       function ret(e) { return repltag(txt2node(e)); }
       function pret() { return repltag(eparse(n)); }
-drop:  do {
+drop: do {
 keep:   do
 	{ c = 0;
 	  function cp(x) { c && c.push(x); }
 	  if (k = n.attributes)
-	  { let x = 0;
+	  { x = 0;
 	    function prat(j)
 	    { var e, i = k[j], s = i.value;
 	      if (!c || s.length > 4 && s.indexOf("&") >= 0)
@@ -402,7 +400,7 @@ keep:   do
 	    }
 	    function prost()
 	    { if (x)
-	      { let j;
+	      { var j;
 		rattr(n, "::");
 		for (j in x)
 		  sattr(n, j, x[j]);
@@ -439,11 +437,11 @@ keep:   do
 		      if ((j = k.firstChild).nodeType == 3)
 			k = j.nodeValue;
 		  }
-		{ let s = gatt("split");
+		{ x = gatt("split");
 		  if (j = pregx())
-		    k = dfnone(k), k = s != null ? k.split(j) : k.match(j);
-		  else if (s != null)
-		    k = dfnone(k).split(s);
+		    k = dfnone(k), k = x != null ? k.split(j) : k.match(j);
+		  else if (x != null)
+		    k = dfnone(k).split(x);
 		}
 		if ((j = gatt("join")) != null)
 		  k = k.join(j);
@@ -472,8 +470,7 @@ keep:   do
 		continue drop;
 	      break;
 	    case "FOR":
-	    { let i = 0, res = D.createDocumentFragment(), mkm,
-               sc = gatt("scope");
+	    { i = 0; res = D.createDocumentFragment(); sc = gatt("scope");
 	      function forloop()
 	      { var t = {_index: j, _recno: ++i};
 		if (e)
@@ -489,10 +486,10 @@ keep:   do
                 }
 		else
 		  if (j = gatt("orderby"))
-		  { let ord = jsfunc("" + function desc(i)
+		  { ord = jsfunc("" + function desc(i)
 		      { return -(-i) === i ? -i : [i, 1];
-		      } + "return[" + j + "];"), keys = O.keys(e);
-		    keys.sort(function(a, b)
+		      } + "return[" + j + "];");
+                    (to = O.keys(e)).sort(function(a, b)
 		    { var x, y, i, n, ret, r;
 		      x = ord(e[a], $); y = ord(e[b], $);
 		      for (i = 0, n = x.length; i < n; i++)
@@ -504,15 +501,14 @@ keep:   do
 		      }
 		      return r ? -ret : ret;
 		    });
-		    while (i < keys.length)
-		      j = keys[i], forloop();
+		    while (i < to.length)
+		      j = to[i], forloop();
 		  } else
 		    for (j in e)
 		      forloop();
 	      else
-	      { let step, to = +gatt("to");
-		step = +gatt("step") || 1;
-		for (j = +gatt("from"); step > 0 ? j <= to : to <= j; j += step)
+	      { to = +gatt("to"); ord = +gatt("ord") || 1;
+		for (j = +gatt("from"); ord > 0 ? j <= to : to <= j; j += ord)
 		  forloop();
 	      }
 	      if (repltag(res))
@@ -553,10 +549,9 @@ keep:   do
 		continue drop;
 	      break;
 	    case "MAKETAG":
-            { let p;
 	      e = eparse(k = n); n = newel(gattr(k, "name"));
-	      for (j = e.firstChild; j; j = p)
-              { p = j.nextSibling;      // IE11 lacks nextElementSibling
+	      for (j = e.firstChild; j; j = x)
+              { x = j.nextSibling;      // IE11 lacks nextElementSibling
                 if (j.nodeType == 1)
                   if (j.tagName == "ATTRIB")
                     sattr(n, gattr(j, "name"), j.textContent), e.removeChild(j);
@@ -565,7 +560,6 @@ keep:   do
               }
 	      e.normalize(); n.appendChild(e); replelm(n, k);
 	      break;
-            }
 	    case "SCRIPT":
 	      e = (k = n).attributes; n = newel("SCRIPT");
 	      for (j = -1; ++j < e.length; sattr(n, e[j].name, e[j].value));
@@ -672,10 +666,11 @@ keep:   do
     { value: function(d, s, i) { for (i in s) d[i] = s[i]; return d; } });
 
   if ("ab".substr(-1) != "b")
-  { let p = String.prototype, s = p.substr;
-    p.substr
-     = function(a, n) { return s.call(this, a < 0 ? this.length + a : a, n); };
-  }
+    !function(p, s) {
+      s = p.substr;
+      p.substr = function(a, n)
+      { return s.call(this, a < 0 ? this.length + a : a, n); };
+    }(String.prototype);
 
   if (!String.prototype.trimStart)
   { String.prototype.trimStart = function ()
@@ -683,7 +678,7 @@ keep:   do
     String.prototype.trimEnd = function () { return this.replace(/\s+$/, ''); };
   }
 
-  const g =
+  var g =
   { preparse: function(tpl, $)
       { var c, i, k;
 	if (c = tpl)
@@ -725,7 +720,15 @@ keep:   do
     path_encode: encpath
   };
 
-  { let i, j, p, fm = { "a":[53980,1941,1561,-10,7,153,7089,41,36,2,6,26,2,17,
+  !function(fm, i, j, p)
+  { for (i in fm)
+      for (p = 0; j = fm[i].pop(); diacr[String.fromCharCode(p = p + j)] = i)
+	if (j < 0)
+	{ while (j++ < 0)
+	    fm[i].push(2);
+	  j++;
+	}
+  }({ "a":[53980,1941,1561,-10,7,153,7089,41,36,2,6,26,2,17,
 	201,-1,28,2,1,1,1,127,97],"aa":[42803],"ae":[26,253,2,228],"ao":[42805],
 	"au":[42807],"av":[2,42809],"ay":[42813],"b":[55921,1738,-1,7088,208,3,
 	286,98],"c":[22532,33389,846,891,7117,180,123,-2,32,132,99],"d":[22474,
@@ -748,15 +751,7 @@ keep:   do
 	1,132,117],"ue":[252],"v":[22519,33402,1638,2,7153,1,533,118],
 	"vy":[42849],"w":[53988,1933,1614,15,-3,7436,254,119],"x":[55921,1626,
 	2,7699,120],"y":[55921,1513,6,-2,90,10,7232,28,127,61,120,2,132,121],
-	"z":[22519,31479,1923,1620,-1,7249,27,111,56,-1,256,122] };
-    for (i in fm)
-      for (p = 0; j = fm[i].pop(); diacr[String.fromCharCode(p = p + j)] = i)
-	if (j < 0)
-	{ while (j++ < 0)
-	    fm[i].push(2);
-	  j++;
-	}
-  }
+	"z":[22519,31479,1923,1620,-1,7249,27,111,56,-1,256,122] });
 
   if (typeof define == "function" && define.amd)
     define([], g);
