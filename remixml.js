@@ -5,7 +5,7 @@
 
 !function(W, D, O)
 { "use strict";
-  const al = /[&<]/, splc = /\s*,\s*/, fcache = {}, rcache = {},
+  var al = /[&<]/, splc = /\s*,\s*/, fcache = {}, rcache = {},
    txta = newel("textarea"), diva = newel("div"), diacr = {};
   var bref;	// For preparse state, not re-entry-safe
 
@@ -35,7 +35,7 @@
       if (t)
 	d = new Date(2 * d.valueOf() - udate(t));	// Adjust to localtime
     }
-    const dy = d.getDay(), md = d.getDate(), m = d.getMonth(),
+    var dy = d.getDay(), md = d.getDate(), m = d.getMonth(),
      y = d.getFullYear(), h = d.getHours(), h24 = 86400000;
     function ifm(t, f)
     { var o = {};
