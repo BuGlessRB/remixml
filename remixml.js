@@ -330,82 +330,88 @@ nostr:
   }
 
   function parse(n, $)
-  { function eparse(n) { var k; parse(k = getdf(n), $); return k; }
-    var j, rt, cc = bref && {}, k, e, c, ca, x, i, res, mkm, sc, ord, to;
+  { var j, rt, cc = bref && {}, k, e, c, ca, x, i, res, mkm, sc, ord, to;
+    function eparse(n) { var k; parse(k = getdf(n), $); return k; }
+    function gatt(k) { return gattr(n, k); }
+    function repltag(e)
+    { var j, t;
+      if (j = e.lastChild)
+	t = n, n = j, replelm(e, t);
+      else if (j = e.nodeValue)
+	replelm(e, n), n = e;
+      return !j;
+    }
+    function newctx(k, j, e)
+    { var o$ = $, at, _, i, v, r;
+      if (e)
+      { at = e.attributes;
+	if (k[2])		// !noparse
+	  e = eparse(e);
+      }
+      ($ = O.assign({}, $))._ = _ = {_:$._, _tag:O.assign({}, $._._tag)};
+      if (k[1])
+	$[k[1]] = _;
+      if (e)
+      { _._contents = e; _._restargs = r = {};
+	for (i = at.length; i--; )
+	{ v = _[e = at[i].name] = at[i].value;
+	  if (!k[3][e])       // args
+	    r[e] = v;
+	}
+      }
+      if (j)
+	O.assign(_, j);
+      j = eparse(k[0].cloneNode(1)); ($ = o$)._ = o$._;
+      return j;
+    }
+    function pexpr(c)
+    { var j;
+      return (j = gatt("expr")) != null && (c || j)
+	  && jsfunc(!j && c ? dfnone(c) : "return(" + dfnone(j) + ");");
+    }
+    function pregx()
+    { var j;
+      return (j = gatt("regexp")) != null
+	  && (rcache[j] || (rcache[j] = RegExp(j)));
+    }
+    function ret(e) { return repltag(txt2node(e)); }
+    function pret() { return repltag(eparse(n)); }
+    function cp(x) { c && c.push(x); }
+    function prat(j)
+    { var e, i = k[j], s = i.value;
+      if (!c || s.length > 4 && s.indexOf("&") >= 0)
+      { if ((e = replent(s, $)).nodeType)
+	  e = dfnone(e);
+	else if (i.name == "::")
+	{ x = e; cp(j);
+	  return;
+	}
+	if (s != e)
+	  i.value = e, cp(j);
+      }
+    }
+    function prost()
+    { if (x)
+      { var j;
+	rattr(n, "::");
+	for (j in x)
+	  sattr(n, j, x[j]);
+      }
+    }
+    function forloop()
+    { var t = {_index: j, _recno: ++i};
+      if (e)
+	t = O.assign(t, t._value = e[j]);
+      res.appendChild(newctx([n, sc], t)); $._._ok = 1;
+    }
     n = n.firstChild;
 next:
-    while (n)
-    { function gatt(k) { return gattr(n, k); }
-      function repltag(e)
-      { var j, t;
-	if (j = e.lastChild)
-	  t = n, n = j, replelm(e, t);
-	else if (j = e.nodeValue)
-	  replelm(e, n), n = e;
-	return !j;
-      }
-      function newctx(k, j, e)
-      { var o$ = $, at, _, i, v, r;
-	if (e)
-	{ at = e.attributes;
-	  if (k[2])		// !noparse
-	    e = eparse(e);
-	}
-	($ = O.assign({}, $))._ = _ = {_:$._, _tag:O.assign({}, $._._tag)};
-	if (k[1])
-	  $[k[1]] = _;
-	if (e)
-	{ _._contents = e; _._restargs = r = {};
-	  for (i = at.length; i--; )
-	  { v = _[e = at[i].name] = at[i].value;
-	    if (!k[3][e])       // args
-	      r[e] = v;
-	  }
-	}
-	if (j)
-	  O.assign(_, j);
-	j = eparse(k[0].cloneNode(1)); ($ = o$)._ = o$._;
-	return j;
-      }
-      function pexpr(c)
-      { var j;
-	return (j = gatt("expr")) != null && (c || j)
-	    && jsfunc(!j && c ? dfnone(c) : "return(" + dfnone(j) + ");");
-      }
-      function pregx()
-      { var j;
-	return (j = gatt("regexp")) != null
-	    && (rcache[j] || (rcache[j] = RegExp(j)));
-      }
-      function ret(e) { return repltag(txt2node(e)); }
-      function pret() { return repltag(eparse(n)); }
+    while (n) {
 drop: do {
 keep:   do
 	{ c = 0;
-	  function cp(x) { c && c.push(x); }
 	  if (k = n.attributes)
 	  { x = 0;
-	    function prat(j)
-	    { var e, i = k[j], s = i.value;
-	      if (!c || s.length > 4 && s.indexOf("&") >= 0)
-	      { if ((e = replent(s, $)).nodeType)
-		  e = dfnone(e);
-		else if (i.name == "::")
-		{ x = e; cp(j);
-		  return;
-		}
-		if (s != e)
-		  i.value = e, cp(j);
-	      }
-	    }
-	    function prost()
-	    { if (x)
-	      { var j;
-		rattr(n, "::");
-		for (j in x)
-		  sattr(n, j, x[j]);
-	      }
-	    }
 	    if (ca = gatt(":c"))
 	      rattr(n, ":c");
 	    if (ca && isa(ca = JSON.parse(ca)))
@@ -471,25 +477,19 @@ keep:   do
 	      break;
 	    case "FOR":
 	    { i = 0; res = D.createDocumentFragment(); sc = gatt("scope");
-	      function forloop()
-	      { var t = {_index: j, _recno: ++i};
-		if (e)
-		  t = O.assign(t, t._value = e[j]);
-		res.appendChild(newctx([n, sc], t)); $._._ok = 1;
-	      }
 	      $._._ok = 0;
 	      if (j = gatt("in"))
 		if ((e = fvar(j, $)) && e.length >= 0)
 		{ mkm = gatt("mkmapping");
-                  while ((j = i) < e.length)
+		  while ((j = i) < e.length)
 		    forloop();
-                }
+		}
 		else
 		  if (j = gatt("orderby"))
 		  { ord = jsfunc("" + function desc(i)
 		      { return -(-i) === i ? -i : [i, 1];
 		      } + "return[" + j + "];");
-                    (to = O.keys(e)).sort(function(a, b)
+		    (to = O.keys(e)).sort(function(a, b)
 		    { var x, y, i, n, ret, r;
 		      x = ord(e[a], $); y = ord(e[b], $);
 		      for (i = 0, n = x.length; i < n; i++)
@@ -525,8 +525,8 @@ keep:   do
 		e = insert(e, gatt("quote") || "", gatt("format"), $);
 		if ((j = +gatt("offset")) || (k = gatt("limit")) != null)
 		  e = dfnone(e).substr(j, +k);
-                if (isa(e) && (j = gatt("join")) != null)
-                  e = e.join(j);
+		if (isa(e) && (j = gatt("join")) != null)
+		  e = e.join(j);
 		if (ret(e))
 		  continue drop;
 		break;
@@ -551,13 +551,13 @@ keep:   do
 	    case "MAKETAG":
 	      e = eparse(k = n); n = newel(gattr(k, "name"));
 	      for (j = e.firstChild; j; j = x)
-              { x = j.nextSibling;      // IE11 lacks nextElementSibling
-                if (j.nodeType == 1)
-                  if (j.tagName == "ATTRIB")
-                    sattr(n, gattr(j, "name"), j.textContent), e.removeChild(j);
-                  else
-                    break;
-              }
+	      { x = j.nextSibling;	// IE11 lacks nextElementSibling
+		if (j.nodeType == 1)
+		  if (j.tagName == "ATTRIB")
+		    sattr(n, gattr(j, "name"), j.textContent), e.removeChild(j);
+		  else
+		    break;
+	      }
 	      e.normalize(); n.appendChild(e); replelm(n, k);
 	      break;
 	    case "SCRIPT":
