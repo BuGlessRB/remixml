@@ -754,7 +754,7 @@ keep:   do
 	"z":[22519,31479,1923,1620,-1,7249,27,111,56,-1,256,122] });
 
   if (typeof define == "function" && define.amd)
-    define([], g);
+    define("remixml", [], g);
   else if (W.exports)
     W.exports.Remixml = g, W.exports.document = D;
   else
