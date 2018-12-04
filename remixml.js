@@ -172,6 +172,28 @@ nostr:
     return j;
   }
 
+  function fmtf(k, s, d)
+  { var t = k.toLocaleString(s,
+	{minimumFractionDigits: d, maximumFractionDigits: d});
+    if (t == k)
+    { s = "";
+      if (k < 0)
+        s = "-", k = -k;
+      k = Math.round(k * Math.pow(10, d)) + "";
+      while (k.length <= d)
+        k = "0" + k;
+      d = k.length - d; t = s + k.substr(0, d) + "." + k.substr(d);
+    }
+    return t;
+  }
+
+  function fmtcur(k, lang, cur)
+  { var t = k.toLocaleString(lang, {style:"currency", currency:cur});
+    if (t == k)
+      t = cur + " " + fmtf(k, lang, 2);
+    return t;
+  }
+
   function insert(j, quot, fmt, $)
   { if ((j = fvar(j, $)) != null)
     { if (j.nodeType)
@@ -197,8 +219,7 @@ nostr:
 	  case "f":
 	    if (!(p > ""))
 	      p = 6;
-	    j = (+j).toLocaleString(lang,
-	     {minimumFractionDigits: p, maximumFractionDigits: p});
+	    j = fmtf(+j, lang, p);
 	    break;
 	  case "g": j = (+j).toPrecision(p > "" ? p : 6); break;
 	  case "x": j = (parseInt(j, 10) >>> 0).toString(16); break;
@@ -207,11 +228,8 @@ nostr:
 	      j = j.substr(0, p);
 	    break;
 	  default:
-	    if (fmt[4][0] == "t")
-	      j = strftime(fmt[5], j, lang);
-	    else if (/[A-Z]{3}/.test(fmt[4]))
-	      j = (+j).toLocaleString(lang,
-	       {style:"currency", currency:fmt[4]});
+	    j = fmt[4][0] == "t" ? strftime(fmt[5], j, lang)
+		: /[A-Z]{3}/.test(fmt[4]) ? fmtcur(+j, lang, fmt[4]) : j;
 	}
 	if (fmt[1])
 	{ if (fmt[1].indexOf("0") >= 0 && (p = +fmt[2]))
