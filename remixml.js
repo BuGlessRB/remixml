@@ -190,9 +190,10 @@ nostr:
   function fmtcur(k, lang, cur)
   { var t = k.toLocaleString(lang, {style:"currency", currency:cur});
     if (t == k)
-      t = ({"EUR":"\u20AC", "USD":"$", "CNY":"\u00A5"}[cur] || cur) + " "
+      t = ({"EUR":"\u20AC", "USD":"$", "CNY":"\u00A5"}[cur] || cur)
 	+ fmtf(k, lang, 2);
-    return t;
+    t = t.match(/([^-0-9\s]+)\s*([-0-9].*)/);
+    return t[1] + " " + t[2];
   }
 
   function insert(j, quot, fmt, $)
