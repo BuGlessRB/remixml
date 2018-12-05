@@ -15,13 +15,13 @@
   function eumap(s)
   { return {"+":"%2B"," ":"+","?":"%3F","&":"%26","#":"%23"}[s]; }
 
-  function isa(s) { return Array.isArray(s); }
-  function newel(n) { return D.createElement(n); }
+  function udate(t) { return t.valueOf() - t.getTimezoneOffset * 60000; }
   function replelm(n, o) { return o.parentNode.replaceChild(n, o); }
   function gattr(n, k) { return n.getAttribute(k); }
   function sattr(n, k, v) { n.setAttribute(k, v); }
+  function newel(n) { return D.createElement(n); }
   function rattr(n, k) { n.removeAttribute(k); }
-  function udate(t) { return t.valueOf() - t.getTimezoneOffset * 60000; }
+  function isa(s) { return Array.isArray(s); }
 
   function pad0(i, p)
   { for (i < 0 && p--, i = i + ""; i.length < p; i = "0" + i);
@@ -178,10 +178,10 @@ nostr:
     if (t == k)
     { s = "";
       if (k < 0)
-        s = "-", k = -k;
+	s = "-", k = -k;
       k = Math.round(k * Math.pow(10, d)) + "";
       while (k.length <= d)
-        k = "0" + k;
+	k = "0" + k;
       d = k.length - d; t = s + k.substr(0, d) + "." + k.substr(d);
     }
     return t;
@@ -190,7 +190,8 @@ nostr:
   function fmtcur(k, lang, cur)
   { var t = k.toLocaleString(lang, {style:"currency", currency:cur});
     if (t == k)
-      t = cur + " " + fmtf(k, lang, 2);
+      t = ({"EUR":"\u20AC", "USD":"$", "CNY":"\u00A5"}[cur] || cur) + " "
+	+ fmtf(k, lang, 2);
     return t;
   }
 
