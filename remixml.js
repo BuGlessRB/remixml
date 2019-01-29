@@ -419,9 +419,16 @@ nostr:
       }
     }
     function forloop()
-    { var t = {_index: j, _recno: ++i};
-      if (e)
-	t = O.assign(t, t._value = e[j]);
+    { var x, y, z, t = {_index: j, _recno: ++i};
+      if (e) {
+        y = e[j];
+        if (mkm) {
+          z = {};
+          for (x = 0; x++ < y.length; z[mkm[x]] = y[x]);
+          y = z;
+        }
+	t = O.assign(t, t._value = y);
+      }
       res.appendChild(newctx([n, sc], t)); $._._ok = 1;
     }
     n = n.firstChild;
@@ -500,7 +507,8 @@ keep:   do
 	      $._._ok = 0;
 	      if (j = gatt("in"))
 		if ((e = fvar(j, $)) && e.length >= 0)
-		{ mkm = gatt("mkmapping");
+		{ if (mkm = gatt("mkmapping"))
+                    mkm = mkm.split(/\s*,\s*/);
 		  while ((j = i) < e.length)
 		    forloop();
 		}

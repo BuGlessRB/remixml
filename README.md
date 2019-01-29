@@ -155,7 +155,8 @@ entity reference).
      the <b>else</b> tag.  Can also be used after a <b>for</b> to specify
      code that needs to be included if the <b>for</b> tag did not iterate
      at all.
-- `<for from="" to="" step="" in="" orderby="" scope="">...</for>`<br />
+- `<for from="" to="" step="" in="" orderby="" scope="" mkmapping="">...</for>`
+   <br />
    Upon iteration the following special variables are defined:
    - `&_._recno;`<br />
      Starts at 1 and counts up per iteration.
@@ -183,6 +184,9 @@ entity reference).
      the expression, the order of that expression will be reversed.
    - `scope`<br />
      Create a toplevel alias for the local scope in the current for loop.
+   - `mkmapping`<br />
+     Assign this comma-separated list of names to the columns of an array
+     in each record.
 - `<delimiter>...</delimiter>`<br />
    Should be used inside a <b>for</b> loop.  It will suppress its content
    upon the first iteration.
