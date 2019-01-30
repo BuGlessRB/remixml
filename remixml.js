@@ -146,7 +146,7 @@ nostr:
   { var i, j;
     i = (s = s.split(".")).shift();
     if (val === undefined)
-    { for ($ = $[i]; $ && ($ = $[s.shift()], s.length); );
+    { for ($ = $[i]; $ && s.length; $ = $[s.shift()]);
       return $;
     }
     do
