@@ -424,7 +424,7 @@ nostr:
         y = e[j];
         if (mkm) {
           z = {};
-          for (x = 0; x++ < y.length; z[mkm[x]] = y[x]);
+          for (x = -1; ++x < y.length; z[mkm[x]] = y[x]);
           y = z;
         }
 	t = O.assign(t, t._value = y);
