@@ -506,12 +506,11 @@ keep:   do
 	    { i = 0; res = D.createDocumentFragment(); sc = gatt("scope");
 	      $._._ok = 0;
 	      if (j = gatt("in"))
-		if ((e = fvar(j, $)) && e.length >= 0)
-		{ if (mkm = gatt("mkmapping"))
-                    mkm = mkm.split(/\s*,\s*/);
+	      { if (mkm = gatt("mkmapping"))
+                  mkm = mkm.split(/\s*,\s*/);
+	       	if ((e = fvar(j, $)) && e.length >= 0)
 		  while ((j = i) < e.length)
 		    forloop();
-		}
 		else
 		  if (j = gatt("orderby"))
 		  { ord = jsfunc("" + function desc(i)
@@ -534,7 +533,7 @@ keep:   do
 		  } else
 		    for (j in e)
 		      forloop();
-	      else
+	      } else
 	      { to = +gatt("to"); ord = +gatt("ord") || 1;
 		for (j = +gatt("from"); ord > 0 ? j <= to : to <= j; j += ord)
 		  forloop();
