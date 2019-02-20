@@ -14,6 +14,8 @@ The engine uses browser primitives to accellerate parsing; most notably it
 uses documentFragments and will therefore have trouble running in a plain
 NodeJS environment.
 
+It has zero dependencies on other modules.
+
 ## Basic usage
 
 In essence Remixml is a macro language that has HTML/XML-like syntax
