@@ -1,6 +1,6 @@
 {
   "name": "remixml",
-  "version": "1.4.30",
+  "version": "1.4.31",
   "description": "XML/HTML-like macro language/template engine",
   "main": "remixml.js",
   "browser": "remixml.js",
@@ -15,7 +15,8 @@
     "type": "git", "url": "git://github.com/BuGlessRB/remixml"
   },
   "keywords": [
-    "RXML", "XML", "HTML", "Roxen", "template", "macro", "language"
+    "RXML", "XML", "HTML", "Roxen", "template", "macro", "language",
+    "zerodeps"
   ],
   "author": "Stephen R. van den Berg <srb@cuci.nl>",
   "license": "(ISC OR GPL-3.0)"
