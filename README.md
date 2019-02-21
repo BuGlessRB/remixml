@@ -377,3 +377,4 @@ Exposed API-list:
   Remixml was originally inspired by
 [RXML, the Roxen webserver macro language](http://docs.roxen.com/).
 
+Card-carrying member of the `zerodeps` movement.
