@@ -534,7 +534,7 @@ keep:   do
 		    for (j in e)
 		      forloop();
 	      } else
-	      { to = +gatt("to"); ord = +gatt("ord") || 1;
+	      { to = +gatt("to"); ord = +gatt("step") || 1;
 		for (j = +gatt("from"); ord > 0 ? j <= to : to <= j; j += ord)
 		  forloop();
 	      }
