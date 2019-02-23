@@ -478,6 +478,10 @@ keep:   do
 		}
 		if ((j = gatt("join")) != null)
 		  k = k.join(j);
+		if ((j = gatt("mkmapping")) != null)
+                { j = j.split(/\s*,\s*/);
+                  for (x = k, k = {}, i = 0; i < j.length; k[j[i]] = x[i]);
+                }
 		if (gatt("json") != null)
 		  k = JSON.parse(dfnone(k));
 		fvar(e, $, k);

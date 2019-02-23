@@ -105,8 +105,8 @@ entity reference).
 
 ### Language tags
 
-- `<set var="" variable="" expr="" split="" join="" tag="" args="" noparse=""
-    scope="">...</set>`<br />
+- `<set var="" variable="" expr="" split="" join="" mkmapping=""
+    tag="" args="" noparse="" scope="">...</set>`<br />
    Attributes:
    - `var` or `variable`<br />
      Assign to the named variable.
@@ -121,6 +121,8 @@ entity reference).
      it will [split the content using a regular expression](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split).
    - `join`<br />
      Join an array using the specified separator.
+   - `mkmapping`<br />
+     Assign this comma-separated list of names to the columns of the array.
    - `tag`<br />
      Declare a custom tag. `&_._contents;` can be used to reference
      the contents of the tag.  All argument values are accessible
