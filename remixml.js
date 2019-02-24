@@ -480,7 +480,7 @@ keep:   do
 		  k = k.join(j);
 		if ((j = gatt("mkmapping")) != null)
                 { j = j.split(/\s*,\s*/);
-                  for (x = k, k = {}, i = 0; i < j.length; k[j[i]] = x[i]);
+                  for (x = k, k = {}, i = -1; ++i < j.length; k[j[i]] = x[i]);
                 }
 		if (gatt("json") != null)
 		  k = JSON.parse(dfnone(k));
