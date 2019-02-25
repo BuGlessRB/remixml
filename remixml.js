@@ -468,7 +468,7 @@ keep:   do
 		      break;
 		    case 1:
 		      if ((j = k.firstChild).nodeType == 3)
-			k = j.nodeValue;
+			k = j.realvalue || j.nodeValue;
 		  }
 		{ x = gatt("split");
 		  if (j = pregx())
@@ -650,7 +650,7 @@ keep:   do
 		    break;
 		}
 		if (e != n.nodeValue)
-		  n.nodeValue = e, rt = 1;
+		  n.nodeValue = n.realvalue = e, rt = 1;
 	      }
 	  }
 	} while(0);
