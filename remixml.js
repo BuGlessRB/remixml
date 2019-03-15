@@ -335,7 +335,7 @@ nostr:
 	else
 	  trim(n);
       } while (n = i);
-    else
+    else if (s.nodeValue)
       s.nodeValue = s.nodeValue.replace(/\s\s+/g,' ');
   }
 
