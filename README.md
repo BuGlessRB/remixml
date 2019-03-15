@@ -361,6 +361,7 @@ Exposed API-list:
    the replacing DOM-template.  E.g. when the tag
    is referenced as `<name foo="bar"></name>` then inside the
    callback function `tagcontext.foo` will have the value `bar`.
+   `noparse` is a boolean that defaults to false.
 - `Remixml.dom2txt(template)`<br />
   Destructively converts the domNode(s) to a string and returns it.
 - `Remixml.txt2dom(template)`<br />

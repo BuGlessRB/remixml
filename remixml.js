@@ -493,7 +493,7 @@ keep:   do
 		  k = JSON.parse(dfnone(k));
 		fvar(e, $, k);
 	      } else if (e = gatt("tag"))
-		settag(getdf(n), $, e, gatt("scope"), gatt("noparse"),
+		settag(getdf(n), $, e, gatt("scope"), gatt("noparse") == null,
 		 gatt("args"));
 	      continue drop;
 	    case "ELIF":
@@ -748,7 +748,9 @@ keep:   do
 	return tpl;
       },
     parse_document: function($) { return g.parse(D.head.parentNode, $); },
-    set_tag: settag,
+    set_tag: function(cb, $, name, scope, noparse, args)
+      { settag(cb, initctx($), name, scope, noparse, args);
+      },
     dom2txt: function(tpl) { return dfnone(tpl); },
     txt2dom: function(tpl) { return txt2node(tpl); },
     trim: function(tpl) { return btrim(txt2node(tpl)); },
