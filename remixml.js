@@ -349,6 +349,12 @@ nostr:
     return e;
   }
 
+  function settag(tpl, $, name, scope, noparse, args)
+  { $._._tag[name.toUpperCase()] = [tpl, scope, noparse,
+     (args ? args.split(splc) : [])
+      .reduce(function(a,i) { a[i] = 1; return a; }, {})];
+  }
+
   function parse(n, $)
   { var j, rt, cc = bref && {}, k, e, c, ca, x, i, res, mkm, sc, ord, to;
     function eparse(n) { var k; parse(k = getdf(n), $); return k; }
@@ -381,7 +387,8 @@ nostr:
       }
       if (j)
 	O.assign(_, j);
-      j = eparse(k[0].cloneNode(1)); ($ = o$)._ = o$._;
+      j = eparse((j = k[0]).nodeType ? j.cloneNode(1) : j(_));
+      ($ = o$)._ = o$._;
       return j;
     }
     function pexpr(c)
@@ -421,12 +428,12 @@ nostr:
     function forloop()
     { var x, y, z, t = {_index: j, _recno: ++i};
       if (e) {
-        y = e[j];
-        if (mkm) {
-          z = {};
-          for (x = -1; ++x < y.length; z[mkm[x]] = y[x]);
-          y = z;
-        }
+	y = e[j];
+	if (mkm) {
+	  z = {};
+	  for (x = -1; ++x < y.length; z[mkm[x]] = y[x]);
+	  y = z;
+	}
 	t = O.assign(t, t._value = y);
       }
       res.appendChild(newctx([n, sc], t)); $._._ok = 1;
@@ -479,19 +486,15 @@ keep:   do
 		if ((j = gatt("join")) != null)
 		  k = k.join(j);
 		if ((j = gatt("mkmapping")) != null)
-                { j = j.split(/\s*,\s*/);
-                  for (x = k, k = {}, i = -1; ++i < j.length; k[j[i]] = x[i]);
-                }
+		{ j = j.split(/\s*,\s*/);
+		  for (x = k, k = {}, i = -1; ++i < j.length; k[j[i]] = x[i]);
+		}
 		if (gatt("json") != null)
 		  k = JSON.parse(dfnone(k));
 		fvar(e, $, k);
 	      } else if (e = gatt("tag"))
-	      { if (!isa(k = gatt("args") || []))
-		  k = k.split(splc);
-		$._._tag[e.toUpperCase()] = [getdf(n),
-		 gatt("scope"), gatt("noparse") == null,
-		 k.reduce(function(a,i) { a[i] = 1; return a; }, {})];
-	      }
+		settag(getdf(n), $, e, gatt("scope"), gatt("noparse"),
+		 gatt("args"));
 	      continue drop;
 	    case "ELIF":
 	      if ($._._ok)
@@ -511,7 +514,7 @@ keep:   do
 	      $._._ok = 0;
 	      if (j = gatt("in"))
 	      { if (mkm = gatt("mkmapping"))
-                  mkm = mkm.split(/\s*,\s*/);
+		  mkm = mkm.split(/\s*,\s*/);
 	       	if ((e = fvar(j, $)) && e.length >= 0)
 		  while ((j = i) < e.length)
 		    forloop();
@@ -745,6 +748,7 @@ keep:   do
 	return tpl;
       },
     parse_document: function($) { return g.parse(D.head.parentNode, $); },
+    set_tag: settag,
     dom2txt: function(tpl) { return dfnone(tpl); },
     txt2dom: function(tpl) { return txt2node(tpl); },
     trim: function(tpl) { return btrim(txt2node(tpl)); },
