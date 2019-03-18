@@ -378,7 +378,15 @@ nostr:
       if (k[1])
 	$[k[1]] = _;
       if (e)
-      { _._contents = e; _._restargs = r = {};
+      { if (e.nodeType == 11 && !e.elementCount)
+	  switch (e.childNodes.length)
+	  { case 0:
+	      e = "";
+	      break;
+	    case 1:
+	      e = e.firstChild.nodeValue;
+	  }
+	_._contents = e; _._restargs = r = {};
 	for (i = at.length; i--; )
 	{ v = _[e = at[i].name] = at[i].value;
 	  if (!k[3][e])       // args
