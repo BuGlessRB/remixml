@@ -378,7 +378,9 @@ nostr:
       if (k[1])
 	$[k[1]] = _;
       if (e)
-      { if (e.nodeType == 11 && !e.elementCount)
+      { if (e.nodeType != 11)
+          e = getdf(e);
+        else if (!e.elementCount)
 	  switch (e.childNodes.length)
 	  { case 0:
 	      e = "";
