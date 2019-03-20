@@ -371,7 +371,7 @@ nostr:
     { var o$ = $, at, _, i, v, r;
       if (e)
       { at = e.attributes;
-	if (k[2])		// !noparse
+	if (!k[2])		// !noparse
 	  e = eparse(e);
       }
       ($ = O.assign({}, $))._ = _ = {_:$._, _tag:O.assign({}, $._._tag)};
@@ -501,7 +501,7 @@ keep:   do
 		  k = JSON.parse(dfnone(k));
 		fvar(e, $, k);
 	      } else if (e = gatt("tag"))
-		settag(getdf(n), $, e, gatt("scope"), gatt("noparse") == null,
+		settag(getdf(n), $, e, gatt("scope"), gatt("noparse") != null,
 		 gatt("args"));
 	      continue drop;
 	    case "ELIF":
