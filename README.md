@@ -151,7 +151,7 @@ entity reference).
      If the last truth value was true, include the content
      of the <b>then</b> tag.  Not needed for a typical if/else
      construction; usually used after a <b>for</b> tag
-     to specify code that needs to included if the <b>for</b> tag
+     to specify code that needs to be included if the <b>for</b> tag
      actually completed at least one iteration.
 - `<elif expr="">...</elif>`<br />
    Attributes:

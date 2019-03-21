@@ -144,7 +144,7 @@ nostr:
 
   function fvar(s, $, val)
   { var i, j;
-    i = (s = s.split(".")).shift();
+    i = (s = s.split(/[.[\]]+/)).shift();
     if (val === undefined)
     { for ($ = $[i]; $ && ($ = $[s.shift() + ""], s.length););
       return $;
@@ -274,7 +274,7 @@ nostr:
 	}
 	s = s.nodeValue;
       }
-      if ((i = s.split(/&(\w+\.\w+(?:\.\w+)*)(?::(\w*))?(?:%([^;]*))?;/))
+      if ((i = s.split(/&(\w+(?:[.[]\w+]?)*\.\w+)(?::(\w*))?(?:%([^;]*))?;/))
        .length > 1)
       { s = i.shift();
 	do
