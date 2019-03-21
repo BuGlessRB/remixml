@@ -154,7 +154,10 @@ nostr:
 	$[i] = j = {};
       $ = j; i = s.shift();
     } while (s.length);
-    $[i] = val;
+    if (val == null)
+      delete $[i];
+    else
+      $[i] = val;
   }
 
   function encpath(s)
@@ -379,8 +382,8 @@ nostr:
 	$[k[1]] = _;
       if (e)
       { if (e.nodeType != 11)
-          e = getdf(e);
-        else if (!e.elementCount)
+	  e = getdf(e);
+	else if (!e.elementCount)
 	  switch (e.childNodes.length)
 	  { case 0:
 	      e = "";
@@ -505,6 +508,10 @@ keep:   do
 	      } else if (e = gatt("tag"))
 		settag(getdf(n), $, e, gatt("scope"), gatt("noparse") != null,
 		 gatt("args"));
+	      continue drop;
+	    case "UNSET":
+	      if (e = gatt("var")||gatt("variable"))
+		fvar(e, $, null);
 	      continue drop;
 	    case "ELIF":
 	      if ($._._ok)

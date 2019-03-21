@@ -138,6 +138,10 @@ entity reference).
      Causes `&_._contents;` to be returned unparsed in this tag definition.
    - `scope`<br />
      Create a toplevel alias for the local scope in this tag definition.
+- `<unset var="" variable=""></unset>`<br />
+   Attributes:
+   - `var` or `variable`<br />
+     Delete the named variable.
 - `<if expr="">...</if>`<br />
    Attributes:
    - `expr`<br />
