@@ -361,10 +361,10 @@ Exposed API-list:
   Creates a tag definition in the given `context` just like
   `<set tag="name"></set>` would have done.
   `callback` is a javascript function
-   which will be called as `callback(tagcontext)` and must return
+   which will be called as `callback(context)` and must return
    the replacing DOM-template.  E.g. when the tag
    is referenced as `<name foo="bar"></name>` then inside the
-   callback function `tagcontext.foo` will have the value `bar`.
+   callback function `context._.foo` will have the value `bar`.
    `noparse` is a boolean that defaults to false.
 - `Remixml.dom2txt(template)`<br />
   Destructively converts the domNode(s) to a string and returns it.

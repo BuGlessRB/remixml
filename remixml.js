@@ -400,7 +400,7 @@ nostr:
       }
       if (j)
 	O.assign(_, j);
-      j = eparse((j = k[0]).nodeType ? j.cloneNode(1) : j(_));
+      j = eparse((j = k[0]).nodeType ? j.cloneNode(1) : j($));
       ($ = o$)._ = o$._;
       return j;
     }
