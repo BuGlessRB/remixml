@@ -97,8 +97,10 @@
   }
 
   function getdf(n)
-  { if (n.nodeType == 11)
-      return n;                         // Already documentFragment
+  { if (n.childNodes.length == 1)
+      return n.firstChild;
+    if (n.nodeType == 11)
+      return n;
     var k = D.createRange();
     k.selectNodeContents(n);
     return k.extractContents();
