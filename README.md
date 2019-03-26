@@ -105,7 +105,8 @@ entity reference).
 
 ### Language tags
 
-- `<set var="" variable="" expr="" split="" join="" mkmapping=""
+- `<set var="" variable="" expr="" regexp="" split="" join="" mkmapping=""
+    selector="" json=""
     tag="" args="" noparse="" scope="">...</set>`<br />
    Attributes:
    - `var` or `variable`<br />
@@ -118,11 +119,17 @@ entity reference).
      A regular expression to match the content to.
    - `split`<br />
      Split the content on this value; if used together with <i>regexp</i>,
-     it will [split the content using a regular expression](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split).
+     it will [split the content using a regular
+     expression](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split).
    - `join`<br />
      Join an array using the specified separator.
    - `mkmapping`<br />
      Assign this comma-separated list of names to the columns of the array.
+   - `selector`<br />
+     [Extract the selected content into an array of
+     Nodes](https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors).
+   - `json`<br />
+     Parse the content as JSON.
    - `tag`<br />
      Declare a custom tag. `&_._contents;` can be used to reference
      the contents of the tag.  All argument values are accessible

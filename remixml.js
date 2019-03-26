@@ -492,20 +492,25 @@ keep:   do
 		      if ((j = k.firstChild).nodeType == 3)
 			k = j.realvalue || j.nodeValue;
 		  }
-		{ x = gatt("split");
-		  if (j = pregx())
-		    k = dfnone(k), k = x != null ? k.split(j) : k.match(j);
-		  else if (x != null)
-		    k = dfnone(k).split(x);
+		if ((j = gatt("selector")) != null)
+		  k = k.querySelectorAll(j);
+		else
+		{ if (gatt("json") != null)
+		    k = JSON.parse(dfnone(k));
+		  if ((j = gatt("mkmapping")) != null)
+		  { j = j.split(/\s*,\s*/);
+		    for (x = k, k = {}, i = -1; ++i < j.length;)
+		      k[j[i]] = x[i];
+		  } else
+		  { x = gatt("split");
+		    if (j = pregx())
+		      k = dfnone(k), k = x != null ? k.split(j) : k.match(j);
+		    else if (x != null)
+		      k = dfnone(k).split(x);
+		    if ((j = gatt("join")) != null)
+		      k = k.join(j);
+		  }
 		}
-		if ((j = gatt("join")) != null)
-		  k = k.join(j);
-		if ((j = gatt("mkmapping")) != null)
-		{ j = j.split(/\s*,\s*/);
-		  for (x = k, k = {}, i = -1; ++i < j.length; k[j[i]] = x[i]);
-		}
-		if (gatt("json") != null)
-		  k = JSON.parse(dfnone(k));
 		fvar(e, $, k);
 	      } else if (e = gatt("tag"))
 		settag(getdf(n), $, e, gatt("scope"), gatt("noparse") != null,
