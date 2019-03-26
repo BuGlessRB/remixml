@@ -6,7 +6,8 @@
 !function(W, D, O)
 { "use strict";
   var al = /[&<]/, splc = /\s*,\s*/, fcache = {}, rcache = {},
-   txta = newel("textarea"), diva = newel("div"), diacr = {};
+   ctn = "_contents", txta = newel("textarea"), diva = newel("div"),
+   diacr = {};
   var bref;	// For preparse state, not re-entry-safe
 
   function isstring(s)
@@ -148,7 +149,13 @@ nostr:
   { var i, j;
     i = (s = s.split(/[.[\]]+/)).shift();
     if (val === undefined)
-    { for ($ = $[i]; $ && ($ = $[s.shift() + ""], s.length););
+    { $ = $[i];
+      do
+      { if ($)
+	{ i = s.shift() + "";
+	  $ = $.nodeType ? $ = i == ctn ? getdf($) : gattr($, i) : $[i];
+	}
+      } while (s.length);
       return $;
     }
     do
@@ -393,7 +400,7 @@ nostr:
 	    case 1:
 	      e = e.firstChild.nodeValue;
 	  }
-	_._contents = e; _._restargs = r = {};
+	_[ctn] = e; _._restargs = r = {};
 	for (i = at.length; i--; )
 	{ v = _[e = at[i].name] = at[i].value;
 	  if (!k[3][e])       // args
