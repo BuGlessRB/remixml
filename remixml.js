@@ -409,7 +409,7 @@ nostr:
       }
       if (j)
 	O.assign(_, j);
-      j = eparse((j = k[0]).nodeType ? j.cloneNode(1) : j($));
+      j = eparse((j = k[0]).nodeType ? j.cloneNode(1) : txt2node(j($)));
       ($ = o$)._ = o$._;
       return j;
     }
