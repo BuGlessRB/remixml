@@ -151,10 +151,10 @@ nostr:
     if (val === undefined)
     { $ = $[i];
       do
-      { if ($)
-	{ i = s.shift() + "";
-	  $ = $.nodeType ? $ = i == ctn ? getdf($) : gattr($, i) : $[i];
-	}
+      { if (!$)
+	  break;
+	i = s.shift() + "";
+	$ = $.nodeType ? $ = i == ctn ? getdf($) : gattr($, i) : $[i];
       } while (s.length);
       return $;
     }
