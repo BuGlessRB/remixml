@@ -8,7 +8,7 @@
   var al = /[&<]/, splc = /\s*,\s*/, fcache = {}, rcache = {},
    ctn = "_contents", txta = newel("textarea"), diva = newel("div"),
    diacr = {};
-  var bref;	// For preparse state, not re-entry-safe
+  var log = console.log, bref;	// For preparse state, not re-entry-safe
 
   function isstring(s)
   { return O.prototype.toString.call(s) === "[object String]"; }
@@ -330,10 +330,15 @@ nostr:
     return r(s);
   }
 
+  function logerr(t, x)
+  { log("Remixml expression: " + JSON.stringify(t) + "\n" + x);
+  }
+
   function jsfunc(j)
   { var e;
     if (!(e = fcache[j]))
-      fcache[j] = e = Function("$", '"use strict";var _=$._;' + j);
+      try { fcache[j] = e = Function("$", '"use strict";var _=$._;' + j); }
+      catch(x) { logerr(j, x); }
     return e;
   }
 
@@ -371,6 +376,9 @@ nostr:
   { var j, rt, cc = bref && {}, k, e, c, ca, x, i, res, mkm, sc, ord, to;
     function eparse(n) { var k; parse(k = getdf(n), $); return k; }
     function gatt(k) { return gattr(n, k); }
+    function run(k)
+    { try { return k($); } catch(x) { logerr(gatt("expr"), x); }
+    }
     function repltag(e)
     { var j, t;
       if (j = e.lastChild)
@@ -420,8 +428,10 @@ nostr:
     }
     function pregx()
     { var j;
-      return (j = gatt("regexp")) != null
+      try
+      { return (j = gatt("regexp")) != null
 	  && (rcache[j] || (rcache[j] = RegExp(j)));
+      } catch(x) { logerr(j, x); }
     }
     function ret(e) { return repltag(txt2node(e)); }
     function pret() { return repltag(eparse(n)); }
@@ -489,9 +499,8 @@ keep:   do
 	  { case "SET":
 	      if (e = gatt("var")||gatt("variable"))
 	      { if (k = pexpr(n))
-		{ if (gatt("expr") != null)
-		    k = k($);
-		} else
+		  k = run(k);
+		else
 		  switch ((k = eparse(n)).childNodes.length)
 		  { case 0: k = "";
 		      break;
@@ -531,7 +540,7 @@ keep:   do
 	      if ($._._ok)
 		continue drop;
 	    case "IF":
-	      e = pexpr(); $._._ok = e && e($);
+	      e = pexpr(); $._._ok = e && run(e);
 	    case "THEN":
 	      if (!$._._ok || pret())
 		continue drop;
@@ -554,18 +563,20 @@ keep:   do
 		  { ord = jsfunc("" + function desc(i)
 		      { return -(-i) === i ? -i : [i, 1];
 		      } + "return[" + j + "];");
-		    (to = O.keys(e)).sort(function(a, b)
-		    { var x, y, i, n, ret, r;
-		      x = ord(e[a], $); y = ord(e[b], $);
-		      for (i = 0, n = x.length; i < n; i++)
-		      { r = 0;
-			if (isa(x[i]))
-			  r = 1, x[i] = x[i][0], y[i] = y[i][0];
-			if (ret = x[i] > y[i] || -(x[i] != y[i]))
-			  return r ? -ret : ret;
-		      }
-		      return r ? -ret : ret;
-		    });
+		    try
+		    { (to = O.keys(e)).sort(function(a, b)
+		      { var x, y, i, n, ret, r;
+			x = ord(e[a], $); y = ord(e[b], $);
+			for (i = 0, n = x.length; i < n; i++)
+			{ r = 0;
+			  if (isa(x[i]))
+			    r = 1, x[i] = x[i][0], y[i] = y[i][0];
+			  if (ret = x[i] > y[i] || -(x[i] != y[i]))
+			    return r ? -ret : ret;
+			}
+			return r ? -ret : ret;
+		      });
+		    } catch(x) { logerr(j, x); }
 		    while (i < to.length)
 		      j = to[i], forloop();
 		  } else
@@ -604,10 +615,12 @@ keep:   do
 	      }
 	      continue drop;
 	    case "REPLACE":
-	      if (ret(dfnone(eparse(n)).replace((k = pregx())
-		  ? RegExp(k, (e = gatt("flags")) == null ? "g" : e)
-		  : gatt("from"), pexpr() || gatt("to"))))
-		continue drop;
+	      try
+	      { if (ret(dfnone(eparse(n)).replace((k = pregx())
+		    ? RegExp(k, (e = gatt("flags")) == null ? "g" : e)
+		    : gatt("from"), pexpr() || gatt("to"))))
+		  continue drop;
+	      } catch(x) { logerr(gatt("expr"), x); }
 	      break;
 	    case "TRIM":
 	      if (repltag(btrim(eparse(n))))
@@ -785,7 +798,8 @@ keep:   do
     dom2txt: function(tpl) { return dfnone(tpl); },
     txt2dom: function(tpl) { return txt2node(tpl); },
     trim: function(tpl) { return btrim(txt2node(tpl)); },
-    path_encode: encpath
+    path_encode: encpath,
+    set_log_callback: function(cb) { log = cb; }
   };
 
   !function(fm, i, j, p)

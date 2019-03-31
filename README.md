@@ -384,6 +384,9 @@ Exposed API-list:
 - `Remixml.trim(template)`<br />
   In-situ trims whitespace like the Remixml `<trim>` tag and returns the
   trimmed template..
+- `Remixml.set_log_callback(callback)`<br />
+  If not set, it defaults to `console.log()`.  This callback function is used
+  to log remixml runtime errors.
 
 #### Reserved object variables
 
