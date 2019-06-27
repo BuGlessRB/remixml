@@ -838,9 +838,9 @@ keep:   do
 
   if (typeof define == "function" && define["amd"])
     define("remixml", [], g);
-  else if (W.exports)
-    W.exports.Remixml = g, W.exports.document = D;
+  else if (W["exports"])
+    W["exports"]["Remixml"] = g, W["exports"]["document"] = D;
   else
-    W.Remixml = g;
+    W["Remixml"] = g;
 })(typeof window == "object" ? window : global,
   typeof document == "object" ? document : require("minidom")(''), Object);
