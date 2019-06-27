@@ -3,7 +3,7 @@
  // License: ISC OR GPL-3.0
 // Sponsored by: Cubic Circle, The Netherlands
 
-!function(W, D, O)
+(function(W, D, O)
 { "use strict";
   var al = /[&<]/, splc = /\s*,\s*/, fcache = {}, rcache = {},
    ctn = "_contents", txta = newel("textarea"), diva = newel("div"),
@@ -25,7 +25,7 @@
   function isa(s) { return Array.isArray(s); }
 
   function pad0(i, p)
-  { for (i < 0 && p--, i = i + ""; i.length < p; i = "0" + i);
+  { for (i < 0 && p--, i = i + ""; i.length < p; i = "0" + i) {}
     return i;
   }
 
@@ -463,7 +463,7 @@ nostr:
 	y = e[j];
 	if (mkm) {
 	  z = {};
-	  for (x = -1; ++x < y.length; z[mkm[x]] = y[x]);
+	  for (x = -1; ++x < y.length; z[mkm[x]] = y[x]) {}
 	  y = z;
 	}
 	t = O.assign(t, t._value = y);
@@ -640,7 +640,7 @@ keep:   do
 	      break;
 	    case "SCRIPT":
 	      e = (k = n).attributes; n = newel("SCRIPT");
-	      for (j = -1; ++j < e.length; sattr(n, e[j].name, e[j].value));
+	      for (j = -1; ++j < e.length; sattr(n, e[j].name, e[j].value)) {}
 	      n.textContent = k.textContent; replelm(n, k);
 	      break;
 	    case "EVAL":
@@ -841,5 +841,5 @@ keep:   do
     W.exports.Remixml = g, W.exports.document = D;
   else
     W.Remixml = g;
-}(typeof window == "object" ? window : global,
+})(typeof window == "object" ? window : global,
   typeof document == "object" ? document : require("minidom")(''), Object);
