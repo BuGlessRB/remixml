@@ -836,7 +836,7 @@ keep:   do
 	2,7699,120],"y":[55921,1513,6,-2,90,10,7232,28,127,61,120,2,132,121],
 	"z":[22519,31479,1923,1620,-1,7249,27,111,56,-1,256,122] });
 
-  if (typeof define == "function" && define.amd)
+  if (typeof define == "function" && define["amd"])
     define("remixml", [], g);
   else if (W.exports)
     W.exports.Remixml = g, W.exports.document = D;
