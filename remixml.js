@@ -757,7 +757,7 @@ keep:   do
   }
 
   var g =
-  { preparse: function(tpl, $)
+  { "preparse": function(tpl, $)
       { var c, i, k;
 	if (c = tpl)
 	{ bref = [0]; c = c.querySelectorAll("*");
@@ -778,28 +778,28 @@ keep:   do
 	}
 	return c;
       },
-    parse: function(tpl, $)
+    "parse": function(tpl, $)
       { if (tpl)
 	  tpl = txt2node(tpl), parse(tpl, initctx($));
 	return tpl;
       },
-    parse2txt: function(tpl, $) { return dfnone(g.parse(tpl, $)); },
-    parse_tagged: function(tpl, $)
+    "parse2txt": function(tpl, $) { return dfnone(g.parse(tpl, $)); },
+    "parse_tagged": function(tpl, $)
       { var i, j = (tpl = txt2node(tpl)).querySelectorAll("remixml"), k;
 	$ = initctx($);
 	for (i = 0; i < j.length; i++)
 	  parse(k = getdf(j[i]), $), replelm(k, j[i]);
 	return tpl;
       },
-    parse_document: function($) { return g.parse(D.head.parentNode, $); },
-    set_tag: function(cb, $, name, scope, noparse, args)
+    "parse_document": function($) { return g.parse(D.head.parentNode, $); },
+    "set_tag": function(cb, $, name, scope, noparse, args)
       { settag(cb, initctx($), name, scope, noparse, args);
       },
-    dom2txt: function(tpl) { return dfnone(tpl); },
-    txt2dom: function(tpl) { return txt2node(tpl); },
-    trim: function(tpl) { return btrim(txt2node(tpl)); },
-    path_encode: encpath,
-    set_log_callback: function(cb) { log = cb; }
+    "dom2txt": function(tpl) { return dfnone(tpl); },
+    "txt2dom": function(tpl) { return txt2node(tpl); },
+    "trim": function(tpl) { return btrim(txt2node(tpl)); },
+    "path_encode": encpath,
+    "set_log_callback": function(cb) { log = cb; }
   };
 
   (function(fm, i, j, p)
