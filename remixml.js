@@ -221,11 +221,11 @@ nostr:
       } else if (-(-j) == j)
 	j += "";
       else if (typeof j == "function")
-	j = j($._, $);
+	j = j($["_"], $);
       if (fmt && isstring(j))
       { fmt = fmt.match(
 /^([-+0]+)?([1-9][0-9]*)?(?:\.([0-9]+))?(t([^%]*%.+)|[a-zA-Z]|[A-Z]{3})?$/);
-	var p = fmt[3], lang = $.sys && $.sys.lang || undefined;
+	var p = fmt[3], lang = $["sys"] && $["sys"]["lang"] || undefined;
 	switch (fmt[4])
 	{ case "c": j = String.fromCharCode(+j); break;
 	  case "d": j = parseInt(j, 10).toLocaleString(); break;
@@ -261,9 +261,9 @@ nostr:
 	    j = D.createTextNode(j);
 	case "none": case "":case "recurse": case "r":;
       }
-      $._._ok = 1;
+      $["_"]["_ok"] = 1;
     } else
-      $._._ok = 0, j = "";
+      $["_"]["_ok"] = 0, j = "";
     return j;
   }
 
@@ -367,7 +367,7 @@ nostr:
   }
 
   function settag(tpl, $, name, scope, noparse, args)
-  { $._._tag[name.toUpperCase()] = [tpl, scope, noparse,
+  { $["_"]["_tag"][name.toUpperCase()] = [tpl, scope, noparse,
      (args ? args.split(splc) : [])
       .reduce(function(a,i) { a[i] = 1; return a; }, {})];
   }
@@ -394,7 +394,8 @@ nostr:
 	if (!k[2])		// !noparse
 	  e = eparse(e);
       }
-      ($ = O.assign({}, $))._ = _ = {_:$._, _tag:O.assign({}, $._._tag)};
+      ($ = O.assign({}, $))["_"]
+	= _ = {_:$["_"], "_tag":O.assign({}, $["_"]["_tag"])};
       if (k[1])
 	$[k[1]] = _;
       if (e)
@@ -408,7 +409,7 @@ nostr:
 	    case 1:
 	      e = e.firstChild.nodeValue;
 	  }
-	_[ctn] = e; _._restargs = r = {};
+	_[ctn] = e; _["_restargs"] = r = {};
 	for (i = at.length; i--; )
 	{ v = _[e = at[i].name] = at[i].value;
 	  if (!k[3][e])       // args
@@ -418,7 +419,7 @@ nostr:
       if (j)
 	O.assign(_, j);
       j = eparse((j = k[0]).nodeType ? j.cloneNode(1) : txt2node(j($)));
-      ($ = o$)._ = o$._;
+      ($ = o$)["_"] = o$["_"];
       return j;
     }
     function pexpr(c)
@@ -458,7 +459,7 @@ nostr:
       }
     }
     function forloop()
-    { var x, y, z, t = {_index: j, _recno: ++i};
+    { var x, y, z, t = {"_index": j, "_recno": ++i};
       if (e) {
 	y = e[j];
 	if (mkm) {
@@ -466,9 +467,9 @@ nostr:
 	  for (x = -1; ++x < y.length; z[mkm[x]] = y[x]) {}
 	  y = z;
 	}
-	t = O.assign(t, t._value = y);
+	t = O.assign(t, t["_value"] = y);
       }
-      res.appendChild(newctx([n, sc], t)); $._._ok = 1;
+      res.appendChild(newctx([n, sc], t)); $["_"]["_ok"] = 1;
     }
     n = n.firstChild;
 next:
@@ -537,21 +538,21 @@ keep:   do
 		fvar(e, $, null);
 	      continue drop;
 	    case "ELIF":
-	      if ($._._ok)
+	      if ($["_"]["_ok"])
 		continue drop;
 	    case "IF":
-	      e = pexpr(); $._._ok = e && run(e);
+	      e = pexpr(); $["_"]["_ok"] = e && run(e);
 	    case "THEN":
-	      if (!$._._ok || pret())
+	      if (!$["_"]["_ok"] || pret())
 		continue drop;
 	      break;
 	    case "ELSE":
-	      if ($._._ok || pret())
+	      if ($["_"]["_ok"] || pret())
 		continue drop;
 	      break;
 	    case "FOR":
 	    { i = 0; res = D.createDocumentFragment(); sc = gatt("scope");
-	      $._._ok = 0;
+	      $["_"]["_ok"] = 0;
 	      if (j = gatt("in"))
 	      { if (mkm = gatt("mkmapping"))
 		  mkm = mkm.split(/\s*,\s*/);
@@ -592,12 +593,12 @@ keep:   do
 	      break;
 	    }
 	    case "DELIMITER":
-	      if ($._._recno < 2 || pret())
+	      if ($["_"]["_recno"] < 2 || pret())
 		continue drop;
 	      break;
 	    case "INSERT":
 	      if (e = gatt("var")||gatt("variable"))
-	      { $._._ok = 1;
+	      { $["_"]["_ok"] = 1;
 		e = insert(e, gatt("quote") || "", gatt("format"), $);
 		if ((j = +gatt("offset")) || (k = gatt("limit")) != null)
 		  e = dfnone(e).substr(j, +k);
@@ -661,7 +662,7 @@ keep:   do
 	    case "COMMENT":
 	      continue drop;
 	    default:
-	      if (k = $._._tag[j])
+	      if (k = $["_"]["_tag"][j])
 	      { if (repltag(newctx(k, 0, n)))
 		  continue drop;
 	      } else if (n.firstElementChild)	// Avoid unnecessary recursion
@@ -730,12 +731,12 @@ keep:   do
   function initctx($)
   { if (!$)
       $ = {};
-    if (!$._)
-      $._ = {};
-    if (!$._._tag)
-      $._._tag = {};
-    if (!$.var)
-      $.var = $.__;
+    if (!$["_"])
+      $["_"] = {};
+    if (!$["_"]["_tag"])
+      $["_"]["_tag"] = {};
+    if (!$["var"])
+      $["var"] = $["__"];
     return $;
   }
 
