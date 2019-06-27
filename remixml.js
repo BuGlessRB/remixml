@@ -744,11 +744,11 @@ keep:   do
     { value: function(d, s, i) { for (i in s) d[i] = s[i]; return d; } });
 
   if ("ab".substr(-1) != "b")
-    !function(p, s) {
+    (function(p, s) {
       s = p.substr;
       p.substr = function(a, n)
       { return s.call(this, a < 0 ? this.length + a : a, n); };
-    }(String.prototype);
+    })(String.prototype);
 
   if (!String.prototype.trimStart)
   { String.prototype.trimStart = function ()
@@ -802,7 +802,7 @@ keep:   do
     set_log_callback: function(cb) { log = cb; }
   };
 
-  !function(fm, i, j, p)
+  (function(fm, i, j, p)
   { for (i in fm)
       for (p = 0; j = fm[i].pop(); diacr[String.fromCharCode(p = p + j)] = i)
 	if (j < 0)
@@ -810,7 +810,7 @@ keep:   do
 	    fm[i].push(2);
 	  j++;
 	}
-  }({ "a":[53980,1941,1561,-10,7,153,7089,41,36,2,6,26,2,17,
+  })({ "a":[53980,1941,1561,-10,7,153,7089,41,36,2,6,26,2,17,
 	201,-1,28,2,1,1,1,127,97],"aa":[42803],"ae":[26,253,2,228],"ao":[42805],
 	"au":[42807],"av":[2,42809],"ay":[42813],"b":[55921,1738,-1,7088,208,3,
 	286,98],"c":[22532,33389,846,891,7117,180,123,-2,32,132,99],"d":[22474,
