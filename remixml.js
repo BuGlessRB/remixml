@@ -249,10 +249,6 @@ nostr:
 	      break;
 	  default: j = dfhtml(j);
 	}
-	// FIXME Bug in the google-closure-compiler
-	// with optimizationlevel ADVANCED.
-	// It misparses -(-j) as --j, so the -(0-j) forces the
-	// compiler to do the right thing.
       } else if (- - /** @type {string|number} */ (j) == j)
 	/** @type {number} */ (j) += "";
       else if (typeof j == "function")
