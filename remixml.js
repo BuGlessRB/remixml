@@ -253,7 +253,7 @@ nostr:
 	// with optimizationlevel ADVANCED.
 	// It misparses -(-j) as --j, so the -(0-j) forces the
 	// compiler to do the right thing.
-      } else if (-(0- /** @type {string} */ (j)) == j)
+      } else if (- - /** @type {string|number} */ (j) == j)
 	/** @type {number} */ (j) += "";
       else if (typeof j == "function")
 	j = j($["_"], $);
