@@ -622,13 +622,13 @@ keep:   do
 		      { return -(-i) === i ? -i : [i, 1];
 		      } + "return[" + j + "];");
 		    try
-		    { let old_ = $._;
+		    { let old_ = $["_"];
 		      (to = O.keys(/** @type {!Object}:* */ (e)))
 		       .sort(function(a, b)
 		      { var x, y, i, n, r;
 			var /** !number */ ret;
-			$._ = e[a]; x = ord($);
-			$._ = e[b]; y = ord($);
+			$["_"] = e[a]; x = ord($);
+			$["_"] = e[b]; y = ord($);
 			for (i = 0, n = x.length; i < n; i++)
 			{ r = 0;
 			  if (isa(x[i]))
@@ -639,7 +639,7 @@ keep:   do
 			}
 			return r ? -ret : ret;
 		      });
-		      $._ = old_;
+		      $["_"] = old_;
 		    } catch(x) { logerr(j, x); }
 		    while (i < to.length)
 		      j = to[i], forloop();
