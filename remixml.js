@@ -814,7 +814,7 @@ keep:   do
 
   if (!O.assign)
     O.defineProperty(O, "assign",
-    { value: function(d, s, i) { for (i in s) d[i] = s[i]; return d; } });
+    { "value": function(d, s, i) { for (i in s) d[i] = s[i]; return d; } });
 
   if ("ab".substr(-1) != "b")
     (function(p) {
@@ -825,9 +825,10 @@ keep:   do
     })(String.prototype);
 
   if (!String.prototype.trimStart)
-  { String.prototype.trimStart = function ()
+  { String.prototype.trimStart = function /** !string */ ()
     { return this.replace(/^\s+/, ''); };
-    String.prototype.trimEnd = function () { return this.replace(/\s+$/, ''); };
+    String.prototype.trimEnd = function /** !string */ ()
+    { return this.replace(/\s+$/, ''); };
   }
 
   var g =
