@@ -1,7 +1,7 @@
-    /* @license Remixml v1.8.6: XML/HTML-like macro language
-   ** Copyright (c) 2018-2019 by Stephen R. van den Berg <srb@cuci.nl>
-  ** License: ISC OR GPL-3.0
- ** Sponsored by: Cubic Circle, The Netherlands
+  /** @license Remixml v1.8.6: XML/HTML-like macro language
+  ** Copyright (c) 2018-2019 by Stephen R. van den Berg <srb@cuci.nl>
+ ** License: ISC OR GPL-3.0
+** Sponsored by: Cubic Circle, The Netherlands
 */
 (function(W, D, O)
 { "use strict";
