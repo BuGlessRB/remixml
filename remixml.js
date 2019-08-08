@@ -160,7 +160,7 @@ nostr:
                       : (diva.innerHTML = t, getdf(diva));
   }
 
-  W.sizeof = function /** !number */ (/** * */ s)
+  W["sizeof"] = function /** !number */ (/** * */ s)
   { return Number(s) === s ? 1
      : s ? s.nodeType ? dfnone(/** @type {!Node|!string} */ (s)).length
      : s.length || O.keys(/** @type {!Object} */ (s)).length : 0;
@@ -617,10 +617,9 @@ keep:   do
 		    forloop();
 		else
 		  if (j = gatt("orderby"))
-		  { let /** function(!Object):* */ ord;
-		    ord = jsfunc("" + function desc(i)
-		      { return -(-i) === i ? -i : [i, 1];
-		      } + "return[" + j + "];");
+		  { let /** function(!Object):* */ ord = jsfunc(
+		     "function desc(i){return- -i===i?-i:[i,1];}return["
+		      + j + "];");
 		    try
 		    { let old_ = $["_"];
 		      (to = O.keys(/** @type {!Object}:* */ (e)))
