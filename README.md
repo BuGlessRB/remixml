@@ -394,6 +394,17 @@ Exposed API-list:
   If set, it overrides the default locale of the browser environment
   (currently only used during currency formatting).
 
+### Caveat emptor
+
+- Using sub-table elements (`<tr>`, `<td>`, `<thead>`, `<tbody>`, or `<tfoot>`)
+  outside of a `<table>` parent (e.g. when trying to define a macro
+  that is supposed to expand to a single row of such table), is likely
+  to fail due to too strict browser runtime-filtering; i.e. the browser
+  is then likely to refuse instantiating the sub-table elements because
+  it does not find a table parent.  The solution normally would be to
+  use nested `<div>` elements instead and use CSS to give those elements
+  table-cell properties.
+
 ## References
 
 - The [Remixml website](http://remixml.org/) uses the smallest and
