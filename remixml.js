@@ -449,7 +449,7 @@ nostr:
       if (k[1])
 	$[k[1]] = _;
       if (e)
-      { let /** Node|string */ cn;
+      { let /** Node|string */ cn = e;
 	if (e.nodeType != 11)
 	  cn = getdf(e);
 	else if (!e.childElementCount)
@@ -459,9 +459,6 @@ nostr:
 	      break;
 	    case 1:
 	      cn = e.firstChild.nodeValue;
-	      break;
-	    default:
-	      cn = e;
 	  }
 	_[ctn] = cn; _["_restargs"] = r = {};
 	for (i = at.length; i--; )
