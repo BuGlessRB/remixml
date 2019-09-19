@@ -235,7 +235,7 @@ nostr:
       t = ({"EUR":"\u20AC", "USD":"$", "CNY":"\u00A5"}[cur] || cur)
 	+ fmtf(k, lang, 2);
     t = t.match(/([^-0-9\s]+)\s*([-0-9].*)/);
-    return t[1] + " " + t[2];
+    return t[1] + "&nbsp;" + t[2];
   }
 
   function /** !string|!Array{string} */ insert(/** !string */ k,
