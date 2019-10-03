@@ -1,9 +1,12 @@
    /** @license
-   ** Remixml v1.8.6: XML/HTML-like macro language
+   ** Remixml v1.8.14: XML/HTML-like macro language
   ** Copyright (c) 2018-2019 by Stephen R. van den Berg <srb@cuci.nl>
  ** License: ISC OR GPL-3.0
 ** Sponsored by: Cubic Circle, The Netherlands
 */
+
+/** @define {number} */ var DEBUG = 0;
+
 (function(W, D, O)
 { "use strict";
   const /** Object */ al = /[&<]/, splc = /\s*,\s*/;
