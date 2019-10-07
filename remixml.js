@@ -814,7 +814,10 @@ keep:   do
 
   if (!O.assign)
     O.defineProperty(O, "assign",
-    { "value": function(d, s, i) { for (i in s) d[i] = s[i]; return d; } });
+    { "value": function(d, s, i)
+      { if (s) for (i in s) d[i] = s[i]; return d;
+      }
+    });
 
   if ("ab".substr(-1) != "b")
     (function(p) {
