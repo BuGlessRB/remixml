@@ -882,7 +882,7 @@ keep:   do
       },
     "set_tag": function /** void */(/** function(...) */ cb,
        /** !Object */ $,/** string */ name,/** string|number= */ scope,
-       /** boolean= */ noparse,/** string= */ args)
+       /** boolean|number= */ noparse,/** string= */ args)
       { settag(cb, initctx($), name, scope, noparse, args);
       },
     "dom2txt": function /** string */(/** string|Node */ tpl)
