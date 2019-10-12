@@ -412,14 +412,14 @@ nostr:
     return e;
   }
 
-  function settag(/** !Node */ tpl, /** !Object */ $, /** string */ name,
-    /** string= */ scope, /** boolean= */ noparse, /** string= */ args)
+  function settag(/** !Node */ tpl,/** !Object */ $,/** string */ name,
+    /** string|number= */ scope,/** boolean= */ noparse,/** string= */ args)
   { $["_"]["_tag"][name.toUpperCase()] = [tpl, scope, noparse,
      (args ? args.split(splc) : [])
       .reduce(function(a,i) { a[i] = 1; return a; }, {})];
   }
 
-  function /** number|undefined */ parse(/** Node */ n, /** !Object */ $)
+  function /** number|undefined */ parse(/** Node */ n,/** !Object */ $)
   { var j, rt, cc = bref && {}, k, e, c, ca, x, i, res, mkm, sc, to;
     function /** !Node */ eparse(/** !Node */ n)
     { var /** Node */ k; parse(k = getdf(n), $); return k;
@@ -881,8 +881,8 @@ keep:   do
       { return /** @type {!Node} */(g.parse(D.head.parentNode, $));
       },
     "set_tag": function /** void */(/** function(...) */ cb,
-       /** !Object */ $, /** string */ name,
-       /** string= */ scope, /** boolean= */ noparse, /** string= */ args)
+       /** !Object */ $,/** string */ name,/** string|number= */ scope,
+       /** boolean= */ noparse,/** string= */ args)
       { settag(cb, initctx($), name, scope, noparse, args);
       },
     "dom2txt": function /** string */(/** string|Node */ tpl)
