@@ -13,7 +13,7 @@
   const /** Object */ fcache = {}, rcache = {}, diacr = {};
   const /** string */ ctn = "_contents";
   const /** Node */ txta = newel("textarea"), diva = newel("div");
-  var log = console.log;
+  var /** function(...) */ log = console.log;
 
   // For preparse state, not re-entry-safe
   var /** Object<string,Array> */ bref;
@@ -21,7 +21,7 @@
   function /** !boolean */ isstring(/** * */ s)
   { return O.prototype.toString.call(s) === "[object String]"; }
 
-  function /** string */ eumap(/** !string */ s)
+  function /** string */ eumap(/** string */ s)
   { return {"+":"%2B"," ":"+","?":"%3F","&":"%26","#":"%23"}[s]; }
 
   function udate(t) { return t.valueOf() - t.getTimezoneOffset * 60000; }
@@ -35,7 +35,7 @@
 
   function sattr(n, k, v) { n.setAttribute(k, v); }
 
-  function /** !Node */ newel(/** !string */ n)
+  function /** !Node */ newel(/** string */ n)
   { return D.createElement(n);
   }
 
@@ -43,14 +43,14 @@
 
   function /** !boolean */ isa(/** * */ s) { return Array.isArray(s); }
 
-  function /** !string */ pad0(/** !number */ i, /** !number */ p)
-  { var /** !string */ ret;
+  function /** string */ pad0(/** number */ i, /** number */ p)
+  { var /** string */ ret;
     for (i < 0 && p--, ret = i + ""; ret.length < p; ret = "0" + ret) {}
     return ret;
   }
 
-  function /** !string */
-   strftime(/** !string */ fmt, /** !Date|!string */ d, /** !string */ lang)
+  function /** string */
+   strftime(/** string */ fmt, /** !Date|string */ d, /** string */ lang)
   { var t, j1, ut;
     if (!(d instanceof Date))
     { t = d.match && /[A-Za-z]/.test(d);
@@ -60,11 +60,11 @@
     }
     var dy = d.getDay(), md = d.getDate(), m = d.getMonth(),
      y = d.getFullYear(), h = d.getHours(), h24 = 86400000;
-    function /** !string */ ifm(/** string= */ t, /** string= */ f)
+    function /** string */ ifm(/** string= */ t, /** string= */ f)
     { var o = {};
       o[t || "weekday"] = f || "short";
       return new Intl.DateTimeFormat(lang, o)
-	.format(/** @type {!Date|!number|undefined} */ (d));
+	.format(/** @type {!Date|number|undefined} */(d));
     }
     function thu()
     { var t = new Date(d);
@@ -123,16 +123,16 @@
       return n;
     var /** Range */ k = D.createRange();
     k.selectNodeContents(n);
-    return /** @type {!Node} */ (k.extractContents());
+    return /** @type {!Node} */(k.extractContents());
   }
 
-  function /** !string */ dfhtml(/** !Node */ n)
+  function /** string */ dfhtml(/** !Node */ n)
   { var /** Node */ k = newel("div"); k.appendChild(n); return k.innerHTML; }
 
-  function /** !string */ dfnone(/** Node|string */ n)
+  function /** string */ dfnone(/** Node|string */ n)
   { var /** Node */ j;
 nostr:
-    switch (/** @type {number|undefined} */ (n.nodeType))
+    switch (/** @type {number|undefined} */(n.nodeType))
     { case 11:
 	switch (n.childNodes.length)
 	{ case 0: return "";
@@ -147,30 +147,30 @@ nostr:
       case undefined:
 	let /** number */ i;
 	if ((i = n.indexOf("&")) < 0 || n.indexOf(";", i + 2) < 0)
-	  return /** @type {string} */ (n);
+	  return /** @type {string} */(n);
     }
     j = txta;
-    switch (/** @type {number|undefined} */ (n.nodeType))
-    { case 11: j.appendChild(/** @type {Node} */ (n)); n = j;
+    switch (/** @type {number|undefined} */(n.nodeType))
+    { case 11: j.appendChild(/** @type {Node} */(n)); n = j;
       default: n = n.innerHTML;
       case undefined:;
     }
     j.innerHTML = n; n = j.value; j.textContent = "";
-    return /** @type {string} */ (n);
+    return /** @type {string} */(n);
   }
 
   function /** !Node */ txt2node(/** string|Node */ t)
-  { return t.nodeType ? /** @type {!Node} */ (t)
+  { return t.nodeType ? /** @type {!Node} */(t)
                       : (diva.innerHTML = t, getdf(diva));
   }
 
-  W["sizeof"] = function /** !number */ (/** * */ s)
+  W["sizeof"] = function /** number */(/** * */ s)
   { return Number(s) === s ? 1
-     : s ? s.nodeType ? dfnone(/** @type {!Node|!string} */ (s)).length
-     : s.length || O.keys(/** @type {!Object} */ (s)).length : 0;
+     : s ? s.nodeType ? dfnone(/** @type {!Node|string} */(s)).length
+     : s.length || O.keys(/** @type {!Object} */(s)).length : 0;
   };
 
-  function /** * */ fvar(/** !string */ s, /** !Object */ $, /** *= */ val)
+  function /** * */ fvar(/** string */ s, /** !Object */ $, /** *= */ val)
   { var /** string */ i;
     var /** Object */ j;
     var /** Array<string> */ a;
@@ -197,14 +197,14 @@ nostr:
       $[i] = val;
   }
 
-  function /** !string */ encpath(/** !string */ s)
+  function /** string */ encpath(/** string */ s)
   { return s.toLowerCase()
 		.replace(/[^\0-~]/g, function(a) { return diacr[a] || a; })
 		.replace(/(?:&(?:[^&;\s]*;)?|[^&a-z0-9])+/g, "-")
 		.replace(/^-|[\u0300-\u036f]|-$/g, "");
   }
 
-  function /** !string */ sp(/** !string */ j, /** !string */ s)
+  function /** string */ sp(/** string */ j, /** string */ s)
   { if (j[0] == "0")
       j[0] = s;
     else
@@ -212,10 +212,10 @@ nostr:
     return j;
   }
 
-  function /** !string */
-   fmtf(/** !number */ k, /** !string */ s, /** !number */  d)
+  function /** string */
+   fmtf(/** number */ k, /** string */ s, /** number */  d)
   { var /** string */ t
-     = /** @type {function(string=, Object=):string} */ (k.toLocaleString)(s,
+     = /** @type {function(string=, Object=):string} */(k.toLocaleString)(s,
 	{"minimumFractionDigits": d, "maximumFractionDigits": d});
     if (t == k)
     { s = "";
@@ -229,10 +229,10 @@ nostr:
     return t;
   }
 
-  function /** !string */
-   fmtcur(/** !number */ k, /** !string */ lang, /** !string */ cur)
+  function /** string */
+   fmtcur(/** number */ k, /** string */ lang, /** string */ cur)
   { var /** string */ t
-     = /** @type {function(string=, Object=):string} */ (k.toLocaleString)(lang,
+     = /** @type {function(string=, Object=):string} */(k.toLocaleString)(lang,
         {"style":"currency", "currency":cur});
     if (t == k)
       t = ({"EUR":"\u20AC", "USD":"$", "CNY":"\u00A5"}[cur] || cur)
@@ -241,7 +241,7 @@ nostr:
     return t[1] + "&nbsp;" + t[2];
   }
 
-  function /** !string|!Array{string} */ insert(/** !string */ k,
+  function /** string|!Array{string} */ insert(/** string */ k,
     /** string */ quot, /** string */ fmt, /** !Object */ $)
   { var /** * */ j;
     if ((j = fvar(k, $)) != null)
@@ -253,8 +253,8 @@ nostr:
 	      break;
 	  default: j = dfhtml(j);
 	}
-      } else if (- - /** @type {string|number} */ (j) == j)
-	/** @type {number} */ (j) += "";
+      } else if (- - /** @type {string|number} */(j) == j)
+	/** @type {number} */(j) += "";
       else if (typeof j == "function")
 	j = j($["_"], $);
       if (fmt && isstring(j))
@@ -271,7 +271,7 @@ nostr:
 	  case "f":
 	    if (!(p > ""))
 	      p = 6;
-	    j = fmtf(+j, lang, /** @type {number} */ (p));
+	    j = fmtf(+j, lang, /** @type {number} */(p));
 	    break;
 	  case "g": j = /** @type {function((number|string)):string} */
 	     ((+j).toPrecision)(p > "" ? p : 6); break;
@@ -282,21 +282,21 @@ nostr:
 	    break;
 	  default:
 	    j = r[4][0] == "t"
-	        ? strftime(r[5], /** @type {string} */ (j), lang)
+	        ? strftime(r[5], /** @type {string} */(j), lang)
 		: /[A-Z]{3}/.test(r[4]) ? fmtcur(+j, lang, r[4]) : j;
 	}
 	if (r[1])
 	{ if (r[1].indexOf("0") >= 0 && (p = +r[2]))
-	    j = +j < 0 ? sp(pad0(- /** @type {number} */ (j), p), "-")
-	               : pad0(/** @type {number} */ (j), p);
+	    j = +j < 0 ? sp(pad0(- /** @type {number} */(j), p), "-")
+	               : pad0(/** @type {number} */(j), p);
 	  if (r[1].indexOf("+") >= 0 && +j >= 0)
-	    j = sp(/** @type {string} */ (j), "+");
+	    j = sp(/** @type {string} */(j), "+");
 	}
       }
       switch (quot)
       { case "json": j = JSON.stringify(j).replace(/</g, "\\u003c"); break;
 	case "uric": j = j.replace(/[+ ?&#]/g, eumap); break;
-	case "path": j = encpath(/** @type {string} */ (j)); break;
+	case "path": j = encpath(/** @type {string} */(j)); break;
 	default:
 	  if (isstring(j))
 	    j = D.createTextNode(j);
@@ -305,24 +305,24 @@ nostr:
       $["_"]["_ok"] = 1;
     } else
       $["_"]["_ok"] = 0, j = "";
-    return /** @type {string} */ (j);
+    return /** @type {string} */(j);
   }
 
-  function /** !string|!Node|!Array<string> */
-   replent(/** !string */ s, /** !Object */ $)
-  { function /** !string|!Node|!Array<string> */
-     r(/** !string|!Node|!Array<string> */ s)
+  function /** string|!Node|!Array<string> */
+   replent(/** string */ s, /** !Object */ $)
+  { function /** string|!Node|!Array<string> */
+     r(/** string|!Node|!Array<string> */ s)
     { var /** string */ c;
-      var /** !string|!Node|!Array<string> */ j;
+      var /** string|!Node|!Array<string> */ j;
       var /** Array<string> */ i;
       if (s.nodeType)
       { let /** Node */ h;
 	if (h = s.firstChild)
-	{ let /** !string|!Node|!Array<string> */ k;
+	{ let /** string|!Node|!Array<string> */ k;
 	  do
 	    if ((k = r(h)) != h)
 	      if (k.nodeType)
-		s.replaceChild(/** @type {Node} */ (k), h = k.lastChild || h);
+		s.replaceChild(/** @type {Node} */(k), h = k.lastChild || h);
 	      else
 		h.nodeValue = k;
 	  while(h = h.nextChild);
@@ -344,8 +344,8 @@ nostr:
 	  if (!isstring(j))
 	  { if (j.nodeType)
 	    { if (!s.lastChild)
-		s = txt2node(/** @type {string} */ (s));
-	      s.appendChild(/** @type {Node} */ (j)); j = "";
+		s = txt2node(/** @type {string} */(s));
+	      s.appendChild(/** @type {Node} */(j)); j = "";
 	    } else
 	    { if (!s)
 	      { s = c ? [j, c]: j;
@@ -356,9 +356,9 @@ nostr:
 	    }
 	  }
 	  if (isa(s))
-	  { s.push(/** @type {string} */ (j));
+	  { s.push(/** @type {string} */(j));
 	    if (c)
-	      s.push(/** @type {string} */ (j));
+	      s.push(/** @type {string} */(j));
 	  } else if (j = j + c)
 	    if (c = s.lastChild)
 	      if (c.nodeType == 3 && !al.test(j))
@@ -380,7 +380,7 @@ nostr:
   { log("Remixml expression: " + JSON.stringify(t) + "\n" + x);
   }
 
-  function /** function(!Object):* */ jsfunc(/** !string */ j)
+  function /** function(!Object):* */ jsfunc(/** string */ j)
   { var e;
     if (!(e = fcache[j]))
       try { fcache[j] = e = Function("$", '"use strict";var _=$._;' + j); }
@@ -412,7 +412,7 @@ nostr:
     return e;
   }
 
-  function settag(/** !Node */ tpl, /** !Object */ $, /** !string */ name,
+  function settag(/** !Node */ tpl, /** !Object */ $, /** string */ name,
     /** string= */ scope, /** boolean= */ noparse, /** string= */ args)
   { $["_"]["_tag"][name.toUpperCase()] = [tpl, scope, noparse,
      (args ? args.split(splc) : [])
@@ -424,8 +424,8 @@ nostr:
     function /** !Node */ eparse(/** !Node */ n)
     { var /** Node */ k; parse(k = getdf(n), $); return k;
     }
-    function /** string */ gatt(/** !string */ k)
-    { return gattr(/** @type {!Node} */ (n), k);
+    function /** string */ gatt(/** string */ k)
+    { return gattr(/** @type {!Node} */(n), k);
     }
     function run(k)
     { try { return k($); } catch(x) { logerr(gatt("expr"), x); }
@@ -434,9 +434,9 @@ nostr:
     { var j;
       var /** Node */ t;
       if (j = e.lastChild)
-	t = /** @type {!Node} */ (n), n = j, replelm(e, t);
+	t = /** @type {!Node} */(n), n = j, replelm(e, t);
       else if (j = e.nodeValue)
-	replelm(e, /** @type {!Node} */ (n)), n = e;
+	replelm(e, /** @type {!Node} */(n)), n = e;
       return !j;
     }
     function /** Node */
@@ -477,7 +477,7 @@ nostr:
       ($ = o$)["_"] = o$["_"];
       return j;
     }
-    function /** * */ pexpr(/** !Node=|!string= */ c)
+    function /** * */ pexpr(/** !Node=|string= */ c)
     { var /** string */ j;
       return (j = gatt("expr")) != null && (c || j)
 	  && jsfunc(!j && c ? dfnone(c) : "return(" + dfnone(j) + ");");
@@ -490,13 +490,13 @@ nostr:
       } catch(x) { logerr(j, x); }
     }
     function ret(e) { return repltag(txt2node(e)); }
-    function pret() { return repltag(eparse(/** @type {!Node} */ (n))); }
+    function pret() { return repltag(eparse(/** @type {!Node} */(n))); }
     function cp(x) { c && c.push(x); }
     function prat(j)
     { var e, i = k[j], s = i.value;
       if (!c || s.length > 4 && s.indexOf("&") >= 0)
       { if ((e = replent(s, $)).nodeType)
-	  e = dfnone(/** @type {!Node|!string} */ (e));
+	  e = dfnone(/** @type {!Node|string} */(e));
 	else if (i.name == "::")
 	{ x = e; cp(j);
 	  return;
@@ -508,7 +508,7 @@ nostr:
     function prost()
     { if (x)
       { var j;
-	rattr(/** @type {!Node} */ (n), "::");
+	rattr(/** @type {!Node} */(n), "::");
 	for (j in x)
 	  sattr(n, j, x[j]);
       }
@@ -535,7 +535,7 @@ keep:   do
 	  if (k = n.attributes)
 	  { x = 0;
 	    if (ca = gatt(":c"))
-	      rattr(/** @type {!Node} */ (n), ":c");
+	      rattr(/** @type {!Node} */(n), ":c");
 	    if (ca && isa(ca = JSON.parse(ca)))
 	      for (j in ca)
 		if (ca[j] < 0)
@@ -554,10 +554,10 @@ keep:   do
 	  switch (j = n.tagName)
 	  { case "SET":
 	      if (e = gatt("var")||gatt("variable"))
-	      { if (k = pexpr(/** @type {!Node} */ (n)))
+	      { if (k = pexpr(/** @type {!Node} */(n)))
 		  k = run(k);
 		else
-		  switch ((k = eparse(/** @type {!Node} */ (n)))
+		  switch ((k = eparse(/** @type {!Node} */(n)))
 		   .childNodes.length)
 		  { case 0: k = "";
 		      break;
@@ -577,17 +577,17 @@ keep:   do
 		  } else
 		  { x = gatt("split");
 		    if (j = pregx()) {
-		      k = dfnone(/** @type {!Node|!string} */ (k));
+		      k = dfnone(/** @type {!Node|string} */(k));
 		      k = x != null ? k.split(j) : k.match(j);
 		    } else if (x != null)
-		      k = dfnone(/** @type {!Node|!string} */ (k)).split(x);
+		      k = dfnone(/** @type {!Node|string} */(k)).split(x);
 		    if ((j = gatt("join")) != null)
 		      k = k.join(j);
 		  }
 		}
 		fvar(e, $, k);
 	      } else if (e = gatt("tag"))
-		settag(getdf(/** @type {!Node} */ (n)), $, e, gatt("scope"),
+		settag(getdf(/** @type {!Node} */(n)), $, e, gatt("scope"),
 		 gatt("noparse") != null, gatt("args"));
 	      continue drop;
 	    case "UNSET":
@@ -623,17 +623,17 @@ keep:   do
 		      + j + "];");
 		    try
 		    { let old_ = $["_"];
-		      (to = O.keys(/** @type {!Object}:* */ (e)))
+		      (to = O.keys(/** @type {!Object}:* */(e)))
 		       .sort(function(a, b)
 		      { var x, y, i, n, r;
-			var /** !number */ ret;
+			var /** number */ ret;
 			$["_"] = e[a]; x = ord($);
 			$["_"] = e[b]; y = ord($);
 			for (i = 0, n = x.length; i < n; i++)
 			{ r = 0;
 			  if (isa(x[i]))
 			    r = 1, x[i] = x[i][0], y[i] = y[i][0];
-			  if (ret = /** @type {!number} */
+			  if (ret = /** @type {number} */
 			           (x[i] > y[i] || -(x[i] != y[i])))
 			    return r ? -ret : ret;
 			}
@@ -647,7 +647,7 @@ keep:   do
 		    for (j in e)
 		      forloop();
 	      } else
-	      { let /** !number */ step = +gatt("step") || 1;
+	      { let /** number */ step = +gatt("step") || 1;
 		to = +gatt("to");
 		for (j = +gatt("from");
 		     step > 0 ? j <= to : to <= j;
@@ -667,9 +667,9 @@ keep:   do
 	      { $["_"]["_ok"] = 1;
 		e = insert(e, gatt("quote") || "", gatt("format"), $);
 		if ((j = +gatt("offset")) || (k = gatt("limit")) != null)
-		  e = dfnone(/** @type {string} */ (e)).substr(j, +k);
+		  e = dfnone(/** @type {string} */(e)).substr(j, +k);
 		if (isa(e) && (j = gatt("join")) != null)
-		  e = /** @type {Array<string>} */ (e).join(j);
+		  e = /** @type {Array<string>} */(e).join(j);
 		if (ret(e))
 		  continue drop;
 		break;
@@ -683,16 +683,16 @@ keep:   do
 	      continue drop;
 	    case "REPLACE":
 	      try
-	      { if (ret(dfnone(eparse(/** @type {!Node} */ (n)))
+	      { if (ret(dfnone(eparse(/** @type {!Node} */(n)))
 		 .replace((k = pregx())
 		    ? RegExp(k, (e = gatt("flags")) == null ? "g" : e)
 		    : gatt("from"),
-		   /** @type {string} */ (pexpr()) || gatt("to"))))
+		   /** @type {string} */(pexpr()) || gatt("to"))))
 		  continue drop;
 	      } catch(x) { logerr(gatt("expr"), x); }
 	      break;
 	    case "TRIM":
-	      if (repltag(btrim(eparse(/** @type {!Node} */ (n)))))
+	      if (repltag(btrim(eparse(/** @type {!Node} */(n)))))
 		continue drop;
 	      break;
 	    case "MAKETAG":
@@ -706,13 +706,13 @@ keep:   do
 		    break;
 	      }
 	      e.normalize(); n.appendChild(e);
-	      replelm(/** @type {!Node} */ (n), k);
+	      replelm(/** @type {!Node} */(n), k);
 	      break;
 	    case "SCRIPT":
 	      e = (k = n).attributes; n = newel("SCRIPT");
 	      for (j = -1; ++j < e.length; sattr(n, e[j].name, e[j].value)) {}
 	      n.textContent = k.textContent;
-	      replelm(/** @type {!Node} */ (n), k);
+	      replelm(/** @type {!Node} */(n), k);
 	      break;
 	    case "EVAL":
 	      j = (j = gatt("recurse")) == null ? 0 : j === "" ? j : +j;
@@ -724,11 +724,11 @@ keep:   do
 		continue drop;
 	      break;
 	    case "NOPARSE":
-	      if (repltag(getdf(/** @type {!Node} */ (n))))
+	      if (repltag(getdf(/** @type {!Node} */(n))))
 		continue drop;
 	      break;
 	    case "NOOUTPUT":
-	      eparse(/** @type {!Node} */ (n));
+	      eparse(/** @type {!Node} */(n));
 	    case "COMMENT":
 	      continue drop;
 	    default:
@@ -768,7 +768,7 @@ keep:   do
 		    break;
 		}
 		if (e != n.nodeValue)
-		{ n.nodeValue = n.realvalue = /** @type {!string} */ (e);
+		{ n.nodeValue = n.realvalue = /** @type {string} */(e);
 		  rt = 1;
 		}
 	      }
@@ -828,14 +828,14 @@ keep:   do
     })(String.prototype);
 
   if (!String.prototype.trimStart)
-  { String.prototype.trimStart = function /** !string */ ()
+  { String.prototype.trimStart = function /** string */()
     { return this.replace(/^\s+/, ''); };
-    String.prototype.trimEnd = function /** !string */ ()
+    String.prototype.trimEnd = function /** string */()
     { return this.replace(/\s+$/, ''); };
   }
 
   var g =
-  { "preparse": function /** !Node */ (/** !Node */ tpl, /** !Object */ $)
+  { "preparse": function /** !Node */(/** !Node */ tpl, /** !Object */ $)
       { var /** Node */ c;
 	if (c = tpl)
 	{ let /** !NodeList<!Element> */ a;
@@ -860,41 +860,44 @@ keep:   do
 	}
 	return c;
       },
-    "parse": function /** Node */ (/** string|Node */ tpl, /** !Object */ $)
+    "parse": function /** Node */(/** string|Node */ tpl, /** !Object */ $)
       { if (tpl)
 	  tpl = txt2node(tpl), parse(tpl, initctx($));
 	return tpl;
       },
     "parse2txt":
-     function /** !string */ (/** string|Node */ tpl, /** !Object */ $)
+     function /** string */(/** string|Node */ tpl, /** !Object */ $)
      { return dfnone(g.parse(tpl, $));
      },
     "parse_tagged":
-      function /** !Node */ (/** string|Node */ tpl, /** !Object */ $)
+      function /** !Node */(/** string|Node */ tpl, /** !Object */ $)
       { var i, j = (tpl = txt2node(tpl)).querySelectorAll("remixml"), k;
 	$ = initctx($);
 	for (i = 0; i < j.length; i++)
 	  parse(k = getdf(j[i]), $), replelm(k, j[i]);
 	return tpl;
       },
-    "parse_document": function(/** !Object */ $)
-      { return g.parse(D.head.parentNode, $);
+    "parse_document": function /** !Node */(/** !Object */ $)
+      { return /** @type {!Node} */(g.parse(D.head.parentNode, $));
       },
-    "set_tag": function(cb, /** !Object */ $, /** !string */ name,
+    "set_tag": function /** void */(/** function(...) */ cb,
+       /** !Object */ $, /** string */ name,
        /** string= */ scope, /** boolean= */ noparse, /** string= */ args)
       { settag(cb, initctx($), name, scope, noparse, args);
       },
-    "dom2txt": function /** string */ (/** string|Node */ tpl)
+    "dom2txt": function /** string */(/** string|Node */ tpl)
       { return dfnone(tpl);
       },
-    "txt2dom": function /** !Node */ (/** string|Node */ tpl)
+    "txt2dom": function /** !Node */(/** string|Node */ tpl)
       { return txt2node(tpl);
       },
-    "trim": function /** !Node */ (/** string|Node */ tpl)
+    "trim": function /** !Node */(/** string|Node */ tpl)
       { return btrim(txt2node(tpl));
       },
     "path_encode": encpath,
-    "set_log_callback": function(cb) { log = cb; }
+    "set_log_callback": function /** void */(/** function(...) */ cb)
+      { log = cb;
+      }
   };
 
   (function(fm)
