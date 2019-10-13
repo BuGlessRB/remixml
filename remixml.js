@@ -412,8 +412,9 @@ nostr:
     return e;
   }
 
-  function settag(/** !Node */ tpl,/** !Object */ $,/** string */ name,
-    /** string|number= */ scope,/** boolean= */ noparse,/** string= */ args)
+  function settag(/** !Node|function(...):(string|!Node) */ tpl,
+   /** !Object */ $,/** string */ name,/** string|number= */ scope,
+   /** boolean|number= */ noparse,/** string= */ args)
   { $["_"]["_tag"][name.toUpperCase()] = [tpl, scope, noparse,
      (args ? args.split(splc) : [])
       .reduce(function(a,i) { a[i] = 1; return a; }, {})];
@@ -880,7 +881,7 @@ keep:   do
     "parse_document": function /** !Node */(/** !Object */ $)
       { return /** @type {!Node} */(g.parse(D.head.parentNode, $));
       },
-    "set_tag": function /** void */(/** function(...) */ cb,
+    "set_tag": function /** void */(/** function(...):(string|!Node) */ cb,
        /** !Object */ $,/** string */ name,/** string|number= */ scope,
        /** boolean|number= */ noparse,/** string= */ args)
       { settag(cb, initctx($), name, scope, noparse, args);
