@@ -106,8 +106,8 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
 
 ### Language tags
 
-- `<set var="" variable="" expr="" regexp="" split="" join="" mkmapping=""
-    selector="" json=""
+- `<set var="" variable="" expr="" nojscache="" regexp="" split="" join=""
+    mkmapping="" selector="" json=""
     tag="" args="" noparse="" scope="">...</set>`<br />
    Attributes:
    - `var` or `variable`<br />
@@ -116,6 +116,9 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
      Use the javascript expression specified in this attribute.
      Or, alternately, if the attribute is empty, a javascript from
      the content of this tag is stored.
+   - `nojscache`<br />
+     If non-empty, ensure that the expression does not enter the javascript
+     compiled-function-cache.
    - `regexp`<br />
      A regular expression to match the content to.
    - `split`<br />
@@ -150,22 +153,28 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
    Attributes:
    - `var` or `variable`<br />
      Delete the named variable.
-- `<if expr="">...</if>`<br />
+- `<if expr="" nojscache="">...</if>`<br />
    Attributes:
    - `expr`<br />
      If the Javascript expression evaluates to true, include the
      content of the <b>if</b> tag.
+   - `nojscache`<br />
+     If non-empty, ensure that the expression does not enter the javascript
+     compiled-function-cache.
 - `<then>...</then>`<br />
      If the last truth value was true, include the content
      of the <b>then</b> tag.  Not needed for a typical if/else
      construction; usually used after a <b>for</b> tag
      to specify code that needs to be included if the <b>for</b> tag
      actually completed at least one iteration.
-- `<elif expr="">...</elif>`<br />
+- `<elif expr="" nojscache="">...</elif>`<br />
    Attributes:
    - `expr`<br />
      If the last truth value was false and the Javascript expression evaluates
      to true, include the content of the <b>elif</b> tag.
+   - `nojscache`<br />
+     If non-empty, ensure that the expression does not enter the javascript
+     compiled-function-cache.
 - `<else>...</else>`<br />
      If the last truth value was false, include the content of
      the <b>else</b> tag.  Can also be used after a <b>for</b> to specify

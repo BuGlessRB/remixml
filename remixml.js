@@ -381,14 +381,6 @@ nostr:
   { log("Remixml expression: " + JSON.stringify(t) + "\n" + x);
   }
 
-  function /** function(!Object):* */ jsfunc(/** string */ j)
-  { var e;
-    if (!(e = fcache[j]))
-      try { fcache[j] = e = Function("$", '"use strict";var _=$._;' + j); }
-      catch(x) { logerr(j, x); }
-    return e;
-  }
-
   function trim(/** !Node */ s)
   { var n = s.firstChild, i;
     if (n)
@@ -428,6 +420,16 @@ nostr:
     }
     function /** string */ gatt(/** string */ k)
     { return gattr(/** @type {!Node} */(n), k);
+    }
+    function /** function(!Object):* */ jsfunc(/** string */ j)
+    { var e;
+      if (!(e = fcache[j]))
+        try
+        { e = Function("$", '"use strict";var _=$._;' + j);
+	  if (!gatt("nojscache"))
+            fcache[j] = e;
+	} catch(x) { logerr(j, x); }
+      return e;
     }
     function run(k)
     { try { return k($); } catch(x) { logerr(gatt("expr"), x); }
