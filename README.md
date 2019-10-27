@@ -101,7 +101,8 @@ Remixml.parse('<h1>Title of &_.sitename; for &_.description;</h1>'
 
 Note: the entity reference must not contain spaces (the spaces shown
 above are there to clarify the format, they should not be used in a real
-entity reference).
+entity reference).  The scope and variablename parts can be described
+using the following regular expression: `[_$a-zA-Z0-9]+`.
 
 ### Language tags
 
