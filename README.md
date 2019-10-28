@@ -117,7 +117,7 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
      Or, alternately, if the attribute is empty, a javascript from
      the content of this tag is stored.
    - `nojscache`<br />
-     If non-empty, ensure that the expression does not enter the javascript
+     If non-empty, ensure that the `expr`ession does not enter the javascript
      compiled-function-cache.
    - `regexp`<br />
      A regular expression to match the content to.
@@ -159,7 +159,7 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
      If the Javascript expression evaluates to true, include the
      content of the <b>if</b> tag.
    - `nojscache`<br />
-     If non-empty, ensure that the expression does not enter the javascript
+     If non-empty, ensure that the `expr`ession does not enter the javascript
      compiled-function-cache.
 - `<then>...</then>`<br />
      If the last truth value was true, include the content
@@ -173,7 +173,7 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
      If the last truth value was false and the Javascript expression evaluates
      to true, include the content of the <b>elif</b> tag.
    - `nojscache`<br />
-     If non-empty, ensure that the expression does not enter the javascript
+     If non-empty, ensure that the `expr`ession does not enter the javascript
      compiled-function-cache.
 - `<else>...</else>`<br />
      If the last truth value was false, include the content of
@@ -240,7 +240,7 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
        Insert a JSON encoded dump of all accessible variables.
    - `scope`<br />
      Limit the scope of the dumped variables to the mentioned scope only.
-- `<replace from="" regexp="" flags="" to="">...</replace>`<br />
+- `<replace from="" regexp="" flags="" to="" expr="">...</replace>`<br />
    Attributes:
    - `from`<br />
      Search in the content of this tag for this text.
@@ -250,6 +250,12 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
      [Regular expression flags](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions).
    - `to`<br />
      Replace found occurrences with this text.
+     [`$` characters here have special meaning](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#Specifying_a_string_as_a_parameter).
+   - `expr`<br />
+     Replace found occurrences with this javascript expression.
+   - `nojscache`<br />
+     If non-empty, ensure that the `expr`ession does not enter the javascript
+     compiled-function-cache.
 - `<trim>...</trim>`<br />
    Truncates whitespace at both ends, and reduce other whitespace runs of
    more than one character to a single space.
