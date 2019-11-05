@@ -207,6 +207,9 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
      iteration
      through an object by.  When the function <b>desc()</b> is applied to
      the expression, the order of that expression will be reversed.
+     Use the `_` scope to designate elements from the current element.
+     There is shortcut reference `_index` which refers to the index
+     of the current element.
    - `scope`<br />
      Create a toplevel alias for the local scope in the current for loop.
    - `mkmapping`<br />
@@ -240,7 +243,8 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
        Insert a JSON encoded dump of all accessible variables.
    - `scope`<br />
      Limit the scope of the dumped variables to the mentioned scope only.
-- `<replace from="" regexp="" flags="" to="" expr="">...</replace>`<br />
+- `<replace from="" regexp="" flags="" to=""
+     expr="" nojscache="">...</replace>`<br />
    Attributes:
    - `from`<br />
      Search in the content of this tag for this text.

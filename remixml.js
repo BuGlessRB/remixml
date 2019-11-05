@@ -425,7 +425,7 @@ nostr:
     { var e;
       if (!(e = fcache[j]))
         try
-        { e = Function("$", '"use strict";var _=$._;' + j);
+        { e = Function("$", "$$", '"use strict";var _=$._;' + j);
 	  if (!gatt("nojscache"))
             fcache[j] = e;
 	} catch(x) { logerr(j, x); }
@@ -623,6 +623,7 @@ keep:   do
 		else
 		  if (j = gatt("orderby"))
 		  { let /** function(!Object):* */ ord = jsfunc(
+		     "var _index=$$;" +
 		     "function desc(i){return- -i===i?-i:[i,1];}return["
 		      + j + "];");
 		    try
@@ -631,8 +632,8 @@ keep:   do
 		       .sort(function(a, b)
 		      { var x, y, i, n, r;
 			var /** number */ ret;
-			$["_"] = e[a]; x = ord($);
-			$["_"] = e[b]; y = ord($);
+			$["_"] = e[a]; x = ord($, a);
+			$["_"] = e[b]; y = ord($, b);
 			for (i = 0, n = x.length; i < n; i++)
 			{ r = 0;
 			  if (isa(x[i]))
