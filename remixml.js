@@ -622,7 +622,7 @@ keep:   do
 		    forloop();
 		else
 		  if (j = gatt("orderby"))
-		  { let /** function(!Object):* */ ord = jsfunc(
+		  { let /** function(!Object,string|number):* */ ord = jsfunc(
 		     "var _index=$$;" +
 		     "function desc(i){return- -i===i?-i:[i,1];}return["
 		      + j + "];");
