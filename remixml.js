@@ -623,7 +623,7 @@ keep:   do
 		  while ((j = i) < e.length)
 		    forloop();
 		else if (e.size >= 0)
-		  for (j in e.keys())
+		  for (j of e.keys())
 		    forloop();
 		else
 		  if (j = gatt("orderby"))
