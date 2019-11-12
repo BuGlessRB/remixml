@@ -521,6 +521,8 @@ nostr:
     { var x, y, z, t = {"_index": j, "_recno": ++i};
       if (e) {
 	y = e[j];
+	if (!y && e.size)
+	  y = e.get(j);
 	if (mkm) {
 	  z = {};
 	  for (x = -1; ++x < y.length; z[mkm[x]] = y[x]) {}
@@ -619,6 +621,9 @@ keep:   do
 		  mkm = mkm.split(/\s*,\s*/);
 	       	if ((e = fvar(j, $)) && e.length >= 0)
 		  while ((j = i) < e.length)
+		    forloop();
+		else if (e.size >= 0)
+		  for (j in e.keys())
 		    forloop();
 		else
 		  if (j = gatt("orderby"))
