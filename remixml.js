@@ -522,7 +522,7 @@ nostr:
       if (e) {
 	y = e[j];
 	if (!y && e.size)
-	  y = e.get(j);
+	  y = e.get ? e.get(j) : j;
 	if (mkm) {
 	  z = {};
 	  for (x = -1; ++x < y.length; z[mkm[x]] = y[x]) {}
