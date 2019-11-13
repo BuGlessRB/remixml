@@ -160,8 +160,12 @@ nostr:
   }
 
   function /** !Node */ txt2node(/** string|Node */ t)
-  { return t.nodeType ? /** @type {!Node} */(t)
-                      : (diva.innerHTML = t, getdf(diva));
+  { if (!t.nodeType)
+    { diva.innerHTML = t; t = getdf(diva);
+      if (t.nodeType == 11 && t.childNodes.length == 1)
+	t = t.childNodes[0];
+    }
+    return /** @type {!Node} */(t);
   }
 
   W["sizeof"] = function /** number */(/** * */ s)
