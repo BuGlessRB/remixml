@@ -626,7 +626,7 @@ keep:   do
 	       	if ((e = fvar(j, $)) && e.length >= 0)
 		  while ((j = i) < e.length)
 		    forloop();
-		else if (e.size >= 0)
+		else if (e && e.size >= 0)
 		  for (j of e.keys())
 		    forloop();
 		else
