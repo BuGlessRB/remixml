@@ -122,9 +122,7 @@
   { if (n.nodeType == 11)
       return n;
     var /** !Range */ k = D.createRange();
-    var /** !Node */ d = newel("div");
-    d.appendChild(n);
-    k.selectNodeContents(d);
+    k.selectNodeContents(n);
     return /** @type {!Node} */(k.extractContents());
   }
 
@@ -419,6 +417,15 @@ nostr:
       .reduce(function(a,i) { a[i] = 1; return a; }, {})];
   }
 
+  function /** !Node */ saninode(/** !Node|string */ sin)
+  { sin = txt2node(sin);
+    if (sin.nodeType == 11)
+      return sin;
+    var /** !Node */ d = newel("div");
+    d.appendChild(sin);
+    return d;
+  }
+
   function /** number|undefined */ parse(/** Node */ n,/** !Object */ $)
   { var j, rt, cc = bref && {}, k, e, c, ca, x, i, res, mkm, sc, to;
     function /** !Node */ eparse(/** !Node */ n)
@@ -483,7 +490,7 @@ nostr:
       }
       if (j)
 	O.assign(_, j);
-      j = eparse((j = k[0]).nodeType ? j.cloneNode(true) : txt2node(j($)));
+      j = eparse((j = k[0]).nodeType ? j.cloneNode(true) : saninode(j($)));
       ($ = o$)["_"] = o$["_"];
       return j;
     }
