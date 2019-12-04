@@ -121,8 +121,10 @@
   function /** !Node */ getdf(/** !Node */ n)
   { if (n.nodeType == 11)
       return n;
-    var /** Range */ k = D.createRange();
-    k.selectNodeContents(n);
+    var /** !Range */ k = D.createRange();
+    var /** !Node */ d = newel("div");
+    d.appendChild(n);
+    k.selectNodeContents(d);
     return /** @type {!Node} */(k.extractContents());
   }
 
