@@ -869,7 +869,7 @@ keep:   do
 	  bref = [0]; a = c.querySelectorAll("*");
 	  for (i = 0; i < a.length; i++)
 	    sattr((k = a[i]), ":c", i + 1), bref.push([k]);
-	  k = parse(c = tpl.cloneNode(true), initctx($));
+	  k = parse(getdf(c = tpl.cloneNode(true)), initctx($));
 	  while (b = bref.pop())
 	    if (b[1])
 	      sattr(b[0], ":c", JSON.stringify(b[1]));
@@ -886,12 +886,12 @@ keep:   do
       },
     "parse": function /** Node */(/** string|Node */ tpl, /** !Object */ $)
       { if (tpl)
-	  tpl = txt2node(tpl), parse(tpl, initctx($));
+	  tpl = txt2node(tpl), parse(getdf(tpl), initctx($));
 	return tpl;
       },
     "parse2txt":
      function /** string */(/** string|Node */ tpl, /** !Object */ $)
-     { return dfnone(g.parse(tpl, $));
+     { return dfnone(g.parse(getdf(tpl), $));
      },
     "parse_tagged":
       function /** !Node */(/** string|Node */ tpl, /** !Object */ $)
