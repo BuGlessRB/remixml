@@ -425,6 +425,14 @@ Exposed API-list:
   use nested `<div>` elements instead and use CSS to give those elements
   table-cell properties.
 
+- Using other elements than `<option>` inside a `<select>` is likely
+  to fail due to too strict browser runtime-filtering.  The solution would
+  be to use a `<dselect>` macro that expands to `<select>`.
+
+- Using `<img>` elements with parameterised `src` parameters should be
+  camouflaged for the browser by using a `<dimg>` element which expands
+  to `<img>`.
+
 ## References
 
 - The [Remixml website](http://remixml.org/) uses the smallest and

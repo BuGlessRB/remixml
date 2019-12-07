@@ -151,7 +151,8 @@ nostr:
     }
     j = txta;
     switch (/** @type {number|undefined} */(n.nodeType))
-    { case 11: j.appendChild(/** @type {Node} */(n)); n = j;
+    { case 1:
+      case 11: j.appendChild(/** @type {Node} */(n)); n = j;
       default: n = n.innerHTML;
       case undefined:;
     }
