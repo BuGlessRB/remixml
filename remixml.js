@@ -163,7 +163,8 @@ nostr:
   function /** !Node */ txt2node(/** string|Node */ t)
   { if (!t.nodeType)
     { diva.innerHTML = t; t = getdf(diva);
-      if (t.nodeType == 11 && t.childNodes.length == 1 && t.children.length)
+      if (t.nodeType == 11 && t.childNodes.length == 1
+       && t.children && t.children.length)
 	t = t.children[0];
     }
     return /** @type {!Node} */(t);
