@@ -760,11 +760,10 @@ keep:   do
 	      if (k = $["_"]["_tag"][j])
 	      { if (repltag(newctx(k, null, n)))
 		  continue drop;
-	      } else if (n.firstElementChild)	// Avoid unnecessary recursion
+	      } else if (n.childElementCount)	// Avoid unnecessary recursion
 	      { if (parse(n, $))		// Parse unnecessary?
 		  cp(-1);
-	      }
-	      else if (n.firstChild && (k = n.textContent).length > 4
+	      } else if (n.firstChild && (k = n.textContent).length > 4
 		    && k.indexOf("&") >= 0)
 	      { if ((e = replent(k, $)).nodeType)
 		  if (e.childNodes.length == 1 && e.firstChild.nodeType == 3)
