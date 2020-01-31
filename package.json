@@ -1,12 +1,13 @@
 {
   "name": "remixml",
-  "version": "1.10.6",
+  "version": "2.0.0",
   "description": "XML/HTML-like macro language/template engine",
   "main": "remixml.js",
   "browser": "remixml.js",
   "homepage": "https://remixml.org/",
   "scripts": {
-    "test": "# Can only be tested inside a browser environment."
+    "test": "# Can only be tested inside a browser environment.",
+    "prepublish": "./prepfiles"
   },
   "dependencies": {},
   "devDependencies": {},
@@ -16,7 +17,7 @@
   },
   "keywords": [
     "RXML", "XML", "HTML", "Roxen", "template", "macro", "language",
-    "zerodeps"
+    "compiler", "zerodeps"
   ],
   "author": "Stephen R. van den Berg <srb@cuci.nl>",
   "license": "(ISC OR GPL-3.0)"

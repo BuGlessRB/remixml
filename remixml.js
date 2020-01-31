@@ -1,22 +1,49 @@
    /** @license
-   ** Remixml v1.8.14: XML/HTML-like macro language
-  ** Copyright (c) 2018-2019 by Stephen R. van den Berg <srb@cuci.nl>
+   ** Remixml v2.0.0: XML/HTML-like macro language compiler
+  ** Copyright (c) 2018-2020 by Stephen R. van den Berg <srb@cuci.nl>
  ** License: ISC OR GPL-3.0
 ** Sponsored by: Cubic Circle, The Netherlands
 */
 
 /** @define {number} */ var DEBUG = 0;
+/** @define {number} */ var RUNTIMEDEBUG = 1;
+/** @define {number} */ var MEASUREMENT = 0;
+/** @define {number} */ var ASSERT = 1;
+/** @define {number} */ var VERBOSE = 0;
 
-(function(W, D, O)
+// Cut BEGIN delete
+(function()
 { "use strict";
-  const /** Object */ al = /[&<]/, splc = /\s*,\s*/;
-  const /** Object */ fcache = {}, rcache = {}, diacr = {};
-  const /** string */ ctn = "_contents";
-  const /** Node */ txta = newel("textarea"), diva = newel("div");
-  var /** function(...) */ log = console.log;
+// Cut END delete
 
-  // For preparse state, not re-entry-safe
-  var /** Object<string,Array> */ bref;
+  // Cut BEGIN for externs.h
+  var vp,B,C,E,F,G,K,L,M,N,P,Q,R,S,T,U,V,X,Y,Z,
+   sizeof,desc,abstract2txt,abstract2dom;
+  function /** * */ A($,v,_)
+  { if(_&&!_.length&&_[""]===1)_="";return eval(vp(v)+"=_;");};
+  function ve($,n){return eval(vp(n));};
+  // Cut END for externs.h
+
+  const W = typeof window == "object" ? window : global;
+  const D = typeof document == "object" ? document : require("minidom")('');
+  const O = Object;
+
+  const /** !RegExp */ splc = /\s*,\s*/g;
+  const /** Object */ diacr = {};
+  const /** Node */ txta = newel("textarea");
+  const /** Node */ diva = newel("div");
+  const /** string */ varinsert = "I=K($,H,x);}catch(x){I=0;}";
+  const /** !RegExp */ txtentity =
+   /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
+  const /** !RegExp */ varentity
+   = /&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/;
+  const /** !RegExp */ tokenrx =
+ /[^<&]+(?:&[^.;]*;[^<&]*)*|&[^;]*;|<(?:(?:[^'">]*|"[^"]*"|'[^']*')*|!.*?--)>/g;
+  const /** !RegExp */ params = /\s*([-\w:]+|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?/g;
+  const /** !RegExp */ complexlabel = /[^\w_]/;
+  const /** !RegExp */ scriptend = /<\/script>/g;
+
+  var /** function(...) */ log = console.log;
 
   function /** !boolean */ isstring(/** * */ s)
   { return O.prototype.toString.call(s) === "[object String]"; }
@@ -24,24 +51,24 @@
   function /** string */ eumap(/** string */ s)
   { return {"+":"%2B"," ":"+","?":"%3F","&":"%26","#":"%23"}[s]; }
 
+  function /** string */ htmlmap(/** string */ s)
+  { return {"&":"&amp;","<":"&lt;"}[s]; }
+
+  function /** string */ argmap(/** string */ s)
+  { return {"&":"&amp;","\"":"&dquot;"}[s]; }
+
   function udate(t) { return t.valueOf() - t.getTimezoneOffset * 60000; }
-  function /** !Node */ replelm(/** !Node */ n, /** !Node */ o)
-  { return o.parentNode.replaceChild(n, o);
-  }
-
-  function /** string */ gattr(/** !Node */ n, /** string */ k)
-  { return n.getAttribute(k);
-  }
-
-  function sattr(n, k, v) { n.setAttribute(k, v); }
 
   function /** !Node */ newel(/** string */ n)
   { return D.createElement(n);
   }
 
-  function rattr(/** !Node */ n, /** string */ k) { n.removeAttribute(k); }
-
   function /** !boolean */ isa(/** * */ s) { return Array.isArray(s); }
+
+  function /** !boolean */ iso(/** * */ obj)
+  { var type = typeof obj;
+    return type === 'function' || type === 'object' && !!obj;
+  }
 
   function /** string */ pad0(/** number */ i, /** number */ p)
   { var /** string */ ret;
@@ -56,7 +83,7 @@
     { t = d.match && /[A-Za-z]/.test(d);
       d = new Date(d);
       if (t)
-	d = new Date(2 * d.valueOf() - udate(t));	// Adjust to localtime
+        d = new Date(2 * d.valueOf() - udate(t));	// Adjust to localtime
     }
     var dy = d.getDay(), md = d.getDate(), m = d.getMonth(),
      y = d.getFullYear(), h = d.getHours(), h24 = 86400000;
@@ -64,7 +91,7 @@
     { var o = {};
       o[t || "weekday"] = f || "short";
       return new Intl.DateTimeFormat(lang, o)
-	.format(/** @type {!Date|number|undefined} */(d));
+        .format(/** @type {!Date|number|undefined} */(d));
     }
     function thu()
     { var t = new Date(d);
@@ -74,144 +101,59 @@
     return fmt.replace(/%([A-Za-z%])/g, function(a, p)
     { switch(p)
       { case "a": return ifm();
-	case "A": return ifm(undefined, "long");
-	case "b": return ifm("month");
-	case "B": return ifm("month", "long");
-	case "G": return thu().getFullYear();
-	case "g": return (thu().getFullYear() + "").slice(2);
-	case "k": return h;
-	case "n": return m + 1;
-	case "e": return md;
-	case "d": return pad0(md, 2);
-	case "H": return pad0(h, 2);
-	case "j": return pad0(Math.floor((udate(d) - udate(Date(y))) / h24) + 1,
-				3);
-	case "C": return Math.floor(y / 100);
-	case "s": return Math.round(d.valueOf() / 1000);
-	case "l": return (h + 11) % 12 + 1;
-	case "I": return pad0((h + 11) % 12 + 1, 2);
-	case "m": return pad0(m + 1, 2);
-	case "M": return pad0(d.getMinutes(), 2);
-	case "S": return pad0(d.getSeconds(), 2);
-	case "p": return h<12 ? "AM" : "PM";
-	case "P": return h<12 ? "am" : "pm";
-	case "%": return "%";
-	case "R": return strftime("%H:%M", d, lang);
-	case "T": return strftime("%H:%M:%S", d, lang);
-	case "V":
-	  t = thu(); ut = t.valueOf(); t.setMonth(0, 1);
-	  if ((j1 = t.getDay()) != 4)
-	    t.setMonth(0, 1 + (11 - j1) % 7);
-	  return pad0(1 + Math.ceil((ut - t) / (h24 * 7)), 2);
-	case "u": return dy || 7;
-	case "w": return dy;
-	case "Y": return y;
-	case "y": return (y + "").slice(2);
-	case "F": return d.toISOString().slice(0, 10);
-	case "c": return d.toUTCString();
-	case "x": return d.toLocaleDateString();
-	case "X": return d.toLocaleTimeString();
-	case "z": return d.toTimeString().match(/.+GMT([+-]\d+).+/)[1];
-	case "Z": return d.toTimeString().match(/.+\((.+?)\)$/)[1];
+        case "A": return ifm(undefined, "long");
+        case "b": return ifm("month");
+        case "B": return ifm("month", "long");
+        case "G": return thu().getFullYear();
+        case "g": return (thu().getFullYear() + "").slice(2);
+        case "k": return h;
+        case "n": return m + 1;
+        case "e": return md;
+        case "d": return pad0(md, 2);
+        case "H": return pad0(h, 2);
+        case "j": return pad0(Math.floor((udate(d) - udate(Date(y))) / h24) + 1,
+        			3);
+        case "C": return Math.floor(y / 100);
+        case "s": return Math.round(d.valueOf() / 1000);
+        case "l": return (h + 11) % 12 + 1;
+        case "I": return pad0((h + 11) % 12 + 1, 2);
+        case "m": return pad0(m + 1, 2);
+        case "M": return pad0(d.getMinutes(), 2);
+        case "S": return pad0(d.getSeconds(), 2);
+        case "p": return h<12 ? "AM" : "PM";
+        case "P": return h<12 ? "am" : "pm";
+        case "%": return "%";
+        case "R": return strftime("%H:%M", d, lang);
+        case "T": return strftime("%H:%M:%S", d, lang);
+        case "V":
+          t = thu(); ut = t.valueOf(); t.setMonth(0, 1);
+          if ((j1 = t.getDay()) !== 4)
+            t.setMonth(0, 1 + (11 - j1) % 7);
+          return pad0(1 + Math.ceil((ut - t) / (h24 * 7)), 2);
+        case "u": return dy || 7;
+        case "w": return dy;
+        case "Y": return y;
+        case "y": return (y + "").slice(2);
+        case "F": return d.toISOString().slice(0, 10);
+        case "c": return d.toUTCString();
+        case "x": return d.toLocaleDateString();
+        case "X": return d.toLocaleTimeString();
+        case "z": return d.toTimeString().match(/.+GMT([+-]\d+).+/)[1];
+        case "Z": return d.toTimeString().match(/.+\((.+?)\)$/)[1];
       }
       return a;
     });
   }
 
-  function /** !Node */ getdf(/** !Node */ n)
-  { if (n.nodeType == 11)
-      return n;
-    var /** !Range */ k = D.createRange();
-    k.selectNodeContents(n);
-    return /** @type {!Node} */(k.extractContents());
-  }
-
-  function /** string */ dfhtml(/** !Node */ n)
-  { var /** Node */ k = newel("div"); k.appendChild(n); return k.innerHTML; }
-
-  function /** string */ dfnone(/** Node|string */ n)
-  { var /** Node */ j;
-nostr:
-    switch (/** @type {number|undefined} */(n.nodeType))
-    { case 11:
-	switch (n.childNodes.length)
-	{ case 0: return "";
-	  default:
-	    break nostr;
-	  case 1:
-	    if ((j = n.firstChild).nodeType == 3)
-	      n = j.nodeValue;
-	    else
-	      break nostr;
-	}
-      case undefined:
-	let /** number */ i;
-	if ((i = n.indexOf("&")) < 0 || n.indexOf(";", i + 2) < 0)
-	  return /** @type {string} */(n);
-    }
-    j = txta;
-    switch (/** @type {number|undefined} */(n.nodeType))
-    { case 1:
-      case 11: j.appendChild(/** @type {Node} */(n)); n = j;
-      default: n = n.innerHTML;
-      case undefined:;
-    }
-    j.innerHTML = n; n = j.value; j.textContent = "";
-    return /** @type {string} */(n);
-  }
-
-  function /** !Node */ txt2node(/** string|Node */ t)
-  { if (!t.nodeType)
-    { diva.innerHTML = t; t = getdf(diva);
-      if (t.nodeType == 11 && t.childNodes.length == 1
-       && t.children && t.children.length)
-	t = t.children[0];
-    }
-    return /** @type {!Node} */(t);
-  }
-
-  W["sizeof"] = function /** number */(/** * */ s)
-  { return Number(s) === s ? 1
-     : s ? s.nodeType ? dfnone(/** @type {!Node|string} */(s)).length
-     : s.length || O.keys(/** @type {!Object} */(s)).length : 0;
-  };
-
-  function /** * */ fvar(/** string */ s, /** !Object */ $, /** *= */ val)
-  { var /** string */ i;
-    var /** Object */ j;
-    var /** Array<string> */ a;
-    i = (a = s.split(/[.[\]]+/)).shift();
-    if (val === undefined)
-    { val = $[i];
-      do
-      { if (!val)
-	  break;
-	i = a.shift() + "";
-	val = val.nodeType ? val = i == ctn
-	  ? getdf(val) : gattr(val, i) : val[i];
-      } while (a.length);
-      return val;
-    }
-    do
-    { if (!(j = $[i]))
-	$[i] = j = {};
-      $ = j; i = a.shift();
-    } while (a.length);
-    if (val == null)
-      delete $[i];
-    else
-      $[i] = val;
-  }
-
   function /** string */ encpath(/** string */ s)
   { return s.toLowerCase()
-		.replace(/[^\0-~]/g, function(a) { return diacr[a] || a; })
-		.replace(/(?:&(?:[^&;\s]*;)?|[^&a-z0-9])+/g, "-")
-		.replace(/^-|[\u0300-\u036f]|-$/g, "");
+        	.replace(/[^\0-~]/g, function(a) { return diacr[a] || a; })
+        	.replace(/(?:&(?:[^&;\s]*;)?|[^&a-z0-9])+/g, "-")
+        	.replace(/^-|[\u0300-\u036f]|-$/g, "");
   }
 
   function /** string */ sp(/** string */ j, /** string */ s)
-  { if (j[0] == "0")
+  { if (j[0] === "0")
       j[0] = s;
     else
       j = s + j;
@@ -222,14 +164,14 @@ nostr:
    fmtf(/** number */ k, /** string */ s, /** number */  d)
   { var /** string */ t
      = /** @type {function(string=, Object=):string} */(k.toLocaleString)(s,
-	{"minimumFractionDigits": d, "maximumFractionDigits": d});
+        {"minimumFractionDigits": d, "maximumFractionDigits": d});
     if (t == k)
     { s = "";
       if (k < 0)
-	s = "-", k = -k;
+        s = "-", k = -k;
       t = Math.round(k * Math.pow(10, d)) + "";
       while (t.length <= d)
-	t = "0" + t;
+        t = "0" + t;
       d = t.length - d; t = s + t.substr(0, d) + "." + t.substr(d);
     }
     return t;
@@ -242,607 +184,821 @@ nostr:
         {"style":"currency", "currency":cur});
     if (t == k)
       t = ({"EUR":"\u20AC", "USD":"$", "CNY":"\u00A5"}[cur] || cur)
-	+ fmtf(k, lang, 2);
+        + fmtf(k, lang, 2);
     t = t.match(/([^-0-9\s]+)\s*([-0-9].*)/);
     return t[1] + "&nbsp;" + t[2];
-  }
-
-  function /** string|!Array{string} */ insert(/** string */ k,
-    /** string */ quot, /** string */ fmt, /** !Object */ $)
-  { var /** * */ j;
-    if ((j = fvar(k, $)) != null)
-    { if (j.nodeType)
-      { j = j.cloneNode(true);
-	switch (quot)
-	{ case "none":case "":case "recurse":case "r":
-	    if (!fmt)
-	      break;
-	  default: j = dfhtml(j);
-	}
-      } else if (- - /** @type {string|number} */(j) == j)
-	/** @type {number} */(j) += "";
-      else if (typeof j == "function")
-	j = j($["_"], $);
-      if (fmt && isstring(j))
-      { let /** Array<string> */ r = fmt.match(
-/^([-+0]+)?([1-9][0-9]*)?(?:\.([0-9]+))?(t([^%]*%.+)|[a-zA-Z]|[A-Z]{3})?$/);
-	var p = r[3], lang = $["sys"] && $["sys"]["lang"] || undefined;
-	switch (r[4])
-	{ case "c": j = String.fromCharCode(+j); break;
-	  case "d": j = parseInt(j, 10).toLocaleString(); break;
-	  case "e":
-	    j = /** @type {function((null|string)):string} */
-	     ((+j).toExponential)(p > "" ? p : null);
-	    break;
-	  case "f":
-	    if (!(p > ""))
-	      p = 6;
-	    j = fmtf(+j, lang, /** @type {number} */(p));
-	    break;
-	  case "g": j = /** @type {function((number|string)):string} */
-	     ((+j).toPrecision)(p > "" ? p : 6); break;
-	  case "x": j = (parseInt(j, 10) >>> 0).toString(16); break;
-	  case "s":
-	    if (p > "")
-	      j = j.substr(0, p);
-	    break;
-	  default:
-	    j = r[4][0] == "t"
-	        ? strftime(r[5], /** @type {string} */(j), lang)
-		: /[A-Z]{3}/.test(r[4]) ? fmtcur(+j, lang, r[4]) : j;
-	}
-	if (r[1])
-	{ if (r[1].indexOf("0") >= 0 && (p = +r[2]))
-	    j = +j < 0 ? sp(pad0(- /** @type {number} */(j), p), "-")
-	               : pad0(/** @type {number} */(j), p);
-	  if (r[1].indexOf("+") >= 0 && +j >= 0)
-	    j = sp(/** @type {string} */(j), "+");
-	}
-      }
-      switch (quot)
-      { case "json": j = JSON.stringify(j).replace(/</g, "\\u003c"); break;
-	case "uric": j = j.replace(/[+ ?&#]/g, eumap); break;
-	case "path": j = encpath(/** @type {string} */(j)); break;
-	default:
-	  if (isstring(j))
-	    j = D.createTextNode(j);
-	case "none": case "":case "recurse": case "r":;
-      }
-      $["_"]["_ok"] = 1;
-    } else
-      $["_"]["_ok"] = 0, j = "";
-    return /** @type {string} */(j);
-  }
-
-  function /** string|!Node|!Array<string> */
-   replent(/** string */ s, /** !Object */ $)
-  { function /** string|!Node|!Array<string> */
-     r(/** string|!Node|!Array<string> */ s)
-    { var /** string */ c;
-      var /** string|!Node|!Array<string> */ j;
-      var /** Array<string> */ i;
-      if (s.nodeType)
-      { let /** Node */ h;
-	if (h = s.firstChild)
-	{ let /** string|!Node|!Array<string> */ k;
-	  do
-	    if ((k = r(h)) != h)
-	      if (k.nodeType)
-		s.replaceChild(/** @type {Node} */(k), h = k.lastChild || h);
-	      else
-		h.nodeValue = k;
-	  while(h = h.nextChild);
-	  return s;
-	}
-	s = s.nodeValue;
-      }
-      if ((i = s.split(
-	   /&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/))
-       .length > 1)
-      { s = i.shift();
-	do
-	{ j = i.shift();
-	  c = i.shift(); j = insert(j, c, i.shift(), $);
-	  switch (c)
-	  { case "recurse":case "r":
-	      j = r(j);
-	  }
-	  c = i.shift();
-	  if (!isstring(j))
-	  { if (j.nodeType)
-	    { if (!s.lastChild)
-		s = txt2node(/** @type {string} */(s));
-	      s.appendChild(/** @type {Node} */(j)); j = "";
-	    } else
-	    { if (!s)
-	      { s = c ? [j, c]: j;
-		continue;
-	      }
-	      if (!isa(s))
-		s = [s];
-	    }
-	  }
-	  if (isa(s))
-	  { s.push(/** @type {string} */(j));
-	    if (c)
-	      s.push(/** @type {string} */(j));
-	  } else if (j = j + c)
-	    if (c = s.lastChild)
-	      if (c.nodeType == 3 && !al.test(j))
-		c.nodeValue += j;
-	      else
-		s.appendChild(txt2node(j));
-	    else if (al.test(j))
-	      s = txt2node(s + j);
-	    else
-	      s += j;
-	} while (i.length);
-      }
-      return s;
-    }
-    return r(s);
   }
 
   function logerr(t, x)
   { log("Remixml expression: " + JSON.stringify(t) + "\n" + x);
   }
 
-  function trim(/** !Node */ s)
-  { var n = s.firstChild, i;
-    if (n)
-      do
-      { i = n.nextChild;
-	if (n.nodeType == 8)		// Strip comment nodes
-	  s.removeChild(n);
-	else
-	  trim(n);
-      } while (n = i);
-    else if (s.nodeValue)
-      s.nodeValue = s.nodeValue.replace(/\s\s+/g,' ');
-  }
-
-  function /** !Node */ btrim(/** !Node */ e)
-  { var k;
-    e.normalize(); trim(e);
-    if ((k = e.firstChild) && k.nodeType == 3)
-      k.nodeValue = k.nodeValue.trimStart();
-    if ((k = e.lastChild) && k.nodeType == 3)
-      k.nodeValue = k.nodeValue.trimEnd();
-    return e;
-  }
-
-  function settag(/** !Node|function(...):(string|!Node) */ tpl,
-   /** !Object */ $,/** string */ name,/** string|number= */ scope,
+  function settag(/** function(!Object):!Array */ tpl,
+   /** !Object */ $,/** string */ name,/** string= */ scope,
    /** boolean|number= */ noparse,/** string= */ args)
-  { $["_"]["_tag"][name.toUpperCase()] = [tpl, scope, noparse,
-     (args ? args.split(splc) : [])
-      .reduce(function(a,i) { a[i] = 1; return a; }, {})];
+  { $["_"]["_tag"][name]
+     = function /** void */(/** !Array */W,/** !Array */ H,/** !Object */ $)
+      { $ = C(H, $, (args ? args.split(splc) : [])
+         .reduce(function(a,i) { a[i] = 1; return a; }, {}), scope);
+        return tpl($);
+      };
   }
-
-  function /** !Node */ saninode(/** !Node|string */ sin)
-  { sin = txt2node(sin);
-    if (sin.nodeType == 11)
-      return sin;
-    var /** !Node */ d = newel("div");
-    d.appendChild(sin);
-    return d;
+  			// appendChild with text (coalesce strings first)
+  T = function /** string */(/** !Array */ H,/** string= */ s)
+  { if (!s)
+      s = "\n";
+    let /** number */ last = H.length - 1;
+    if (isstring(H[last]))
+      H[last] += s;
+    else
+      H.push(s);
+  };
+  			// appendChild (merge into)
+  M = function /** void */(/** !Array */ H,/** !Array */ elm)
+  { var /** !Array|string */ s;
+    while (s = elm.shift())
+      if (s[""])
+        H.push(s);
+      else
+        T(H, s);
+  };
+  			// Evaluate recursively
+  E = function /** !Array */
+   (/** !Array */ elm,/** string */ recurse,/** !Object */ $)
+  { var /** number */ n = +(recurse || 0);
+    var /** string */ lastsrc = "";
+    var /** string */ src;
+    var /** function(Object) */ f;
+    do
+    { src = Y(elm);   // FIXME not generating back to txt?
+      if (src === lastsrc)
+        break;
+      elm = compile(lastsrc = src)($);
+    } while (--n);
+    return elm;
+  };
+  			// Generic replace function
+  P = function /** function(string):string */(/** string */ xp,
+   /** string */ flags,/** string|function(...):string */ to)
+  { return function (x) { return x.replace(RegExp(xp, flags), to); };
+  };
+  			// Replace runs of whitespace with a single space
+  function /** string */ subws(/** string */ s)
+  { return s.replace(/\s\s+/g, " ");
   }
-
-  function /** number|undefined */ parse(/** Node */ n,/** !Object */ $)
-  { var j, rt, cc = bref && {}, k, e, c, ca, x, i, res, mkm, sc, to;
-    function /** !Node */ eparse(/** !Node */ n)
-    { var /** Node */ k; parse(k = getdf(n), $); return k;
-    }
-    function /** string */ gatt(/** string */ k)
-    { return gattr(/** @type {!Node} */(n), k);
-    }
-    function /** function(!Object):* */ jsfunc(/** string */ j)
-    { var e;
-      if (!(e = fcache[j]))
-        try
-        { e = Function("$", "$$", '"use strict";var _=$._;' + j);
-	  if (!gatt("nojscache"))
-            fcache[j] = e;
-	} catch(x) { logerr(j, x); }
-      return e;
-    }
-    function run(k)
-    { try { return k($); } catch(x) { logerr(gatt("expr"), x); }
-    }
-    function repltag(e)
-    { var j;
-      var /** Node */ t;
-      if (j = e.lastChild)
-	t = /** @type {!Node} */(n), n = j, replelm(e, t);
-      else if (j = e.nodeValue)
-	replelm(e, /** @type {!Node} */(n)), n = e;
-      return !j;
-    }
-    function /** Node */
-     newctx(/** !Array */ k, /** Object */ j, /** Node= */ e)
-    { var o$ = $, at, _, i, v, r;
-      if (e)
-      { at = e.attributes;
-	if (!k[2])		// !noparse
-	  e = eparse(e);
-      }
-      ($ = O.assign({}, $))["_"]
-	= _ = {"_":$["_"], "_tag":O.assign({}, $["_"]["_tag"])};
-      if (k[1])
-	$[k[1]] = _;
-      if (e)
-      { let /** Node|string */ cn = e;
-	if (e.nodeType != 11)
-	  cn = getdf(e);
-	else if (!e.childElementCount)
-	  switch (e.childNodes.length)
-	  { case 0:
-	      cn = "";
-	      break;
-	    case 1:
-	      cn = e.firstChild.nodeValue;
-	  }
-	_[ctn] = cn; _["_restargs"] = r = {};
-	for (i = at.length; i--; )
-	{ let /** string */ ts;
-	  v = _[ts = at[i].name] = at[i].value;
-	  if (!k[3][ts])       // args
-	    r[ts] = v;
-	}
-      }
-      if (j)
-	O.assign(_, j);
-      j = eparse((j = k[0]).nodeType ? j.cloneNode(true) : saninode(j($)));
-      ($ = o$)["_"] = o$["_"];
-      return j;
-    }
-    function /** * */ pexpr(/** !Node=|string= */ c)
-    { var /** string */ j;
-      return (j = gatt("expr")) != null && (c || j)
-	  && jsfunc(!j && c ? dfnone(c) : "return(" + dfnone(j) + ");");
-    }
-    function pregx()
-    { var j;
-      try
-      { return (j = gatt("regexp")) != null
-	  && (rcache[j] || (rcache[j] = RegExp(j)));
-      } catch(x) { logerr(j, x); }
-    }
-    function ret(e) { return repltag(txt2node(e)); }
-    function pret() { return repltag(eparse(/** @type {!Node} */(n))); }
-    function cp(x) { c && c.push(x); }
-    function prat(j)
-    { var e, i = k[j], s = i.value;
-      if (!c || s.length > 4 && s.indexOf("&") >= 0)
-      { if ((e = replent(s, $)).nodeType)
-	  e = dfnone(/** @type {!Node|string} */(e));
-	else if (i.name == "::")
-	{ x = e; cp(j);
-	  return;
-	}
-	if (s != e)
-	  i.value = e, cp(j);
-      }
-    }
-    function prost()
-    { if (x)
-      { var j;
-	rattr(/** @type {!Node} */(n), "::");
-	for (j in x)
-	  sattr(n, j, x[j]);
-      }
-    }
-    function forloop()
-    { var x, y, z, t = {"_index": j, "_recno": ++i};
-      if (e) {
-	y = e[j];
-	if (!y && e.size)
-	  y = e.get ? e.get(j) : j;
-	if (mkm) {
-	  z = {};
-	  for (x = -1; ++x < y.length; z[mkm[x]] = y[x]) {}
-	  y = z;
-	}
-	t = O.assign(t, t["_value"] = y);
-      }
-      res.appendChild(newctx([n, sc], t)); $["_"]["_ok"] = 1;
-    }
-    n = n.firstChild;
-next:
-    while (n) {
-drop: do {
-keep:   do
-	{ c = 0;
-	  if (k = n.attributes)
-	  { x = 0;
-	    if (ca = gatt(":c"))
-	      rattr(/** @type {!Node} */(n), ":c");
-	    if (ca && isa(ca = JSON.parse(ca)))
-	      for (j in ca)
-		if (ca[j] < 0)
-		{ prost();
-		  break keep;
-		}
-		else
-		  prat(ca[j]);
-	    else
-	    { c = ca && cc && [];
-	      for (j = k.length; j--; )
-		prat(j);
-	    }
-	    prost();
-	  }
-	  switch (j = n.tagName)
-	  { case "SET":
-	      if (e = gatt("var")||gatt("variable"))
-	      { if (k = pexpr(/** @type {!Node} */(n)))
-		  k = run(k);
-		else
-		  switch ((k = eparse(/** @type {!Node} */(n)))
-		   .childNodes.length)
-		  { case 0: k = "";
-		      break;
-		    case 1:
-		      if ((j = k.firstChild).nodeType == 3)
-			k = j.realvalue || j.nodeValue;
-		  }
-		if ((j = gatt("selector")) != null)
-		  k = k.querySelectorAll(j);
-		else
-		{ if (gatt("json") != null)
-		    k = JSON.parse(dfnone(k));
-		  if ((j = gatt("mkmapping")) != null)
-		  { j = j.split(/\s*,\s*/);
-		    for (x = k, k = {}, i = -1; ++i < j.length;)
-		      k[j[i]] = x[i];
-		  } else
-		  { x = gatt("split");
-		    if (j = pregx()) {
-		      k = dfnone(/** @type {!Node|string} */(k));
-		      k = x != null ? k.split(j) : k.match(j);
-		    } else if (x != null)
-		      k = dfnone(/** @type {!Node|string} */(k)).split(x);
-		    if ((j = gatt("join")) != null)
-		      k = k.join(j);
-		  }
-		}
-		fvar(e, $, k);
-	      } else if (e = gatt("tag"))
-		settag(getdf(/** @type {!Node} */(n)), $, e, gatt("scope"),
-		 gatt("noparse") != null, gatt("args"));
-	      continue drop;
-	    case "UNSET":
-	      if (e = gatt("var")||gatt("variable"))
-		fvar(e, $, null);
-	      continue drop;
-	    case "ELIF":
-	      if ($["_"]["_ok"])
-		continue drop;
-	    case "IF":
-	      e = pexpr(); $["_"]["_ok"] = e && run(e);
-	    case "THEN":
-	      if (!$["_"]["_ok"] || pret())
-		continue drop;
-	      break;
-	    case "ELSE":
-	      if ($["_"]["_ok"] || pret())
-		continue drop;
-	      break;
-	    case "FOR":
-	    { i = 0; res = D.createDocumentFragment(); sc = gatt("scope");
-	      $["_"]["_ok"] = 0;
-	      if (j = gatt("in"))
-	      { if (mkm = gatt("mkmapping"))
-		  mkm = mkm.split(/\s*,\s*/);
-	       	if ((e = fvar(j, $)) && e.length >= 0)
-		  while ((j = i) < e.length)
-		    forloop();
-		else if (e && e.size >= 0)
-		  for (j of e.keys())
-		    forloop();
-		else
-		  if (j = gatt("orderby"))
-		  { let /** function(!Object,(string|number)):* */ ord
-		     = jsfunc("var _index=$$;" +
-		     "function desc(i){return- -i===i?-i:[i,1];}return["
-		      + j + "];");
-		    try
-		    { let old_ = $["_"];
-		      (to = O.keys(/** @type {!Object}:* */(e)))
-		       .sort(function(a, b)
-		      { var x, y, i, n, r;
-			var /** number */ ret;
-			$["_"] = e[a]; x = ord($, a);
-			$["_"] = e[b]; y = ord($, b);
-			for (i = 0, n = x.length; i < n; i++)
-			{ r = 0;
-			  if (isa(x[i]))
-			    r = 1, x[i] = x[i][0], y[i] = y[i][0];
-			  if (ret = /** @type {number} */
-			           (x[i] > y[i] || -(x[i] != y[i])))
-			    return r ? -ret : ret;
-			}
-			return r ? -ret : ret;
-		      });
-		      $["_"] = old_;
-		    } catch(x) { logerr(j, x); }
-		    while (i < to.length)
-		      j = to[i], forloop();
-		  } else
-		    for (j in e)
-		      forloop();
-	      } else
-	      { let /** number */ step = +gatt("step") || 1;
-		to = +gatt("to");
-		for (j = +gatt("from");
-		     step > 0 ? j <= to : to <= j;
-		     j += step)
-		  forloop();
-	      }
-	      if (repltag(res))
-		continue drop;
-	      break;
-	    }
-	    case "DELIMITER":
-	      if ($["_"]["_recno"] < 2 || pret())
-		continue drop;
-	      break;
-	    case "INSERT":
-	      if (e = gatt("var")||gatt("variable"))
-	      { $["_"]["_ok"] = 1;
-		e = insert(e, gatt("quote") || "", gatt("format"), $);
-		if ((j = +gatt("offset")) || (k = gatt("limit")) != null)
-		  e = dfnone(/** @type {string} */(e)).substr(j, +k);
-		if (isa(e) && (j = gatt("join")) != null)
-		  e = /** @type {Array<string>} */(e).join(j);
-		if (ret(e))
-		  continue drop;
-		break;
-	      }
-	      switch (gatt("variables"))
-	      { case "dump":
-		  if (ret(JSON.stringify((e = gatt("scope")) ? $[e] : $)))
-		    continue drop;
-		  break keep;
-	      }
-	      continue drop;
-	    case "REPLACE":
-	      try
-	      { if (ret(dfnone(eparse(/** @type {!Node} */(n)))
-		 .replace((k = pregx())
-		    ? RegExp(k, (e = gatt("flags")) == null ? "g" : e)
-		    : gatt("from"),
-		   /** @type {string} */(pexpr()) || gatt("to"))))
-		  continue drop;
-	      } catch(x) { logerr(gatt("expr"), x); }
-	      break;
-	    case "TRIM":
-	      if (repltag(btrim(eparse(/** @type {!Node} */(n)))))
-		continue drop;
-	      break;
-	    case "MAKETAG":
-	      e = eparse(k = n); n = newel(gattr(k, "name"));
-	      for (j = e.firstChild; j; j = x)
-	      { x = j.nextSibling;	// IE11 lacks nextElementSibling
-		if (j.nodeType == 1)
-		  if (j.tagName == "ATTRIB")
-		    sattr(n, gattr(j, "name"), j.textContent), e.removeChild(j);
-		  else
-		    break;
-	      }
-	      e.normalize(); n.appendChild(e);
-	      replelm(/** @type {!Node} */(n), k);
-	      break;
-	    case "SCRIPT":
-	      e = (k = n).attributes; n = newel("SCRIPT");
-	      for (j = -1; ++j < e.length; sattr(n, e[j].name, e[j].value)) {}
-	      n.textContent = k.textContent;
-	      replelm(/** @type {!Node} */(n), k);
-	      break;
-	    case "EVAL":
-	      j = (j = gatt("recurse")) == null ? 0 : j === "" ? j : +j;
-	      for (k = "", e = n; j === "" || j-- >= 0; e = txt2node(k = e))
-		if ((e = dfnone(eparse(e))) == k)
-		  j = -1;
-	      parse(e, $);
-	      if (repltag(e))
-		continue drop;
-	      break;
-	    case "NOPARSE":
-	      if (repltag(getdf(/** @type {!Node} */(n))))
-		continue drop;
-	      break;
-	    case "NOOUTPUT":
-	      eparse(/** @type {!Node} */(n));
-	    case "COMMENT":
-	      continue drop;
-	    default:
-	      if (k = $["_"]["_tag"][j])
-	      { if (repltag(newctx(k, null, n)))
-		  continue drop;
-	      } else if (n.childElementCount)	// Avoid unnecessary recursion
-	      { if (parse(n, $))		// Parse unnecessary?
-		  cp(-1);
-	      } else if (n.firstChild && (k = n.textContent).length > 4
-		    && k.indexOf("&") >= 0)
-	      { if ((e = replent(k, $)).nodeType)
-		  if (e.childNodes.length == 1 && e.firstChild.nodeType == 3)
-		    e = e.firstChild.nodeValue;
-		  else
-		  { n.textContent = ""; n.appendChild(e);
-		    break;
-		  }
-		if (e != k)
-		  n.textContent = e;
-		else
-		  cp(-1);
-	      } else
-		  cp(-1);
-	      break;
-	    case undefined:		// Leave comment nodes untouched
-	      if (n.nodeType != 8 && (k = n.nodeValue).length > 4
-		&& k.indexOf("&") >= 0)
-	      { if ((e = replent(n.nodeValue, $)).nodeType)
-		{ rt = 1;
-		  if (e.childNodes.length == 1 && e.firstChild.nodeType == 3)
-		    e = e.firstChild.nodeValue;
-		  else if (repltag(e))
-		    continue drop;
-		  else
-		    break;
-		}
-		if (e != n.nodeValue)
-		{ n.nodeValue = n.realvalue = /** @type {string} */(e);
-		  rt = 1;
-		}
-	      }
-	  }
-	} while(0);
-	if (c)
-	  cc[ca] = c;
-	n = n.nextSibling;
-	continue next;
-      } while (0);
-      if (c)
-	cc[ca] = c;
-      k = n; n = n.nextSibling; k.parentNode.removeChild(k);
-    }
-    if (!cc)
-      return;
-    if (!rt)
-    { j = 1;
-      for (n in cc)
-	if (($ = cc[n]).length != 1 || $[0] >= 0)
-	{ j = 0;
-	  break;
-	}
-      if (j)
-	return 1;
-    }
-    for (k in cc)
-      bref[k].push(cc[k]);
-    return 0;
+  			// Replace runs of whitespace with a single space or nl
+  function /** string */ subwnl(/** string */ s)
+  { return s.replace(
+     /(\n)\s+|[ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+(?:(\n)\s*|([ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]))/g,
+    "$1$2$3");
   }
-
-  function /** number|undefined */ topparse(/** Node */ n,/** !Object */ $)
-  { if (n.nodeType == 1)
-    { var /** !Node */ res = D.createDocumentFragment();
-      res.appendChild(n);
-      n = res;
+  			// trim a single space from both ends
+  U = function /** !Array */(/** !Array */ elm)
+  { var /** string */ s;
+    if (isstring(s = elm[0]) && s[0] === " " && !(elm[0] = s.substr(1)))
+      elm.splice(0, 1);
+    var /** number */ last = elm.length - 1;
+    if (isstring(s = elm[last]) && s.slice(-1) === " "
+     && !(elm[last] = s.slice(0, -1)))
+      elm.splice(last, 1);
+    return elm;
+  };
+  			// Get substring slice
+  F = function /** !Array|string */(/** !Array|string */ x,
+   /** number|string */ offset,/** number|string= */ limit)
+  { offset = +(offset || 0); limit = +limit;
+    return limit < 0 ? x.slice(offset, limit)
+     : limit > 0 ? x.slice(offset, offset + limit)
+     : limit == 0 ? x.slice(offset) : "";
+  };
+  			// Run filter fn() tree hierarchy
+  R = function /** !Array */
+   (/** !Array */ parent,/** function((!Array|string)):(!Array|string)= */ fn)
+  { var /** !Array|string */ val;
+    var /** number */ i = parent.length;
+    var /** function((!Array|string)):(!Array|string) */ rfn = fn || subws;
+    while (i--)
+    { switch ((val = parent[i])[""])
+      { case "!":
+          if (!fn)
+            break;
+        default:
+          R(val, fn);
+          continue;
+        case undefined:
+          if (parent[i] = rfn(val))
+            continue;
+      }
+      parent.splice(i, 1);
     }
-    return parse(n, $);
-  }
-
-  function /** !Object */ initctx(/** !Object */ $)
-  { if (!$)
-      $ = {};
-    if (!$["_"])
-      $["_"] = {};
-    if (!$["_"]["_tag"])
-      $["_"]["_tag"] = {};
-    if (!$["var"])
+    return parent;
+  };
+  			// Populate attributes on node
+  S = function /** !Array */(/** !Object */ attr,/** string= */ tag)
+  { var /** !Array */ r = L(tag);
+    O.assign(r, attr);
+    if (attr = attr["::"])
+    { delete /** @type{Object} */(r)["::"];
+      O.assign(r, attr);
+    }
+    return r;
+  };
+  			// New node
+  L = function /** !Array */(/** string= */ nodename)
+  { var /** !Array */ r = [];
+    /** @type{Object} */(r)[""] = nodename || 1;
+    return r;
+  };
+  			// Init new context
+  N = function /** !Array */(/** !Object */ $)
+  { var /** !Object */ _ = $["_"];
+    if (!_)
+      $["_"] = _ = {};
+    if (!_["_tag"])
+      _["_tag"] = {};
+    if (!$["var"] && $["__"])
       $["var"] = $["__"];
-    return $;
+    return L();
+  };
+
+  function /** void */
+   defget(/** !Object */ o,/** string */ name,/** function():* */ fn)
+  { O.defineProperty(o, name, { get: fn, configurable: true });
+  }
+  			// Create new subcontext
+  C = function /** !Object */(/** !Array */ _,
+   /** !Object */ $,/** !Object */ args,/** string= */ scope)
+  { if (/** @type{Object} */(_)[""] !== 1)
+    { defget(_, "_restargs", function()
+        { var /** string */ vname;
+          var /** !Object */ rest = {};
+          for (vname in this)
+            switch (vname[0])
+            { default:
+        	if (!args[vname])
+                  rest[vname] = this[vname];
+              case "_":case undefined:;
+            }
+          return rest;
+        });
+      defget(_, "_contents", function()
+        { /** @type{Object} */(_)[""] = 1; return _;
+        });
+    }
+    var /** !Object */ n$;
+    (n$ = O.assign({}, $))["_"]
+     = O.assign(_ , {"_":$["_"], "_tag":O.assign({}, $["_"]["_tag"])});
+    if (scope)
+      n$[scope] = _;
+    return n$;
+  };
+  			// Process attrib value
+  V = function /** void */(/** !Array */ H,/** string */ n,/** !Object */ _)
+  { if (_[n] === undefined)
+      _[n] = H.length === 1 && !H[0][""] ? H[0] : !H.length ? "" : H;
+  };
+  			// Execute remixml macro (if any)
+  X = function /** void */(/** !Array */ W,/** !Array */ H,/** !Object */ $)
+  { var /** function(!Array,!Array):void */ fn
+     = $["_"]["_tag"][/** @type{Object} */(H)[""]];
+    if (fn)
+      fn(W, H, $);
+    else
+      W.push(H);
+  };
+  			// Define new remixml macro
+  Q = function /** void */(/** string */ n,/** !Object */ $,
+   /** function(string,!Array,!Array):void */ fn)
+  { $["_"]["_tag"][n] = fn;
+  };
+  			// Convert object list into array to iterate over
+  G = function /** !Array */(/** !Object */ $,/** string */ vname,
+   /** function(...):!Array = */ ord)
+  { var /** !Array */ r;
+    var /** !Array|!Object */ k = /** @type{!Object} */(ve($, vname));
+    if (k.size >= 0)
+      return k.entries();
+    r = O.entries(k);
+    if (k.length >= 0)
+      r.splice(k.length);
+    if (ord)
+    { try
+      { r = r.sort(function(a, b)
+        { var x, y, i, n, m;
+          var /** number */ ret;
+          x = ord(a[0]); y = ord(b[0]);
+          for (i = 0, n = x.length; i < n; i++)
+          { m = 0;
+            if (isa(x[i]))
+              m = 1, x[i] = x[i][0], y[i] = y[i][0];
+            if (ret = /** @type {number} */
+                     (x[i] > y[i] || -(x[i] !== y[i])))
+              return m ? -ret : ret;
+          }
+          return m ? -ret : ret;
+        });
+      } catch(x) { logerr(ord, x); }
+    }
+    return r;
+  };
+  			// Run CSS selector over abstract notation
+  B = function /** void */(/** !Array */ res,/** !Array */ H,/** string */ sel)
+  { var /** number */ i = 0;
+    while (i < H.length)
+    { let /** !Array|string */ k = H[i++];
+      switch (k[""])
+      { default:
+          B(res, /** @type{!Array} */(k), sel);
+          return;
+        case sel:		  // FIXME support more than simple nodenames
+          res.push(k);
+        case undefined:;
+      }
+    }
+  };
+
+  vp = function /** string */(/** string */ vpath)
+  { return '$["' + vpath.replace(/[.[\]]+/g, '"]["') + '"]';
+  }
+                          // Evaluate variable entity
+  Z = function /** * */(/** !Object */ $,/** string */ vname,
+   /** string= */ quot,/** string= */ fmt)
+  { var /** * */ x = ve($, vname);
+    if (typeof x === "function")
+      x = x($["_"], $);
+    if (x[""])
+      switch (quot)
+      { case "r":case "recurse":case "":case "none":
+          if (!fmt)
+            break;
+        default:
+          x = Y(/** @type{!Array} */(x));
+      }
+    else if (- - /** @type {string|number} */(x) == x)
+      /** @type {number} */(x) += "";
+    if (fmt && !x[""])
+    { let /** Array<string> */ r = fmt.match(
+  /^([-+0]+)?([1-9][0-9]*)?(?:\.([0-9]+))?(t([^%]*%.+)|[a-zA-Z]|[A-Z]{3})?$/);
+      let p = r[3], lang = $["sys"] && $["sys"]["lang"] || undefined;
+      switch (r[4])
+      { case "c": x = String.fromCharCode(+x); break;
+        case "d": x = parseInt(x, 10).toLocaleString(); break;
+        case "e":
+          x = /** @type {function((null|string)):string} */
+           ((+x).toExponential)(p > "" ? p : null);
+          break;
+        case "f":
+          if (!(p > ""))
+            p = 6;
+          x = fmtf(+x, lang, /** @type {number} */(p));
+          break;
+        case "g": x = /** @type {function((number|string)):string} */
+           ((+x).toPrecision)(p > "" ? p : 6); break;
+        case "x": x = (parseInt(x, 10) >>> 0).toString(16); break;
+        case "s":
+          if (p > "")
+            x = x.substr(0, p);
+          break;
+        default:
+          x = r[4][0] === "t"
+              ? strftime(r[5], /** @type {string} */(x), lang)
+              : /[A-Z]{3}/.test(r[4]) ? fmtcur(+x, lang, r[4]) : x;
+      }
+      if (r[1])
+      { if (r[1].indexOf("0") >= 0 && (p = +r[2]))
+          x = +x < 0 ? sp(pad0(- /** @type {number} */(x), p), "-")
+                     : pad0(/** @type {number} */(x), p);
+        if (r[1].indexOf("+") >= 0 && +x >= 0)
+          x = sp(/** @type {string} */(x), "+");
+      }
+    }
+    switch (quot)
+    { case "json": x = JSON.stringify(x).replace(/</g,"\\\\u003c");
+        break;
+      case "uric": x = x.replace(/[+ ?&#]/g, eumap);
+        break;
+      case "path": x = encpath(/** @type{string} */(x));
+        break;
+      default:
+        if (!x[""])
+          x = x.replace(/[&<]/g, htmlmap);
+      case "":case "none":case "r":case "recurse":;
+    }
+    switch (x.length)
+    { case 0:
+        x = "";
+       break;
+      case 1:
+        if (x[""] === 1)
+          x = x[0];
+    }
+    if (quot === "r")
+      x = eval("(" + substentities(/** @type{string} */(x)) + ")");
+    return x;
+  };
+
+  function /** !Array */ cloneabstract(/** !Array */ k)
+  { var /** !Array */ r = /** @type{!Array} */(O.assign([], k));
+    var /** number */ i = r.length;
+    while (i--)
+      if (r[i][""])
+        r[i] = cloneabstract(r[i]);
+    return r;
+  }
+
+  K = function /** number */
+   (/** !Object */ $,/** !Array */ H,/** !Array|string|number */ x)
+  { if (x[""])
+    { if (x[""] === 1)
+        M(H, cloneabstract(/** @type{!Array} */(x)));
+      else
+        H.push(x);
+      x = 1;
+    } else if (x || x !== undefined && (x += ""))
+      T(H, x), x = 1;
+    else
+      x = 0;
+    return x;
+  };
+
+  function /** string */ substentities(/** string */ sbj)
+  { var /** string */ obj = "";
+    let /** number */ i;
+    if ((i = sbj.indexOf("&")) >= 0)
+    { let /** RegExpResult */ a5;
+      let /** string */ s = sbj.substr(0, i);
+      let /** string */ sep = "";
+      if (s)
+        obj += JSON.stringify(s), sep = "+";
+      txtentity.lastIndex = i;
+      while (a5 = txtentity.exec(sbj))
+      { switch ((s = a5[0])[0])
+        { case "&":
+            if (s.slice(-1) === ";" && s.indexOf(".") > 0)
+            { obj += sep + "(function(){" + varent(a5)
+               + 'return x;}catch(x){}return "";})()';
+              break;
+            }
+          default:
+            obj += sep + JSON.stringify(a5[0]);
+        }
+        sep = "+";
+      }
+    } else
+      obj += JSON.stringify(sbj);
+    return obj;
+  }
+
+  function /** string */ varent(/** !Array */ mtchs)
+  { var /** string */ obj = "try{let x=Z($," + JSON.stringify(mtchs[1]);
+    var /** string */ quot = mtchs[2];
+    var /** string */ fmt = mtchs[3];
+    if (isstring(quot))
+      obj += "," + JSON.stringify(quot);
+    if (fmt)
+    { if (quot)
+        obj += ",0";
+      obj += "," + JSON.stringify(fmt);
+    }
+    return obj + ");";
+  }
+
+  function /** string */ runexpr(/** string */ expr)
+  { return "(_=$._," + (expr || 0) + ")";
+  }
+
+  function /** string */ evalexpr(/** string */ expr)
+  { return 'eval((_=$._,"("+' + expr + '+")"))';
+  }
+
+  const /** number */ KILLWHITE = 1;
+  const /** number */ PRESERVEWHITE = 2;
+
+  function /** function(!Object):!Array */
+   remixml2js(/** string */ rxmls,/** number= */ flags)
+  { var /** Array */ ar;
+    // H: Current element
+    // W: Temporary parent element
+    // I: Most recent truth value
+    // J: Parent element
+    var /** string */ obj = '(function($){"use strict";var I,W,_,H=N($);';
+    var /** number */ noparse = 0;
+    var /** number */ comment = 0;
+    var /** number */ nooutput = 0;
+    if (RUNTIMEDEBUG || ASSERT)
+    { var /** !Array */ tagstack = [];
+    }
+    tokenrx.lastIndex = 0;
+    while (ar = tokenrx.exec(rxmls))
+    { let /** string */ token;
+      switch ((token = ar[0])[0])
+      { case "<":
+          if (token[1] === "!")
+          { obj += 'H.push(W=L("!"));W.push('
+             + JSON.stringify(token.slice(token.slice(2,3) === "--" ? 4 : 2,-3))
+             + ");";
+            break;
+          }
+          let /** Array */ a2;
+          params.lastIndex = 1;
+          let /** !Object */ gotparms = {};
+          function /** string */ getparm(/** string */ name)
+          { let /** string */ sbj = gotparms[name];
+            return sbj && substentities(sbj);
+          }
+          let /** string */ fw = params.exec(token)[1];
+          if (fw === "/")
+            gotparms[fw] = 1, fw = params.exec(token)[1];
+          gotparms[""] = fw;
+          while (a2 = params.exec(token))
+            gotparms[a2[1]] = a2[2] ? a2[2].slice(1,-1) : a2[1];
+          let /** string|number */ close = gotparms["/"];
+          delete gotparms["/"];
+          let /** string */ tag = gotparms[""];
+          if (close !== 1)
+  ctag:     do
+            { let /** string */ ts = "";
+              if (RUNTIMEDEBUG || ASSERT)
+		tagstack.push(tag);
+              switch (tag)
+              { case "noparse": noparse++; break ctag;
+                case "comment": comment++; break;
+              }
+              if (!comment)
+              { delete gotparms[""];
+                if (!nooutput)
+                  obj += "W=H;";
+                if (!noparse)
+                  switch (tag)
+                  { case "set":
+                    { obj += "{let H=L(),";
+                      let vname = getparm("var") || getparm("variable");
+                      if (vname)
+                      { let /** string|null */ xp = getparm("expr");
+                        obj += 'w,v=function(){w($);';
+                        if (ts = getparm("selector"))
+                          obj += "B(w=L(),H," + ts + ");H=w;";
+                        else
+                        { if (gotparms["json"] !== undefined)
+                            obj += "H=JSON.parse(Y(H));";
+                          if (ts = getparm("split"))
+                          { obj += "H=Y(H).split("
+                             + (xp ? evalexpr(xp) : ts) + ");";
+                            xp = undefined;
+                          }
+                          if (xp !== undefined)
+                            obj += "H="
+        		     + (xp ? evalexpr(xp) : runexpr("Y(H)")) + ";";
+                          if (ts = getparm("join"))
+                            obj += "H=H.join(" + ts + ");";
+                          if (ts = getparm("mkmapping"))
+                            obj += "let a=" + ts + ".split(/\\s*,\\s*/),i,x;"
+                             + "for(x=H,H={},i=-1;a.length>++i;)H[a[i]]=x[i];";
+                        }
+                        obj += "A($," + vname + ",H);};w=(function(o){";
+                      } else if (ts = getparm("tag"))
+                      { obj += "v=0;Q(" + ts
+                         + ",$,function(H,a,$){let o=$;$=C(a,$,{";
+                        { let /** string */ args = getparm("args");
+                          if (args && (args = args.replace(/[^-_:\w,]/, "")))
+                            obj += '"' + args.replace(splc, '":1,') + '":1';
+                        }
+                        obj += "}";
+                        if (ts = getparm("scope"))
+                          obj += "," + ts;
+                        obj += ");";
+                      }
+                      break ctag;
+                    }
+                    case "insert":
+                    { let vname = getparm("var") || getparm("variable");
+                      if (vname)
+                      { obj += "try{let x=Z($," + vname;
+        		if (ts = getparm("quote"))
+        		  obj += "," + ts;
+                        if (vname = getparm("format"))
+        		{ if (!ts)
+                            obj += ",0";
+        		  obj += "," + vname;
+        		}
+                        obj += ");";
+                        if (ts = getparm("join"))
+                          obj += "x=x.join(" + ts + ");";
+                        if ((ts = getparm("offset"))
+                         || (vname = getparm("limit")) !== undefined)
+                          obj += "x=F(x," + ts +
+                           (vname !== undefined ? "," + vname : "") + ");";
+                        obj += varinsert;
+                      } else
+                        switch(getparm("variables"))
+                        { case "dump":
+                            obj += "console.log((W="
+                             + getparm("scope") + ")?$[W]:$);";
+                        }
+                      break ctag;
+                    }
+                    case "replace":
+                    { let /** string */ xp = getparm("regexp") ||
+        	       getparm("from").replace(/([\\^$*+?.|()[{])/g, "\\$1");
+                      let /** string */ flags = getparm("flags");
+                      if (flags === undefined)
+                        flags = "g";
+                      obj += "{let J=W,H=L(),v=P(" + xp + ","
+                       + JSON.stringify(flags) + ",";
+                      xp = getparm("expr");
+                      obj += (xp ? evalexpr(xp) : getparm("to")) + ");";
+                      break ctag;
+                    }
+                    case "trim":
+                      obj += "{let J=W,H=L();";
+                      break ctag;
+                    case "maketag":
+                      obj += "{let J=W,H=L(" + getparm("name") + ");";
+                      break ctag;
+                    case "attrib":
+                      obj += "{let J=W,H=L(),v=" + getparm("name") + ";";
+                      break ctag;
+                    case "for":
+                    { obj += "{I=0;let i,k,m,J=W,n=0;";
+                      let /** string */ from = getparm("in");
+                      if (from)
+                      { if (ts = getparm("orderby"))
+                        { obj += "m=$._;k=G($," + from
+			   + ",function(_index){_=$._=_index;return[eval("
+			   + ts + ")];});$._=m;for([i,k]of k";
+                        } else
+                          obj += "for([i,k]of G($," + from + ")";
+                        obj += "){W=S({_value:k,";
+                      } else if ((from = getparm("from")) !== undefined)
+                      { obj += "for(i=+" + from
+                         + ",m=+(" + getparm("step")
+                         + "||1),k=+" + getparm("to")
+                         + ";m<0?i>=k:i<=k;i+=m)"
+                         + "{W=S({";
+                      }
+                      obj += "_recno:++n,_index:i});let o=$;$=C(W,$,{}";
+                      if (ts = getparm("scope"))
+                        obj += "," + ts;
+                      obj += ");";
+                      break ctag;
+                    }
+                    case "eval":
+                      obj += "{let J=W,v=" + (getparm("recurse") || 0)
+                       + ",H=L();";
+                      break ctag;
+                    case "unset":
+                      obj += 'eval("delete "+A($,'
+                       + (getparm("var") || getparm("variable")) + ");";
+                      break ctag;
+                    case "delimiter":
+                      obj += "if(2>$._._recno){";
+                      break ctag;
+                    case "elif":
+                      ts = "I&&";
+                    case "if":
+                      obj += "if(I=(" + ts + evalexpr(getparm("expr"))
+                       + "?1:0)){";
+                      break ctag;
+                    case "then":
+                      obj += "if(I){";
+                      break ctag;
+                    case "else":
+                      obj += "if(!I){";
+                      break ctag;
+                    case "nooutput":
+                      nooutput++;
+                      break ctag;
+                  }
+                obj += "{let J=W,H=S({";
+                { let /** string */ sep;
+        	  if (sep = gotparms["::"])
+        	    gotparms["::"] = sep.slice(0, -1) + ":;";
+        	  sep = "";
+                  for (fw in gotparms)
+                    if (ts = getparm(fw))
+        	    { obj += sep
+		       + (complexlabel.test(fw) ? '"' + fw + '"' : fw)
+		       + ":" + getparm(fw);
+                      sep = ",";
+        	    }
+                }
+                obj += '},"' + tag + '");';
+              }
+              if (tag === "script" && !close)
+              { scriptend.lastIndex = tokenrx.lastIndex;
+                scriptend.exec(rxmls);
+                let /** number */ i = scriptend.lastIndex;
+                if (!comment && !nooutput)      // substract closing script tag
+		{ if (ts = rxmls.slice(tokenrx.lastIndex, i - 9))
+                    obj += "H.push(" + JSON.stringify(ts) + ");";
+		}
+                tokenrx.lastIndex = i;
+                close = 1;
+              }
+            } while(0);
+          if (close)
+	    for(;;)
+	    { let /** string */ shouldtag = tag;
+              if (RUNTIMEDEBUG || ASSERT)
+	      { let /** string */ shouldtag = tagstack.pop();
+	        if (tag !== shouldtag)
+                { if (RUNTIMEDEBUG)
+	            logerr(rxmls.substr(tokenrx.lastIndex - 15, 32),
+		     "Expected " + shouldtag + " got " + tag);
+		  if (ASSERT)
+		    if (tagstack.lastIndexOf(tag) >= 0)
+		      continue;
+		    else
+		      break;
+	        }
+	      }
+              switch (shouldtag)
+              { case "noparse": noparse--; break;
+                case "comment": comment--; break;
+                case "nooutput": nooutput--; break;
+                default:
+                  if (!comment)
+                    if (noparse)
+                      obj += "}";
+                    else
+                      switch (shouldtag)
+                      { case "set":
+                          obj += "$=o;});v&&v();}";
+                        case "insert":
+                        case "unset":
+                          break;
+                        case "replace":
+                          obj += "M(J,R(H,v));}";
+                          break;
+                        case "trim":
+                          obj += "M(J,U(R(H)));}";
+                          break;
+                        case "maketag":
+                          obj += "J.push(H);}";
+                          break;
+                        case "attrib":
+                          obj += "V(H,v,J);}";
+                          break;
+                        case "for":
+                          obj += "$=o;I=1;}}";
+                          break;
+                        case "eval":
+                          obj += "M(J,E(H,v,$));}";
+                          break;
+                        default:
+                          if (!nooutput)
+                            obj += "X(J,H,$);";
+                        case "delimiter":
+                        case "if":case "then":case "elif":case "else":
+                          obj += "}";
+                      }
+		case undefined:;
+              }
+	      break;
+            }
+          break;
+        case "&":
+          if (comment || nooutput)
+            break;
+          let /** Array<string> */ a3 = token.match(varentity);
+          if (a3)
+          { obj += varent(a3) + varinsert;
+            break;
+          }
+        default:
+          if (!comment && !nooutput)
+	  { if (flags & (KILLWHITE|PRESERVEWHITE))
+	    { if (flags & KILLWHITE)
+	        token = subws(token);
+	    } else
+	      token = subwnl(token);	// Coalesce newlines by default
+	    switch (token)
+	    { case "\n":
+                obj += "T(H);";
+		break;
+	      default:
+                obj += "T(H," + JSON.stringify(token) + ");";
+	      case "":;
+	    }
+	  }
+      }
+    }
+    return obj + "return H;})";
+  }
+
+  function /** function(!Object):!Array */ js2fn(/** string */ jssrc)
+  { var /** function(!Object):!Array */ constructor;
+    try {
+      constructor = /** @type{function(!Object):!Array} */(eval(jssrc));
+    } catch(e) {
+      if (RUNTIMEDEBUG)
+      { logerr(rxmls, e);
+	console.log(jssrc);
+      }
+      if (ASSERT)
+        constructor = function() { return ""; };
+    }
+    if (DEBUG)
+      console.log(constructor);
+    return constructor;
+  }
+
+  // For use in Javascript Remixml
+  sizeof = function /** number */(/** * */ s)
+  { return Number(s) === s ? 1
+     : s ? s.length || s[""] !== 1
+      || O.keys(/** @type {!Object} */(s)).length : 0;
+  };
+
+  // For use in Javascript Remixml
+  desc = function /** !Array|number */(/** number */ i)
+  { return- -i===i?-i:[i,1];
+  };
+
+  // For use in Javascript Remixml
+  abstract2txt = Y = function /** string */(/** !Array|string */ vdom)
+  { for(;;)
+    { if (!isa(vdom))
+        return vdom;
+      switch (vdom.length)
+      { case 0:
+          if (vdom[""] === 1)
+            return "";
+          break;
+        case 1:
+          if (vdom[""] === 1)
+          { vdom = vdom[0];
+            continue;
+          }
+      }
+      break;
+    }
+    var /** string */ parent;
+    var /** number */ i = 0;
+    var /** string|number */ name = vdom[""];
+    switch (name)
+    { case "!":
+        return "<!--" + vdom[0] + "-->";
+      case 1:
+        name = parent = "";
+        break;
+      default:
+        parent = "<" + name;
+	let /** string */ narg;
+        for (narg of O.keys(vdom).splice(vdom.length))
+          switch (narg[0])
+          { default:
+              let /** string */ val = /** @type{Object} */(vdom)[narg];
+	      if (val != null && !iso(val))
+              { parent += " " + narg;
+		if (narg !== val)
+	          parent += '="'
+		   + (val.replace ? val.replace(/[&"]/g, argmap) : val) + '"';
+	      }
+            case "_":case undefined:;
+          }
+        if (!vdom.length)
+          return parent + "/>";
+        parent += ">";
+    }
+    var /** !Array|string */ child;
+    while ((child = vdom[i++]) !== undefined)
+      parent += child[""] ? Y(child) : child;
+    if (name)
+      parent += "</" + name + ">";
+    return parent;
+  };
+
+  // For use in Javascript Remixml
+  abstract2dom = function /** !Node */(/** !Array */ vdom)
+  { var /** !Node */ parent;
+    var /** number */ i = 0;
+    var /** string|number */ name = /** @type{Object} */(vdom)[""];
+    switch (name)
+    { case "!":
+        return document.createComment(vdom[0]);
+      case 1:
+        name = 0; parent = D.createDocumentFragment();
+        break;
+      default:
+        parent = newel(/** @type{string} */(name));
+        for (name of O.keys(vdom).splice(vdom.length))
+          switch (name[0])
+          { default:
+              let /** string */ val = /** @type{Object} */(vdom)[name];
+	      if (val != null && !iso(val))
+                parent.setAttribute(name,
+		 !val.indexOf || val.indexOf("&") < 0 ? val
+                  : (txta.innerHTML = val, txta.innerHTML));
+            case "_":case undefined:;
+          }
+    }
+    var /** !Array|string */ child;
+    while ((child = vdom[i++]) !== undefined)
+      parent.appendChild(child[""] ? abstract2dom(child)
+       : child.indexOf("&") < 0 ? D.createTextNode(child)
+       : (txta.innerHTML = child, txta.firstChild));
+    return parent;
   }
 
   if (!O.assign)
@@ -851,6 +1007,13 @@ keep:   do
       { if (s) for (i in s) d[i] = s[i]; return d;
       }
     });
+  if (!O.entries)
+    O.entries = function(m)
+    { var k = O.keys(m), i = k.length, r = new Array(i);
+      while (i--)
+        r[i] = [k[i], m[k[i]]];
+      return r;
+    };
 
   if ("ab".substr(-1) != "b")
     (function(p) {
@@ -860,72 +1023,40 @@ keep:   do
       { return s.call(this, a < 0 ? this.length + a : a, n); };
     })(String.prototype);
 
-  if (!String.prototype.trimStart)
-  { String.prototype.trimStart = function /** string */()
-    { return this.replace(/^\s+/, ''); };
-    String.prototype.trimEnd = function /** string */()
-    { return this.replace(/\s+$/, ''); };
-  }
-
   var g =
-  { "preparse": function /** !Node */(/** !Node */ tpl, /** !Object */ $)
-      { var /** Node */ c;
-	if (c = tpl)
-	{ let /** !NodeList<!Element> */ a;
-	  let /** number */ i;
-	  let /** Array */ b;
-	  let k;
-	  bref = [0]; a = c.querySelectorAll("*");
-	  for (i = 0; i < a.length; i++)
-	    sattr((k = a[i]), ":c", i + 1), bref.push([k]);
-	  k = topparse(c = tpl.cloneNode(true), initctx($));
-	  while (b = bref.pop())
-	    if (b[1])
-	      sattr(b[0], ":c", JSON.stringify(b[1]));
-	    else
-	      rattr(b[0], ":c");
-	  bref = null;
-	  if (k)
-	    if (tpl.nodeType == 1)
-	      sattr(tpl, ":c", "[-1]");
-	    else
-	      (k = newel("noparse")).appendChild(tpl).appendChild(k);
-	}
-	return c;
+  { "remixml2js": function /** string */(/** string */ remixml)
+      { return remixml2js(remixml);
       },
-    "parse": function /** Node */(/** string|Node */ tpl, /** !Object */ $)
-      { if (tpl)
-	  tpl = txt2node(tpl), topparse(tpl, initctx($));
-	return tpl;
+    "js2fn": function /** function(!Object):!Array */(/** string */ jssrc)
+      { return js2fn(jssrc);
       },
-    "parse2txt":
-     function /** string */(/** string|Node */ tpl, /** !Object */ $)
-     { return dfnone(g.parse(tpl, $));
-     },
-    "parse_tagged":
-      function /** !Node */(/** string|Node */ tpl, /** !Object */ $)
-      { var i, j = (tpl = txt2node(tpl)).querySelectorAll("remixml"), k;
-	$ = initctx($);
-	for (i = 0; i < j.length; i++)
-	  parse(k = getdf(j[i]), $), replelm(k, j[i]);
-	return tpl;
+    "compile": function /** function(!Object):!Array */(/** string */ remixml)
+      { return js2fn(remixml2js(remixml));
       },
-    "parse_document": function /** !Node */(/** !Object */ $)
-      { return /** @type {!Node} */(g.parse(D.head.parentNode, $));
+    "parse": function
+       /** Node */(/** string|(function(!Object):!Array) */ tpl,
+                  /** !Object */ $)
+      { if (isstring(tpl))
+          tpl = compile(/** @type{string} */(tpl));
+        return abstract2dom(/** @type{function(!Object):!Array} */(tpl)($));
       },
-    "set_tag": function /** void */(/** function(...):(string|!Node) */ cb,
-       /** !Object */ $,/** string */ name,/** string|number= */ scope,
+    "parse2txt": function
+       /** string */(/** string|(function(!Object):!Array) */ tpl,
+	            /** !Object */ $)
+      { if (isstring(tpl))
+          tpl = compile(/** @type{string} */(tpl));
+        return Y(/** @type{function(!Object):!Array} */(tpl)($));
+      },
+    "abstract2txt": function /** string */(/** !Array */ tpl)
+      { return Y(tpl);
+      },
+    "abstract2dom": function /** Node */(/** !Array */ tpl)
+      { return abstract2dom(tpl);
+      },
+    "set_tag": function /** void */(/** function(!Object):!Array */ cb,
+       /** !Object */ $,/** string */ name,/** string= */ scope,
        /** boolean|number= */ noparse,/** string= */ args)
-      { settag(cb, initctx($), name, scope, noparse, args);
-      },
-    "dom2txt": function /** string */(/** string|Node */ tpl)
-      { return dfnone(tpl);
-      },
-    "txt2dom": function /** !Node */(/** string|Node */ tpl)
-      { return txt2node(tpl);
-      },
-    "trim": function /** !Node */(/** string|Node */ tpl)
-      { return btrim(txt2node(tpl));
+      { N($); settag(cb, $, name, scope, noparse, args);
       },
     "path_encode": encpath,
     "set_log_callback": function /** void */(/** function(...) */ cb)
@@ -937,35 +1068,35 @@ keep:   do
   { var i, j, p;
     for (i in fm)
       for (p = 0; j = fm[i].pop(); diacr[String.fromCharCode(p = p + j)] = i)
-	if (j < 0)
-	{ while (j++ < 0)
-	    fm[i].push(2);
-	  j++;
-	}
+        if (j < 0)
+        { while (j++ < 0)
+            fm[i].push(2);
+          j++;
+        }
   })({ "a":[53980,1941,1561,-10,7,153,7089,41,36,2,6,26,2,17,
-	201,-1,28,2,1,1,1,127,97],"aa":[42803],"ae":[26,253,2,228],"ao":[42805],
-	"au":[42807],"av":[2,42809],"ay":[42813],"b":[55921,1738,-1,7088,208,3,
-	286,98],"c":[22532,33389,846,891,7117,180,123,-2,32,132,99],"d":[22474,
-	33447,1728,-3,7092,1,202,123,2,171,100],"dz":[45,454],"e":[55921,1549,
-	-6,156,-3,7098,20,30,34,2,40,194,-3,40,1,1,1,131,101],"f":[22474,33447,
-	1718,7309,300,102],"g":[22438,34,33449,1717,168,6937,107,14,2,194,-2,
-	182,103],"h":[53970,14,1937,1601,107,-3,7102,70,248,2,189,104],
-	"hv":[405],"i":[55921,1549,2,154,2,7109,93,2,57,159,-3,58,1,1,1,131,
-	105],"j":[55921,8848,89,187,203,106],"k":[22440,94,-1,31447,1936,1701,
-	-1,7240,80,98,204,107],"l":[22475,56,2,31462,1926,1694,-2,7116,209,27,
-	61,-3,206,108],"lj":[457],"m":[55921,1689,-1,7118,2,514,109],"n":[22441,
-	20,33460,1682,-2,7123,121,91,85,1,-1,83,131,110],"nj":[460],"o":[22530,
-	2,33389,1531,-10,122,-2,7128,33,35,-2,28,2,14,18,2,25,49,80,-1,85,3,1,
-	1,1,131,111],"oe":[93,246],"oi":[419],"oo":[42831],"ou":[547],
-	"p":[22523,-1,33394,1672,2,216,7128,309,112],"q":[22520,2,33399,8853,
-	474,113],"r":[22443,36,40,33402,1666,-2,7132,48,58,2,184,-1,227,114],
-	"s":[22442,36,33443,1607,50,-3,7202,38,184,-2,232,115],"ss":[223],
-	"t":[22477,31521,1923,1612,38,-2,7139,109,110,70,-1,239,116],
-	"tz":[42793],"u":[55921,1523,-5,106,-3,7146,114,2,57,-3,36,61,-4,110,1,
-	1,132,117],"ue":[252],"v":[22519,33402,1638,2,7153,1,533,118],
-	"vy":[42849],"w":[53988,1933,1614,15,-3,7436,254,119],"x":[55921,1626,
-	2,7699,120],"y":[55921,1513,6,-2,90,10,7232,28,127,61,120,2,132,121],
-	"z":[22519,31479,1923,1620,-1,7249,27,111,56,-1,256,122] });
+        201,-1,28,2,1,1,1,127,97],"aa":[42803],"ae":[26,253,2,228],"ao":[42805],
+        "au":[42807],"av":[2,42809],"ay":[42813],"b":[55921,1738,-1,7088,208,3,
+        286,98],"c":[22532,33389,846,891,7117,180,123,-2,32,132,99],"d":[22474,
+        33447,1728,-3,7092,1,202,123,2,171,100],"dz":[45,454],"e":[55921,1549,
+        -6,156,-3,7098,20,30,34,2,40,194,-3,40,1,1,1,131,101],"f":[22474,33447,
+        1718,7309,300,102],"g":[22438,34,33449,1717,168,6937,107,14,2,194,-2,
+        182,103],"h":[53970,14,1937,1601,107,-3,7102,70,248,2,189,104],
+        "hv":[405],"i":[55921,1549,2,154,2,7109,93,2,57,159,-3,58,1,1,1,131,
+        105],"j":[55921,8848,89,187,203,106],"k":[22440,94,-1,31447,1936,1701,
+        -1,7240,80,98,204,107],"l":[22475,56,2,31462,1926,1694,-2,7116,209,27,
+        61,-3,206,108],"lj":[457],"m":[55921,1689,-1,7118,2,514,109],"n":[22441,
+        20,33460,1682,-2,7123,121,91,85,1,-1,83,131,110],"nj":[460],"o":[22530,
+        2,33389,1531,-10,122,-2,7128,33,35,-2,28,2,14,18,2,25,49,80,-1,85,3,1,
+        1,1,131,111],"oe":[93,246],"oi":[419],"oo":[42831],"ou":[547],
+        "p":[22523,-1,33394,1672,2,216,7128,309,112],"q":[22520,2,33399,8853,
+        474,113],"r":[22443,36,40,33402,1666,-2,7132,48,58,2,184,-1,227,114],
+        "s":[22442,36,33443,1607,50,-3,7202,38,184,-2,232,115],"ss":[223],
+        "t":[22477,31521,1923,1612,38,-2,7139,109,110,70,-1,239,116],
+        "tz":[42793],"u":[55921,1523,-5,106,-3,7146,114,2,57,-3,36,61,-4,110,1,
+        1,132,117],"ue":[252],"v":[22519,33402,1638,2,7153,1,533,118],
+        "vy":[42849],"w":[53988,1933,1614,15,-3,7436,254,119],"x":[55921,1626,
+        2,7699,120],"y":[55921,1513,6,-2,90,10,7232,28,127,61,120,2,132,121],
+        "z":[22519,31479,1923,1620,-1,7249,27,111,56,-1,256,122] });
 
   if (typeof define == "function" && define["amd"])
     define("remixml", [], g);
@@ -973,5 +1104,7 @@ keep:   do
     W["exports"]["Remixml"] = g, W["exports"]["document"] = D;
   else
     W["Remixml"] = g;
-})(typeof window == "object" ? window : global,
-  typeof document == "object" ? document : require("minidom")(''), Object);
+
+// Cut BEGIN delete
+})();
+// Cut BEGIN end

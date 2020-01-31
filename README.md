@@ -108,7 +108,7 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
 
 - `<set var="" variable="" expr="" nojscache="" regexp="" split="" join=""
     mkmapping="" selector="" json=""
-    tag="" args="" noparse="" scope="">...</set>`<br />
+    tag="" args="" scope="">...</set>`<br />
    Attributes:
    - `var` or `variable`<br />
      Assign to the named variable.
@@ -145,8 +145,6 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
      Using something like `<img ::="&_._restargs;" />` allows you to pass
      on all the remaining arguments.  The special argument `::` accepts
      an object and spreads out the elements as individual attributes.
-   - `noparse`<br />
-     Causes `&_._contents;` to be returned unparsed in this tag definition.
    - `scope`<br />
      Create a toplevel alias for the local scope in this tag definition.
 - `<unset var="" variable=""></unset>`<br />
@@ -368,7 +366,9 @@ Specified parameters:
   to the same variable.
 
 Exposed API-list:
-- `Remixml.preparse(template, context)`<br />
+- `Remixml.remixml2js(remixmlsrc)`<br />
+- `Remixml.js2fn(jssrc)`<br />
+- `Remixml.compile(remixmlsrc)`<br />
   Clones and parses the template.  It returns the parsed version, the
   original template is left in a preparsed/precompiled state to accellerate
   repeated parsing.
@@ -378,12 +378,6 @@ Exposed API-list:
 - `Remixml.parse2txt(template, context)`<br />
   Destructively parses the template, returns the result as a string
   (convenience function for dom2txt(parse())).
-- `Remixml.parse_tagged(template, context)`<br />
-  In-situ parses the template and returns it, but only touches regions
-  enclosed in `<remixml>...</remixml>` tags.
-- `Remixml.parse_document(context)`<br />
-  In-situ parses the whole current page document (head *and* body) and returns
-  it.
 - `Remixml.set_tag(callback, context, name, scope?, noparse?, args?)`<br />
   Creates a tag definition in the given `context` just like
   `<set tag="name"></set>` would have done.
@@ -393,17 +387,9 @@ Exposed API-list:
    is referenced as `<name foo="bar"></name>` then inside the
    callback function `context._.foo` will have the value `bar`.
    `noparse` is a boolean that defaults to false.
-- `Remixml.dom2txt(template)`<br />
-  Destructively converts the domNode(s) to a string and returns it.
-- `Remixml.txt2dom(template)`<br />
-  Turns the string template into a domNode structure.  If passed a domNode
-  object, it returns it unchanged.
 - `Remixml.path_encode(string)`<br />
   Strips and encodes `string` to something which can be safely inserted in
   an url (compare `path` encoding for entities).
-- `Remixml.trim(template)`<br />
-  In-situ trims whitespace like the Remixml `<trim>` tag and returns the
-  trimmed template..
 - `Remixml.set_log_callback(callback)`<br />
   If not set, it defaults to `console.log()`.  This callback function is used
   to log remixml runtime errors.
@@ -413,25 +399,6 @@ Exposed API-list:
 - `$.sys.lang`<br />
   If set, it overrides the default locale of the browser environment
   (currently only used during currency formatting).
-
-### Caveat emptor
-
-- Using sub-table elements (`<tr>`, `<td>`, `<thead>`, `<tbody>`, or `<tfoot>`)
-  outside of a `<table>` parent (e.g. when trying to define a macro
-  that is supposed to expand to a single row of such table), is likely
-  to fail due to too strict browser runtime-filtering; i.e. the browser
-  is then likely to refuse instantiating the sub-table elements because
-  it does not find a table parent.  The solution normally would be to
-  use nested `<div>` elements instead and use CSS to give those elements
-  table-cell properties.
-
-- Using other elements than `<option>` inside a `<select>` is likely
-  to fail due to too strict browser runtime-filtering.  The solution would
-  be to use a `<dselect>` macro that expands to `<select>`.
-
-- Using `<img>` elements with parameterised `src` parameters should be
-  camouflaged for the browser by using a `<dimg>` element which expands
-  to `<img>`.
 
 ## References
 
