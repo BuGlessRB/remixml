@@ -4,6 +4,7 @@
 *.swp
 *.BAK
 *.orig
+*.tmp
 *.rej
 *.log
 *.[ao]
@@ -13,7 +14,5 @@ core
 core.*
 .npmrc
 node_modules
-*.tmp
-*.map
-*.min
-*.min.js
+*.tgz
+docs

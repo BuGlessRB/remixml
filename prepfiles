@@ -1,0 +1,33 @@
+#!/bin/sh
+
+stripdebug='/^[	 ]*\/\/ DEBUG_START/,/^[	 ]*\/\/ DEBUG_END/ d'
+stripcomments='/^[	 ]*\/\// d'
+
+ sed -e '/ Cut BEGIN /,/ Cut END / d' <remixml.js >remixml.meat.tmp
+ sed -e '/ Cut BEGIN for externs/,/ Cut END for externs/ !d' \
+     -e '/ Cut [BE]/ d' <remixml.js >remixml.h.tmp
+ sed -e '/ Cut BEGIN for prepend/,/ Cut END for prepend/ !d' \
+     -e 's/^  *//g' -e 's%/\*.*\*/%%g' \
+     -e '/ Cut [BE]/ d' <remixml.js >remixml.prep.tmp
+
+google-closure-compiler \
+ --strict_mode_input --assume_function_wrapper \
+ --compilation_level ADVANCED \
+ --language_in ECMASCRIPT_NEXT \
+ --language_out ECMASCRIPT5 \
+ --use_types_for_optimization \
+ --rewrite_polyfills=false \
+ --source_map_format V3 \
+ --source_map_include_content \
+ --externs externs.h \
+ --externs remixml.h.tmp \
+ --warning_level VERBOSE \
+ --create_source_map remixml.js.map \
+ -D DEBUG=0 \
+ --js_output_file remixml.min.tmp \
+  remixml.meat.tmp &&
+  ( echo '!function(){"use strict";'
+    cat remixml.prep.tmp remixml.min.tmp
+    echo '}();'
+  ) >remixml.min.js
+

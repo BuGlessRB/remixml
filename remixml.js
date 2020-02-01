@@ -16,13 +16,15 @@
 { "use strict";
 // Cut END delete
 
-  // Cut BEGIN for externs.h
+  // Cut BEGIN for externs
   var vp,B,C,E,F,G,K,L,M,N,P,Q,R,S,T,U,V,X,Y,Z,
-   sizeof,desc,abstract2txt,abstract2dom;
+   sizeof,desc,abstract2txt,abstract2dom,A,ve;
+  // Cut END for externs
+  // Cut BEGIN for prepend
   function /** * */ A($,v,_)
   { if(_&&!_.length&&_[""]===1)_="";return eval(vp(v)+"=_;");};
   function ve($,n){return eval(vp(n));};
-  // Cut END for externs.h
+  // Cut END for prepend
 
   const W = typeof window == "object" ? window : global;
   const D = typeof document == "object" ? document : require("minidom")('');
@@ -31,7 +33,6 @@
   const /** !RegExp */ splc = /\s*,\s*/g;
   const /** Object */ diacr = {};
   const /** Node */ txta = newel("textarea");
-  const /** Node */ diva = newel("div");
   const /** string */ varinsert = "I=K($,H,x);}catch(x){I=0;}";
   const /** !RegExp */ txtentity =
    /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
@@ -233,7 +234,7 @@
     { src = Y(elm);   // FIXME not generating back to txt?
       if (src === lastsrc)
         break;
-      elm = compile(lastsrc = src)($);
+      elm = js2fn(remixml2js(lastsrc = src))($);
     } while (--n);
     return elm;
   };
@@ -359,7 +360,7 @@
   };
   			// Execute remixml macro (if any)
   X = function /** void */(/** !Array */ W,/** !Array */ H,/** !Object */ $)
-  { var /** function(!Array,!Array):void */ fn
+  { var /** function(!Array,!Array,!Object):void */ fn
      = $["_"]["_tag"][/** @type{Object} */(H)[""]];
     if (fn)
       fn(W, H, $);
@@ -574,8 +575,7 @@
   const /** number */ KILLWHITE = 1;
   const /** number */ PRESERVEWHITE = 2;
 
-  function /** function(!Object):!Array */
-   remixml2js(/** string */ rxmls,/** number= */ flags)
+  function /** string */ remixml2js(/** string */ rxmls,/** number= */ flags)
   { var /** Array */ ar;
     // H: Current element
     // W: Temporary parent element
@@ -634,7 +634,7 @@
                     { obj += "{let H=L(),";
                       let vname = getparm("var") || getparm("variable");
                       if (vname)
-                      { let /** string|null */ xp = getparm("expr");
+                      { let /** string|undefined */ xp = getparm("expr");
                         obj += 'w,v=function(){w($);';
                         if (ts = getparm("selector"))
                           obj += "B(w=L(),H," + ts + ");H=w;";
@@ -798,7 +798,7 @@
             } while(0);
           if (close)
 	    for(;;)
-	    { let /** string */ shouldtag = tag;
+	    { let /** string|undefined */ shouldtag = tag;
               if (RUNTIMEDEBUG || ASSERT)
 	      { let /** string */ shouldtag = tagstack.pop();
 	        if (tag !== shouldtag)
@@ -892,7 +892,7 @@
       constructor = /** @type{function(!Object):!Array} */(eval(jssrc));
     } catch(e) {
       if (RUNTIMEDEBUG)
-      { logerr(rxmls, e);
+      { logerr(jssrc, e);
 	console.log(jssrc);
       }
       if (ASSERT)
@@ -1037,14 +1037,14 @@
        /** Node */(/** string|(function(!Object):!Array) */ tpl,
                   /** !Object */ $)
       { if (isstring(tpl))
-          tpl = compile(/** @type{string} */(tpl));
+          tpl = js2fn(remixml2js(/** @type{string} */(tpl)));
         return abstract2dom(/** @type{function(!Object):!Array} */(tpl)($));
       },
     "parse2txt": function
        /** string */(/** string|(function(!Object):!Array) */ tpl,
 	            /** !Object */ $)
       { if (isstring(tpl))
-          tpl = compile(/** @type{string} */(tpl));
+          tpl = js2fn(remixml2js(/** @type{string} */(tpl)));
         return Y(/** @type{function(!Object):!Array} */(tpl)($));
       },
     "abstract2txt": function /** string */(/** !Array */ tpl)
