@@ -3,7 +3,9 @@
 stripdebug='/^[	 ]*\/\/ DEBUG_START/,/^[	 ]*\/\/ DEBUG_END/ d'
 stripcomments='/^[	 ]*\/\// d'
 
- sed -e '/ Cut BEGIN /,/ Cut END / d' <remixml.js >remixml.meat.tmp
+ sed -e '/ Cut BEGIN for externs/,/ Cut END for externs/ d' \
+  -e '/ Cut BEGIN for prepend/,/ Cut END for prepend/ d' \
+   <remixml.js >remixml.meat.tmp
  sed -e '/ Cut BEGIN for externs/,/ Cut END for externs/ !d' \
      -e '/ Cut [BE]/ d' <remixml.js >remixml.h.tmp
  sed -e '/ Cut BEGIN for prepend/,/ Cut END for prepend/ !d' \

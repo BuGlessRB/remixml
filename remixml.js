@@ -17,8 +17,11 @@
 // Cut END delete
 
   // Cut BEGIN for externs
+  // Cut BEGIN for prepend
   var vp,B,C,E,F,G,K,L,M,N,P,Q,R,S,T,U,V,X,Y,Z,
-   sizeof,desc,abstract2txt,abstract2dom,A,ve;
+   sizeof,desc,abstract2txt,abstract2dom;
+  // Cut END for prepend
+  var A,ve;
   // Cut END for externs
   // Cut BEGIN for prepend
   function /** * */ A($,v,_)
