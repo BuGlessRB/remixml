@@ -601,10 +601,10 @@
     if (expr.match(/[({_]/))
     { if (expr.indexOf("{") >= 0)
 	expr = "(" + expr + ")";
-      expr = 0 > expr.indexOf("(") ? '"' + expr + '"' : 'eval("' + expr + '")';
+      expr = 0 > expr.indexOf("(") ? "(" + expr + ")" : 'eval("' + expr + '")';
       return 0 > expr.indexOf("_") ? expr : "(_=$._," + expr + ")";
     } else
-      return '"' + expr + '"';
+      return "(" + expr + ")";
   }
 
   const /** number */ KILLWHITE = 1;
