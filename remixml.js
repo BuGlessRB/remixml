@@ -564,7 +564,9 @@
               break;
             }
           default:
-            obj += sep + JSON.stringify(a5[0]);
+            s = JSON.stringify(s);
+	    obj = obj.slice(-1) === '"'
+	     ? obj.slice(0,-1) + s.slice(1) : obj + sep + s;
         }
         sep = "+";
       }
