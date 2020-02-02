@@ -435,7 +435,7 @@
     var /** string */ word;
     vpath = "$";
     for (word of components)
-      vpath += word.match(/^[A-Za-z_][\w_]+$/)
+      vpath += word.match(/^[A-Za-z_][\w_]*$/)
        ? "." + word : '["' + word + '"]';
     return vpath;
   }
