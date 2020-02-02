@@ -595,16 +595,19 @@
   }
 
   function /** string */ evalexpr(/** string */ expr)
-  { expr = expr.slice(-1) === '"'
-     ? (expr[0] === '"' ? expr.slice(1,-1) : '"+' + expr.slice(0,-1))
-     : (expr[0] === '"' ? expr.slice(1): '"+' + expr) + '+"';
-    if (expr.match(/[({_]/))
-    { if (expr.indexOf("{") >= 0)
-	expr = "(" + expr + ")";
-      expr = 0 > expr.indexOf("(") ? "(" + expr + ")" : 'eval("' + expr + '")';
-      return 0 > expr.indexOf("_") ? expr : "(_=$._," + expr + ")";
-    } else
+  { if (0 > expr.indexOf("("))
+    { if ((expr = /** @type{string} */(JSON.parse(expr))).indexOf("_") >= 0)
+        expr = "_=$._," + expr;
       return "(" + expr + ")";
+    } else
+    { expr = expr.slice(-1) === '"'
+       ? (expr[0] === '"' ? expr.slice(1,-1) : '"+' + expr.slice(0,-1))
+       : (expr[0] === '"' ? expr.slice(1): '"+' + expr) + '+"';
+      if (expr.indexOf("{") >= 0)
+	expr = "(" + expr + ")";
+      expr = 'eval("' + expr + '")';
+      return 0 > expr.indexOf("_") ? expr : "(_=$._," + expr + ")";
+    }
   }
 
   const /** number */ KILLWHITE = 1;
