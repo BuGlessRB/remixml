@@ -1,13 +1,13 @@
 {
   "name": "remixml",
-  "version": "2.0.14",
+  "version": "2.0.16",
   "description": "XML/HTML-like macro language/template engine",
   "main": "remixml.js",
   "browser": "remixml.js",
   "homepage": "https://remixml.org/",
   "scripts": {
     "test": "# Can only be tested inside a browser environment.",
-    "prepublish": "./prepfiles"
+    "prepare": "./prepfiles"
   },
   "dependencies": {},
   "devDependencies": {},

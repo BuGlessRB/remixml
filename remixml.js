@@ -760,8 +760,8 @@
                       if (from)
                       { if (ts = getparm("orderby"))
                         { obj += "m=$._;k=G($," + simplify(from)
-			   + ",function(_index){_=$._=_index;return[eval("
-			   + ts + ")];});$._=m;for([i,k]of k";
+			   + ",function(_index){_=$._=_index;return["
+			   + ts + "];});$._=m;for([i,k]of k";
                         } else
                           obj += "for([i,k]of G($," + simplify(from) + ")";
                         obj += "){W=S({_value:k,";
