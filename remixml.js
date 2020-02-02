@@ -5,7 +5,7 @@
 ** Sponsored by: Cubic Circle, The Netherlands
 */
 
-/** @define {number} */ var DEBUG = 0;
+/** @define {number} */ var DEBUG = 1;
 /** @define {number} */ var RUNTIMEDEBUG = 1;
 /** @define {number} */ var MEASUREMENT = 0;
 /** @define {number} */ var ASSERT = 1;
@@ -21,12 +21,13 @@
   var vp,B,C,E,F,G,K,L,M,N,P,Q,R,S,T,U,V,X,Y,Z,
    sizeof,desc,abstract2txt,abstract2dom;
   // Cut END for prepend
-  var A,ve;
+  var A,ve,ia;
   // Cut END for externs
   // Cut BEGIN for prepend
-  function /** * */ A($,v,_)
-  { if(_&&!_.length&&_[""]===1)_="";return eval(vp(v)+"=_;");};
-  function ve($,n){return eval(vp(n));};
+  function A($,v,_)
+  { if(_&&!_.length&&_[""]===1)_="";return eval((ia(v)?v[0]:vp(v))+"=_;");};
+  function ve($,v){return eval(ia(v)?v[0]:vp(v));};
+  function ia(s){return Array.isArray(s);}
   // Cut END for prepend
 
   const W = typeof window == "object" ? window : global;
@@ -66,8 +67,6 @@
   function /** !Node */ newel(/** string */ n)
   { return D.createElement(n);
   }
-
-  function /** !boolean */ isa(/** * */ s) { return Array.isArray(s); }
 
   function /** !boolean */ iso(/** * */ obj)
   { var type = typeof obj;
@@ -193,11 +192,11 @@
     return t[1] + "&nbsp;" + t[2];
   }
 
-  function logerr(t, x)
+  function /** void */ logerr(/** * */ t,/** string */ x)
   { log("Remixml expression: " + JSON.stringify(t) + "\n" + x);
   }
 
-  function settag(/** function(!Object):!Array */ tpl,
+  function /** void */ settag(/** function(!Object):!Array */ tpl,
    /** !Object */ $,/** string */ name,/** string= */ scope,
    /** boolean|number= */ noparse,/** string= */ args)
   { $["_"]["_tag"][name]
@@ -206,6 +205,15 @@
          .reduce(function(a,i) { a[i] = 1; return a; }, {}), scope);
         return tpl($);
       };
+  }
+
+  function /** string */ simplify(/** string */ expr,/** number= */ assign)
+  { var /** Array */ r = expr.match(/^"([^(+]+)"$/);
+    if (r)
+    { expr = vp(r[1]);
+      expr = assign ? "['" + expr + "']" : "[" + expr + "]";
+    }
+    return expr;
   }
   			// appendChild with text (coalesce strings first)
   T = function /** string */(/** !Array */ H,/** string= */ s)
@@ -376,10 +384,11 @@
   { $["_"]["_tag"][n] = fn;
   };
   			// Convert object list into array to iterate over
-  G = function /** !Array */(/** !Object */ $,/** string */ vname,
+  G = function /** !Array */(/** !Object */ $,/** string|!Array */ vname,
    /** function(...):!Array = */ ord)
   { var /** !Array */ r;
-    var /** !Array|!Object */ k = /** @type{!Object} */(ve($, vname));
+    var /** !Array|!Object */ k
+     = /** @type{!Object} */(ia(vname) ? vname[0] : ve($, vname));
     if (k.size >= 0)
       return k.entries();
     r = O.entries(k);
@@ -393,7 +402,7 @@
           x = ord(a[0]); y = ord(b[0]);
           for (i = 0, n = x.length; i < n; i++)
           { m = 0;
-            if (isa(x[i]))
+            if (ia(x[i]))
               m = 1, x[i] = x[i][0], y[i] = y[i][0];
             if (ret = /** @type {number} */
                      (x[i] > y[i] || -(x[i] !== y[i])))
@@ -425,9 +434,9 @@
   { return '$["' + vpath.replace(/[.[\]]+/g, '"]["') + '"]';
   }
                           // Evaluate variable entity
-  Z = function /** * */(/** !Object */ $,/** string */ vname,
+  Z = function /** * */(/** !Object */ $,/** string|!Array */ vname,
    /** string= */ quot,/** string= */ fmt)
-  { var /** * */ x = ve($, vname);
+  { var /** * */ x = ia(vname) ? vname[0] : ve($, vname);
     if (typeof x === "function")
       x = x($["_"], $);
     if (x[""])
@@ -497,7 +506,12 @@
           x = x[0];
     }
     if (quot === "r")
-      x = eval("(" + substentities(/** @type{string} */(x)) + ")");
+    { let /** string */ oldx = "";
+      while (x !== oldx && x.indexOf("&") >= 0)
+      { oldx = /** @type{string} */(x);
+        x = ve($, ["(" + substentities(/** @type{string} */(x)) + ")"]);
+      }
+    }
     return x;
   };
 
@@ -554,7 +568,8 @@
   }
 
   function /** string */ varent(/** !Array */ mtchs)
-  { var /** string */ obj = "try{let x=Z($," + JSON.stringify(mtchs[1]);
+  { var /** string */ obj
+     = "try{let x=Z($," + simplify(JSON.stringify(mtchs[1]));
     var /** string */ quot = mtchs[2];
     var /** string */ fmt = mtchs[3];
     if (isstring(quot))
@@ -658,7 +673,8 @@
                             obj += "let a=" + ts + ".split(/\\s*,\\s*/),i,x;"
                              + "for(x=H,H={},i=-1;a.length>++i;)H[a[i]]=x[i];";
                         }
-                        obj += "A($," + vname + ",H);};w=(function(o){";
+                        obj += "A($," + simplify(vname, 1)
+			 + ",H);};w=(function(o){";
                       } else if (ts = getparm("tag"))
                       { obj += "v=0;Q(" + ts
                          + ",$,function(H,a,$){let o=$;$=C(a,$,{";
@@ -676,7 +692,7 @@
                     case "insert":
                     { let vname = getparm("var") || getparm("variable");
                       if (vname)
-                      { obj += "try{let x=Z($," + vname;
+                      { obj += "try{let x=Z($," + simplify(vname);
         		if (ts = getparm("quote"))
         		  obj += "," + ts;
                         if (vname = getparm("format"))
@@ -726,11 +742,11 @@
                       let /** string */ from = getparm("in");
                       if (from)
                       { if (ts = getparm("orderby"))
-                        { obj += "m=$._;k=G($," + from
+                        { obj += "m=$._;k=G($," + simplify(from)
 			   + ",function(_index){_=$._=_index;return[eval("
 			   + ts + ")];});$._=m;for([i,k]of k";
                         } else
-                          obj += "for([i,k]of G($," + from + ")";
+                          obj += "for([i,k]of G($," + simplify(from) + ")";
                         obj += "){W=S({_value:k,";
                       } else if ((from = getparm("from")) !== undefined)
                       { obj += "for(i=+" + from
@@ -751,7 +767,8 @@
                       break ctag;
                     case "unset":
                       obj += 'eval("delete "+A($,'
-                       + (getparm("var") || getparm("variable")) + ");";
+                       + simplify(getparm("var") || getparm("variable"), 1)
+		       + ");";
                       break ctag;
                     case "delimiter":
                       obj += "if(2>$._._recno){";
@@ -921,7 +938,7 @@
   // For use in Javascript Remixml
   abstract2txt = Y = function /** string */(/** !Array|string */ vdom)
   { for(;;)
-    { if (!isa(vdom))
+    { if (!ia(vdom))
         return vdom;
       switch (vdom.length)
       { case 0:
