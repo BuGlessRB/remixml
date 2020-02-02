@@ -587,7 +587,11 @@
   }
 
   function /** string */ evalexpr(/** string */ expr)
-  { return 'eval((_=$._,"("+' + expr + '+")"))';
+  { return 'eval((_=$._,"(' +
+     (expr.slice(-1) === '"'
+      ? (expr[0] === '"' ? expr.slice(1,-1) : '"+' + expr.slice(0,-1))
+      : (expr[0] === '"' ? expr.slice(1): '"+' + expr) + '+"')
+     + ')"))';
   }
 
   const /** number */ KILLWHITE = 1;
