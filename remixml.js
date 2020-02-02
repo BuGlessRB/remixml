@@ -431,7 +431,13 @@
   };
 
   vp = function /** string */(/** string */ vpath)
-  { return '$["' + vpath.replace(/[.[\]]+/g, '"]["') + '"]';
+  { var /** !Array */ components = vpath.split(/[.[\]]+/);
+    var /** string */ word;
+    vpath = "$";
+    for (word of components)
+      vpath += word.match(/^[A-Za-z_][\w_]+$/)
+       ? "." + word : '["' + word + '"]';
+    return vpath;
   }
                           // Evaluate variable entity
   Z = function /** * */(/** !Object */ $,/** string|!Array */ vname,
