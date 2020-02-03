@@ -1,6 +1,6 @@
 <h1>Remixml</h1>
 
-Remixml is an XML/HTML macro language/template engine.
+Remixml is an XML/HTML macro language/template compiler engine.
 
 The language and primitives used blend in completely with
 standard XML/HTML syntax and therefore integrate smoothly with
@@ -8,11 +8,7 @@ existing XML/HTML syntax colouring editors.
 
 ## Requirements
 
-It runs inside any webbrowser environment (starting at IE11 and up).
-
-The engine uses browser primitives to accellerate parsing; most notably it
-uses documentFragments and will therefore have trouble running in a plain
-NodeJS environment.
+It runs inside any webbrowser (starting at IE11 and up) or NodeJS environment.
 
 It has zero dependencies on other modules.
 
@@ -317,7 +313,7 @@ Simple assigment:
 Simple calculations:
 
 ```html
-<set var="_.variablename" expr="_.variablename + 1"></set>
+<set var="_.variablename" expr="_.variablename + 1" />
 ```
 
 Conditionals:
@@ -355,7 +351,7 @@ Iterating through an object or array:
 
 Specified parameters:
 - `template`<br />
-  Can be a domNode, documentFragment, or text-html.
+  Can be text-html.
 - `context`<br />
   Optional argument which specifies an object which can be referenced
   from within Remixml code.  The toplevel entries are the toplevel scopes
@@ -367,18 +363,24 @@ Specified parameters:
 
 Exposed API-list:
 - `Remixml.remixml2js(remixmlsrc)`<br />
-- `Remixml.js2fn(jssrc)`<br />
+   Compile Remixml into remixml-javascript source.
+- `Remixml.js2obj(jssrc)`<br />
+   Compile remixml-javascript source into object code.
+   Running the object code with a `context` parameter
+   returns a DOM-abstract structure.
+- `Remixml.abstract2txt(abstract)`<br />
+  Converts a DOM-abstract into a Remixml-string.
+- `Remixml.abstract2dom(abstract)`<br />
+  Converts a DOM-abstract into DOM nodes.
 - `Remixml.compile(remixmlsrc)`<br />
-  Clones and parses the template.  It returns the parsed version, the
-  original template is left in a preparsed/precompiled state to accellerate
-  repeated parsing.
+  Shorthand for `Remixml.js2obj(Remixml.remixml2js(remixmlsrc))`
 - `Remixml.parse(template, context)`<br />
-  In-situ parses the template and returns it.  If you want to reuse the
-  template, clone it first.
+  `template` can either be direct remixml source, or a precompiled object
+  from `Remixml.compile`.  Returns DOM nodes.
 - `Remixml.parse2txt(template, context)`<br />
-  Destructively parses the template, returns the result as a string
-  (convenience function for dom2txt(parse())).
-- `Remixml.set_tag(callback, context, name, scope?, noparse?, args?)`<br />
+  `template` can either be direct remixml source, or a precompiled object
+  from `Remixml.compile`.  Returns an HTML string.
+- `Remixml.set_tag(callback, context, name, scope?, args?)`<br />
   Creates a tag definition in the given `context` just like
   `<set tag="name"></set>` would have done.
   `callback` is a javascript function
@@ -386,7 +388,6 @@ Exposed API-list:
    the replacing DOM-template.  E.g. when the tag
    is referenced as `<name foo="bar"></name>` then inside the
    callback function `context._.foo` will have the value `bar`.
-   `noparse` is a boolean that defaults to false.
 - `Remixml.path_encode(string)`<br />
   Strips and encodes `string` to something which can be safely inserted in
   an url (compare `path` encoding for entities).

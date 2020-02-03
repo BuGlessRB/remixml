@@ -247,7 +247,7 @@
     { src = Y(elm);   // FIXME not generating back to txt?
       if (src === lastsrc)
         break;
-      elm = js2fn(remixml2js(lastsrc = src))($);
+      elm = js2obj(remixml2js(lastsrc = src))($);
     } while (--n);
     return elm;
   };
@@ -786,8 +786,7 @@ ntoken:
                       { obj += "for(i=+" + from
                          + ",m=+(" + getparm("step")
                          + "||1),k=+" + getparm("to")
-                         + ";m<0?i>=k:i<=k;i+=m)"
-                         + "{W=S({";
+                         + ";m<0?i>=k:i<=k;i+=m){W=S({";
                       }
                       obj += "_recno:++n,_index:i});let o=$;$=C(W,$,{}";
                       if (ts = getparm("scope"))
@@ -948,7 +947,7 @@ ntoken:
     return obj + "return H;})";
   }
 
-  function /** function(!Object):!Array */ js2fn(/** string */ jssrc)
+  function /** function(!Object):!Array */ js2obj(/** string */ jssrc)
   { var /** function(!Object):!Array */ constructor;
     try {
       constructor = /** @type{function(!Object):!Array} */(eval(jssrc));
@@ -1089,24 +1088,24 @@ ntoken:
   { "remixml2js": function /** string */(/** string */ remixml)
       { return remixml2js(remixml);
       },
-    "js2fn": function /** function(!Object):!Array */(/** string */ jssrc)
-      { return js2fn(jssrc);
+    "js2obj": function /** function(!Object):!Array */(/** string */ jssrc)
+      { return js2obj(jssrc);
       },
     "compile": function /** function(!Object):!Array */(/** string */ remixml)
-      { return js2fn(remixml2js(remixml));
+      { return js2obj(remixml2js(remixml));
       },
     "parse": function
        /** Node */(/** string|(function(!Object):!Array) */ tpl,
                   /** !Object */ $)
       { if (isstring(tpl))
-          tpl = js2fn(remixml2js(/** @type{string} */(tpl)));
+          tpl = js2obj(remixml2js(/** @type{string} */(tpl)));
         return abstract2dom(/** @type{function(!Object):!Array} */(tpl)($));
       },
     "parse2txt": function
        /** string */(/** string|(function(!Object):!Array) */ tpl,
 	            /** !Object */ $)
       { if (isstring(tpl))
-          tpl = js2fn(remixml2js(/** @type{string} */(tpl)));
+          tpl = js2obj(remixml2js(/** @type{string} */(tpl)));
         return Y(/** @type{function(!Object):!Array} */(tpl)($));
       },
     "abstract2txt": function /** string */(/** !Array */ tpl)
