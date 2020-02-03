@@ -41,10 +41,11 @@
   const /** !RegExp */ txtentity =
    /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
   const /** !RegExp */ varentity
-   = /&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/;
-  const /** !RegExp */ tokenrx =
- /[^<&]+(?:&[^.;]*;[^<&]*)*|&[^;]*;|<(?:(?:[^'">]*|"[^"]*"|'[^']*')*|!.*?--)>/g;
-  const /** !RegExp */ params = /\s*([-\w:]+|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?/g;
+   = /([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
+  const /** !RegExp */ commentrx = /!--{0,2}(.*?)-->/g;
+  const /** !RegExp */ textrx = /[^&<]+/g;
+  const /** !RegExp */ params
+   = /\s*(?:([-\w:]+|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?|>)/g;
   const /** !RegExp */ complexlabel = /[^\w_]/;
   const /** !RegExp */ scriptend = /<\/script>/g;
 
@@ -615,8 +616,7 @@
   const /** number */ PRESERVEWHITE = 2;
 
   function /** string */ remixml2js(/** string */ rxmls,/** number= */ flags)
-  { var /** Array */ ar;
-    // H: Current element
+  { // H: Current element
     // W: Temporary parent element
     // I: Most recent truth value
     // J: Parent element
@@ -627,30 +627,39 @@
     if (RUNTIMEDEBUG || ASSERT)
     { var /** !Array */ tagstack = [];
     }
-    tokenrx.lastIndex = 0;
-    while (ar = tokenrx.exec(rxmls))
-    { let /** string */ token;
-      switch ((token = ar[0])[0])
+    var /** number */ lasttoken = 0;
+    while (lasttoken < rxmls.length)
+    { var /** Array */ rm;
+ntoken:
+      switch (rxmls[lasttoken])
       { case "<":
-          if (token[1] === "!")
-          { obj += 'H.push(W=L("!"));W.push('
-             + JSON.stringify(token.slice(token.slice(2,3) === "--" ? 4 : 2,-3))
-             + ");";
+	  commentrx.lastIndex = ++lasttoken;
+          if (rm = commentrx.exec(rxmls))
+          { lasttoken = commentrx.lastIndex;
+	    obj += 'H.push(W=L("!"));W.push(' + JSON.stringify(rm[1]) + ");";
             break;
           }
-          let /** Array */ a2;
-          params.lastIndex = 1;
+          params.lastIndex = lasttoken;
           let /** !Object */ gotparms = {};
           function /** string */ getparm(/** string */ name)
           { let /** string */ sbj = gotparms[name];
             return sbj && substentities(sbj);
           }
-          let /** string */ fw = params.exec(token)[1];
-          if (fw === "/")
-            gotparms[fw] = 1, fw = params.exec(token)[1];
+          let /** string */ fw = params.exec(rxmls)[1];
+	  if (fw === "/")
+            gotparms[fw] = 1, fw = params.exec(rxmls)[1];
+	  else if (!fw)
+	  { lasttoken = params.lastIndex;
+	    break ntoken;
+	  }
           gotparms[""] = fw;
-          while (a2 = params.exec(token))
-            gotparms[a2[1]] = a2[2] ? a2[2].slice(1,-1) : a2[1];
+          while (rm = params.exec(rxmls))
+	  { if (!rm[1])
+	    { lasttoken = params.lastIndex;
+	      break;
+	    }
+            gotparms[rm[1]] = rm[2] ? rm[2].slice(1,-1) : rm[1];
+	  }
           let /** string|number */ close = gotparms["/"];
           delete gotparms["/"];
           let /** string */ tag = gotparms[""];
@@ -834,14 +843,14 @@
                 obj += '},"' + tag + '");';
               }
               if (tag === "script" && !close)
-              { scriptend.lastIndex = tokenrx.lastIndex;
+              { scriptend.lastIndex = lasttoken;
                 scriptend.exec(rxmls);
                 let /** number */ i = scriptend.lastIndex;
                 if (!comment && !nooutput)      // substract closing script tag
-		{ if (ts = rxmls.slice(tokenrx.lastIndex, i - 9))
+		{ if (ts = rxmls.slice(lasttoken, i - 9))
                     obj += "H.push(" + JSON.stringify(ts) + ");";
 		}
-                tokenrx.lastIndex = i;
+                lasttoken = i;
                 close = 1;
               }
             } while(0);
@@ -852,7 +861,7 @@
 	      { let /** string */ shouldtag = tagstack.pop();
 	        if (tag !== shouldtag)
                 { if (RUNTIMEDEBUG)
-	            logerr(rxmls.substr(tokenrx.lastIndex - 15, 32),
+	            logerr(rxmls.substr(lasttoken - 15, 32),
 		     "Expected " + shouldtag + " got " + tag);
 		  if (ASSERT)
 		    if (tagstack.lastIndexOf(tag) >= 0)
@@ -907,29 +916,33 @@
             }
           break;
         case "&":
-          if (comment || nooutput)
-            break;
-          let /** Array<string> */ a3 = token.match(varentity);
-          if (a3)
-          { obj += varent(a3) + varinsert;
+	  varentity.lastIndex = ++lasttoken;
+	  if (rm = varentity.exec(rxmls))
+          { lasttoken = varentity.lastIndex;
+            if (!comment && !nooutput)
+	      obj += varent(rm) + varinsert;
             break;
           }
         default:
+        { textrx.lastIndex = lasttoken;
+          let /** string */ ts = textrx.exec(rxmls)[0];
+	  lasttoken = textrx.lastIndex;
           if (!comment && !nooutput)
 	  { if (flags & (KILLWHITE|PRESERVEWHITE))
 	    { if (flags & KILLWHITE)
-	        token = subws(token);
+	        ts = subws(ts);
 	    } else
-	      token = subwnl(token);	// Coalesce newlines by default
-	    switch (token)
+	      ts = subwnl(ts);		// Coalesce newlines by default
+	    switch (ts)
 	    { case "\n":
                 obj += "T(H);";
 		break;
 	      default:
-                obj += "T(H," + JSON.stringify(token) + ");";
+                obj += "T(H," + JSON.stringify(ts) + ");";
 	      case "":;
 	    }
 	  }
+	}
       }
     }
     return obj + "return H;})";
