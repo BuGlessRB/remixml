@@ -24,8 +24,8 @@
   var A,ve,ia;
   // Cut END for externs
   // Cut BEGIN for prepend
-  function A($,v,_)
-  { if(_&&!_.length&&_[""]===1)_="";return eval((ia(v)?v[0]:vp(v))+"=_;");};
+  function A(_,$,v)
+  {if(_&&!_.length&&_[""]===1)_="";return v?eval(vp(v)+"=_;"):_;};
   function ve($,v){return eval(ia(v)?v[0]:vp(v));};
   function ia(s){return Array.isArray(s);}
   // Cut END for prepend
@@ -207,11 +207,12 @@
       };
   }
 
-  function /** string */ simplify(/** string */ expr,/** number= */ assign)
+  function /** !Array|string */
+   simplify(/** string */ expr,/** number= */ assign)
   { var /** Array */ r = expr.match(/^"([^(+]+)"$/);
     if (r)
     { expr = vp(r[1]);
-      expr = assign ? "['" + expr + "']" : "[" + expr + "]";
+      return assign ? [ expr ] : "[" + expr + "]";
     }
     return expr;
   }
@@ -693,8 +694,12 @@
                             obj += "let a=" + ts + ".split(/\\s*,\\s*/),i,x;"
                              + "for(x=H,H={},i=-1;a.length>++i;)H[a[i]]=x[i];";
                         }
-                        obj += "A($," + simplify(vname, 1)
-			 + ",H);};w=(function(o){";
+		        let /** !Array|string */ av = simplify(vname, 1);
+		        if (ia(av))
+		          obj += av[0] + "=A(H";
+		        else
+		          obj += "A(H,$," + av;
+		        obj +=");};w=(function(o){";
                       } else if (ts = getparm("tag"))
                       { obj += "v=0;Q(" + ts
                          + ",$,function(H,a,$){let o=$;$=C(a,$,{";
@@ -786,10 +791,14 @@
                        + ",H=L();";
                       break ctag;
                     case "unset":
-                      obj += 'eval("delete "+A($,'
-                       + simplify(getparm("var") || getparm("variable"), 1)
-		       + ");";
+		    { let /** !Array|string */ av
+                       = simplify(getparm("var") || getparm("variable"), 1);
+		      if (ia(av))
+		        obj += "delete " + av[0] + ";";
+		      else
+		        obj += 'eval("delete "+' + vp(av) + ");";
                       break ctag;
+		    }
                     case "delimiter":
                       obj += "if(2>$._._recno){";
                       break ctag;
