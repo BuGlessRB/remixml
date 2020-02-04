@@ -10,6 +10,8 @@ existing XML/HTML syntax colouring editors.
 
 It runs inside any webbrowser (starting at IE11 and up) or NodeJS environment.
 
+Minified and gzip-compressed it is less than 8KB of code.
+
 It has zero dependencies on other modules.
 
 ## Basic usage
