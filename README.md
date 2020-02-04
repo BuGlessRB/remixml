@@ -104,7 +104,7 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
 
 ### Language tags
 
-- `<set var="" variable="" expr="" nojscache="" regexp="" split="" join=""
+- `<set var="" variable="" expr="" regexp="" split="" join=""
     mkmapping="" selector="" json=""
     tag="" args="" scope="">...</set>`<br />
    Attributes:
@@ -114,9 +114,6 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
      Use the javascript expression specified in this attribute.
      Or, alternately, if the attribute is empty, a javascript from
      the content of this tag is stored.
-   - `nojscache`<br />
-     If non-empty, ensure that the `expr`ession does not enter the javascript
-     compiled-function-cache.
    - `regexp`<br />
      A regular expression to match the content to.
    - `split`<br />
@@ -149,28 +146,22 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
    Attributes:
    - `var` or `variable`<br />
      Delete the named variable.
-- `<if expr="" nojscache="">...</if>`<br />
+- `<if expr="">...</if>`<br />
    Attributes:
    - `expr`<br />
      If the Javascript expression evaluates to true, include the
      content of the <b>if</b> tag.
-   - `nojscache`<br />
-     If non-empty, ensure that the `expr`ession does not enter the javascript
-     compiled-function-cache.
 - `<then>...</then>`<br />
      If the last truth value was true, include the content
      of the <b>then</b> tag.  Not needed for a typical if/else
      construction; usually used after a <b>for</b> tag
      to specify code that needs to be included if the <b>for</b> tag
      actually completed at least one iteration.
-- `<elif expr="" nojscache="">...</elif>`<br />
+- `<elif expr="">...</elif>`<br />
    Attributes:
    - `expr`<br />
      If the last truth value was false and the Javascript expression evaluates
      to true, include the content of the <b>elif</b> tag.
-   - `nojscache`<br />
-     If non-empty, ensure that the `expr`ession does not enter the javascript
-     compiled-function-cache.
 - `<else>...</else>`<br />
      If the last truth value was false, include the content of
      the <b>else</b> tag.  Can also be used after a <b>for</b> to specify
@@ -240,7 +231,7 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
    - `scope`<br />
      Limit the scope of the dumped variables to the mentioned scope only.
 - `<replace from="" regexp="" flags="" to=""
-     expr="" nojscache="">...</replace>`<br />
+     expr="">...</replace>`<br />
    Attributes:
    - `from`<br />
      Search in the content of this tag for this text.
@@ -253,9 +244,6 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
      [`$` characters here have special meaning](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#Specifying_a_string_as_a_parameter).
    - `expr`<br />
      Replace found occurrences with this javascript expression.
-   - `nojscache`<br />
-     If non-empty, ensure that the `expr`ession does not enter the javascript
-     compiled-function-cache.
 - `<trim>...</trim>`<br />
    Truncates whitespace at both ends, and reduce other whitespace runs of
    more than one character to a single space.
