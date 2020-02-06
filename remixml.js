@@ -43,7 +43,7 @@
   const /** !RegExp */ varentity
    = /([\w$]+\.[\w$]+(?:[.[][\w$]+]?)*)(?::([\w$]*))?(?:%([^;]*))?;/g;
   const /** !RegExp */ commentrx = /!--{0,2}(.*?)-->/g;
-  const /** !RegExp */ textrx = /.[^&<]+/g;
+  const /** !RegExp */ textrx = /[^&<]+/g;
   const /** !RegExp */ params
    = /\s*(?:([-\w:]+|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?|>)/g;
   const /** !RegExp */ complexlabel = /[^\w_]/;
@@ -632,6 +632,7 @@
     var /** number */ lasttoken = 0;
     while (lasttoken < rxmls.length)
     { var /** Array */ rm;
+      let /** string */ ts = "";
 ntoken:
       switch (rxmls[lasttoken])
       { case "<":
@@ -667,8 +668,7 @@ ntoken:
           let /** string */ tag = gotparms[""];
           if (close !== 1)
   ctag:     do
-            { let /** string */ ts = "";
-              if (RUNTIMEDEBUG || ASSERT)
+            { if (RUNTIMEDEBUG || ASSERT)
 		tagstack.push(tag);
               switch (tag)
               { case "noparse": noparse++; break ctag;
@@ -917,16 +917,17 @@ ntoken:
             }
           break;
         case "&":
-	  varentity.lastIndex = lasttoken + 1;
+	  varentity.lastIndex = ++lasttoken;
 	  if (rm = varentity.exec(rxmls))
           { lasttoken = varentity.lastIndex;
             if (!comment && !nooutput)
 	      obj += varent(rm) + varinsert;
             break;
-          }	  // If not a variable entity, fall back to normal text
+          }
+	  ts = "&";	    // No variable, fall back to normal text
         default:
-        { textrx.lastIndex = lasttoken;
-          let /** string */ ts = textrx.exec(rxmls)[0];
+          textrx.lastIndex = lasttoken;
+          ts += textrx.exec(rxmls)[0];
 	  lasttoken = textrx.lastIndex;
           if (!comment && !nooutput)
 	  { if (flags & (KILLWHITE|PRESERVEWHITE))
@@ -943,7 +944,6 @@ ntoken:
 	      case "":;
 	    }
 	  }
-	}
       }
     }
     return obj + "return H})";
