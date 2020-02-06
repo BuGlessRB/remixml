@@ -19,6 +19,9 @@
     "RXML", "XML", "HTML", "Roxen", "template", "macro", "language",
     "compiler", "javascript", "zerodeps"
   ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "author": "Stephen R. van den Berg <srb@cuci.nl>",
   "license": "(ISC OR GPL-3.0)"
 }
