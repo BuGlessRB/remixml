@@ -199,7 +199,7 @@
 
   function /** void */ settag(/** function(!Object):!Array */ tpl,
    /** !Object */ $,/** string */ name,/** string= */ scope,
-   /** boolean|number= */ noparse,/** string= */ args)
+   /** string= */ args)
   { $["_"]["_tag"][name]
      = function /** void */(/** !Array */W,/** !Array */ H,/** !Object */ $)
       { $ = C(H, $, (args ? args.split(splc) : [])
@@ -1118,8 +1118,8 @@ ntoken:
       },
     "set_tag": function /** void */(/** function(!Object):!Array */ cb,
        /** !Object */ $,/** string */ name,/** string= */ scope,
-       /** boolean|number= */ noparse,/** string= */ args)
-      { N($); settag(cb, $, name, scope, noparse, args);
+       /** string= */ args)
+      { N($); settag(cb, $, name, scope, args);
       },
     "path_encode": encpath,
     "set_log_callback": function /** void */(/** function(...) */ cb)
