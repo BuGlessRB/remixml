@@ -667,11 +667,11 @@ ntoken:
           delete gotparms["/"];
           let /** string */ tag = gotparms[""];
           if (close !== 1)
-  ctag:     do
+            do
             { if (RUNTIMEDEBUG || ASSERT)
 		tagstack.push(tag);
               switch (tag)
-              { case "noparse": noparse++; break ctag;
+              { case "noparse": noparse++; continue;
                 case "comment": comment++; break;
               }
               if (!comment)
@@ -723,7 +723,7 @@ ntoken:
                           obj += "," + ts;
                         obj += ");";
                       }
-                      break ctag;
+                      continue;
                     }
                     case "insert":
                     { let vname = getparm("var") || getparm("variable");
@@ -750,7 +750,7 @@ ntoken:
                             obj += "console.log((W="
                              + getparm("scope") + ")?$[W]:$);";
                         }
-                      break ctag;
+                      continue;
                     }
                     case "replace":
                     { let /** string */ xp = getparm("regexp") ||
@@ -762,17 +762,17 @@ ntoken:
                        + JSON.stringify(flags) + ",";
                       xp = getparm("expr");
                       obj += (xp ? evalexpr(xp) : getparm("to")) + ");";
-                      break ctag;
+                      continue;
                     }
                     case "trim":
                       obj += "{let J=W,H=L();";
-                      break ctag;
+                      continue;
                     case "maketag":
                       obj += "{let J=W,H=L(" + getparm("name") + ");";
-                      break ctag;
+                      continue;
                     case "attrib":
                       obj += "{let J=W,H=L(),v=" + getparm("name") + ";";
-                      break ctag;
+                      continue;
                     case "for":
                     { obj += "{I=0;let g,i,k,m,J=W,n=0;";
                       let /** string */ from = getparm("in");
@@ -794,12 +794,12 @@ ntoken:
                       if (ts = getparm("scope"))
                         obj += "," + ts;
                       obj += ");";
-                      break ctag;
+                      continue;
                     }
                     case "eval":
                       obj += "{let J=W,v=" + (getparm("recurse") || 0)
                        + ",H=L();";
-                      break ctag;
+                      continue;
                     case "unset":
 		    { let /** !Array|string */ av
                        = simplify(getparm("var") || getparm("variable"), 1);
@@ -807,26 +807,26 @@ ntoken:
 		        obj += "delete " + av[0] + ";";
 		      else
 		        obj += 'eval("delete "+' + vp(av) + ");";
-                      break ctag;
+                      continue;
 		    }
                     case "delimiter":
                       obj += "if(2>$._._recno){";
-                      break ctag;
+                      continue;
                     case "elif":
                       ts = "I&&";
                     case "if":
                       obj += "if(I=(" + ts + evalexpr(getparm("expr"))
                        + "?1:0)){";
-                      break ctag;
+                      continue;
                     case "then":
                       obj += "if(I){";
-                      break ctag;
+                      continue;
                     case "else":
                       obj += "if(!I){";
-                      break ctag;
+                      continue;
                     case "nooutput":
                       nooutput++;
-                      break ctag;
+                      continue;
                   }
                 obj += "{let J=W,H=S({";
                 { let /** string */ sep;
