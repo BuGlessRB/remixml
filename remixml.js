@@ -46,7 +46,7 @@
   const /** !RegExp */ textrx = /[^&<]+/g;
   const /** !RegExp */ params
    = /\s*(?:([-\w:]+|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?|>)/g;
-  const /** !RegExp */ complexlabel = /[^\w_]/;
+  const /** !RegExp */ complexlabel = /[^\w]/;
   const /** !RegExp */ scriptend = /<\/script>/g;
 
   var /** function(...) */ log = console.log;
@@ -372,13 +372,16 @@
       _[n] = H.length === 1 && !H[0][""] ? H[0] : !H.length ? "" : H;
   };
   			// Execute remixml macro (if any)
-  X = function /** void */(/** !Array */ W,/** !Array */ H,/** !Object */ $)
+                       // J: Element to append to
+                      // H: Container content
+                     // $: Variable context
+  X = function /** void */(/** !Array */ J,/** !Array */ H,/** !Object */ $)
   { var /** function(!Array,!Array,!Object):void */ fn
      = $["_"]["_tag"][/** @type{Object} */(H)[""]];
     if (fn)
-      fn(W, H, $);
+      fn(J, H, $);
     else
-      W.push(H);
+      J.push(H);
   };
   			// Define new remixml macro
   Q = function /** void */(/** string */ n,/** !Object */ $,
@@ -439,7 +442,7 @@
     var /** string */ word;
     vpath = "$";
     for (word of components)
-      vpath += word.match(/^[A-Za-z_][\w_]*$/)
+      vpath += word.match(/^[A-Za-z_][\w]*$/)
        ? "." + word : '["' + word + '"]';
     return vpath;
   }
@@ -618,10 +621,10 @@
   const /** number */ PRESERVEWHITE = 2;
 
   function /** string */ remixml2js(/** string */ rxmls,/** number= */ flags)
-  { // H: Current element
+  { // H: Current element to append in
     // W: Temporary parent element
     // I: Most recent truth value
-    // J: Parent element
+    // J: Parent element to append the current element to when finished
     var /** string */ obj = '(function($){"use strict";var I,W,_,H=N($);';
     var /** number */ noparse = 0;
     var /** number */ comment = 0;
@@ -715,7 +718,7 @@ ntoken:
                       { obj += "v=0;Q(" + ts
                          + ",$,function(H,a,$){let o=$;$=C(a,$,{";
                         { let /** string */ args = getparm("args");
-                          if (args && (args = args.replace(/[^-_:\w,]/, "")))
+                          if (args && (args = args.replace(/[^-:\w,]/, "")))
                             obj += '"' + args.replace(splc, '":1,') + '":1';
                         }
                         obj += "}";
