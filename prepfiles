@@ -28,8 +28,8 @@ google-closure-compiler \
  -D DEBUG=0 \
  --js_output_file remixml.min.tmp \
   remixml.meat.tmp &&
-  ( echo '!function(){"use strict";'
+  ( echo '(function(){"use strict";'
     cat remixml.prep.tmp remixml.min.tmp
-    echo '}();'
+    echo '}).call(this);'
   ) >remixml.min.js
 

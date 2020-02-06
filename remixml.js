@@ -385,36 +385,38 @@
    /** function(string,!Array,!Array):void */ fn)
   { $["_"]["_tag"][n] = fn;
   };
-  			// Convert object list into array to iterate over
-  G = function /** !Array */(/** !Object */ $,/** string|!Array */ vname,
+			// Convert object list into iterator
+  G = function /** !Object */(/** !Object */ $,/** string|!Array */ vname,
    /** function(...):!Array = */ ord)
   { var /** !Array */ r;
     var /** !Array|!Object */ k
      = /** @type{!Object} */(ia(vname) ? vname[0] : ve($, vname));
     if (k.size >= 0)
-      return k.entries();
-    r = O.entries(k);
-    if (k.length >= 0)
-      r.splice(k.length);
-    if (ord)
-    { try
-      { r = r.sort(function(a, b)
-        { var x, y, i, n, m;
-          var /** number */ ret;
-          x = ord(a[0]); y = ord(b[0]);
-          for (i = 0, n = x.length; i < n; i++)
-          { m = 0;
-            if (ia(x[i]))
-              m = 1, x[i] = x[i][0], y[i] = y[i][0];
-            if (ret = /** @type {number} */
-                     (x[i] > y[i] || -(x[i] !== y[i])))
-              return m ? -ret : ret;
-          }
-          return m ? -ret : ret;
-        });
-      } catch(x) { logerr(ord, x); }
+      r = k.entries();
+    else
+    { r = O.entries(k);
+      if (k.length >= 0)
+        r.splice(k.length);
+      if (ord)
+      { try
+        { r = r.sort(function(a, b)
+          { var x, y, i, n, m;
+            var /** number */ ret;
+            x = ord(a[0]); y = ord(b[0]);
+            for (i = 0, n = x.length; i < n; i++)
+            { m = 0;
+              if (ia(x[i]))
+                m = 1, x[i] = x[i][0], y[i] = y[i][0];
+              if (ret = /** @type {number} */
+                       (x[i] > y[i] || -(x[i] !== y[i])))
+                return m ? -ret : ret;
+            }
+            return m ? -ret : ret;
+          });
+        } catch(x) { logerr(ord, x); }
+      }
     }
-    return r;
+    return r[Symbol.iterator]();
   };
   			// Run CSS selector over abstract notation
   B = function /** void */(/** !Array */ res,/** !Array */ H,/** string */ sel)
@@ -772,16 +774,16 @@ ntoken:
                       obj += "{let J=W,H=L(),v=" + getparm("name") + ";";
                       break ctag;
                     case "for":
-                    { obj += "{I=0;let i,k,m,J=W,n=0;";
+                    { obj += "{I=0;let g,i,k,m,J=W,n=0;";
                       let /** string */ from = getparm("in");
                       if (from)
-                      { if (ts = getparm("orderby"))
-                        { obj += "m=$._;k=G($," + simplify(from)
-			   + ",function(_index){_=$._=_index;return["
-			   + ts + "];});$._=m;for([i,k]of k";
-                        } else
-                          obj += "for([i,k]of G($," + simplify(from) + ")";
-                        obj += "){W=S({_value:k,";
+                      { obj += "g=G($," + simplify(from) +
+                         ((ts = getparm("orderby"))
+                          ? ",(m=$._,function(_index){_=$._=_index;return["
+			    + ts + "];}));$._=m"
+			  : ")")
+                         + ";while(!(m=g.next()).done)"
+			 + "{k=(m=m.value)[1];i=m[0];W=S({_value:k,";
                       } else if ((from = getparm("from")) !== undefined)
                       { obj += "for(i=+" + from
                          + ",m=+(" + getparm("step")
@@ -915,13 +917,13 @@ ntoken:
             }
           break;
         case "&":
-	  varentity.lastIndex = ++lasttoken;
+	  varentity.lastIndex = lasttoken + 1;
 	  if (rm = varentity.exec(rxmls))
           { lasttoken = varentity.lastIndex;
             if (!comment && !nooutput)
 	      obj += varent(rm) + varinsert;
             break;
-          }
+          }	  // If not a variable entity, fall back to normal text
         default:
         { textrx.lastIndex = lasttoken;
           let /** string */ ts = textrx.exec(rxmls)[0];
@@ -1167,5 +1169,5 @@ ntoken:
     W["Remixml"] = g;
 
 // Cut BEGIN delete
-})();
+}).call(this);
 // Cut BEGIN end
