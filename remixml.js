@@ -25,9 +25,9 @@
   // Cut END for externs
   // Cut BEGIN for prepend
   function A(_,$,v)
-  {if(_&&!_.length&&_[""]===1)_="";return v?eval(vp(v)+"=_;"):_;};
-  function ve($,v){return eval(ia(v)?v[0]:vp(v));};
-  function ia(s){return Array.isArray(s);}
+  {if(_&&!_.length&&_[""]===1)_="";return v?eval(vp(v)+"=_;"):_};
+  function ve($,v){return eval(ia(v)?v[0]:vp(v))};
+  function ia(s){return Array.isArray(s)}
   // Cut END for prepend
 
   const W = typeof window == "object" ? window : global;
@@ -37,7 +37,7 @@
   const /** !RegExp */ splc = /\s*,\s*/g;
   const /** Object */ diacr = {};
   const /** Node */ txta = newel("textarea");
-  const /** string */ varinsert = "I=K($,H,x);}catch(x){I=0;}";
+  const /** string */ varinsert = "I=K($,H,x)}catch(x){I=0}";
   const /** !RegExp */ txtentity =
    /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
   const /** !RegExp */ varentity
@@ -564,7 +564,7 @@
         { case "&":
             if (s.slice(-1) === ";" && s.indexOf(".") > 0)
             { obj += sep + "(function(){" + varent(a5)
-               + 'return x;}catch(x){}return "";})()';
+               + 'return x}catch(x){}return ""})()';
               break;
             }
           default:
@@ -710,7 +710,7 @@ ntoken:
 		          obj += av[0] + "=A(H";
 		        else
 		          obj += "A(H,$," + av;
-		        obj +=");};w=(function(o){";
+		        obj +=")};w=(function(o){";
                       } else if (ts = getparm("tag"))
                       { obj += "v=0;Q(" + ts
                          + ",$,function(H,a,$){let o=$;$=C(a,$,{";
@@ -780,7 +780,7 @@ ntoken:
                       { obj += "g=G($," + simplify(from) +
                          ((ts = getparm("orderby"))
                           ? ",(m=$._,function(_index){_=$._=_index;return["
-			    + ts + "];}));$._=m"
+			    + ts + "]}));$._=m"
 			  : ")")
                          + ";while(!(m=g.next()).done)"
 			 + "{k=(m=m.value)[1];i=m[0];W=S({_value:k,";
@@ -882,27 +882,27 @@ ntoken:
                     else
                       switch (shouldtag)
                       { case "set":
-                          obj += "$=o;});v&&v();}";
+                          obj += "$=o});v&&v()}";
                         case "insert":
                         case "unset":
                           break;
                         case "replace":
-                          obj += "M(J,R(H,v));}";
+                          obj += "M(J,R(H,v))}";
                           break;
                         case "trim":
-                          obj += "M(J,U(R(H)));}";
+                          obj += "M(J,U(R(H)))}";
                           break;
                         case "maketag":
-                          obj += "J.push(H);}";
+                          obj += "J.push(H)}";
                           break;
                         case "attrib":
-                          obj += "V(H,v,J);}";
+                          obj += "V(H,v,J)}";
                           break;
                         case "for":
-                          obj += "$=o;I=1;}}";
+                          obj += "$=o;I=1}}";
                           break;
                         case "eval":
-                          obj += "M(J,E(H,v,$));}";
+                          obj += "M(J,E(H,v,$))}";
                           break;
                         default:
                           if (!nooutput)
@@ -946,7 +946,7 @@ ntoken:
 	}
       }
     }
-    return obj + "return H;})";
+    return obj + "return H})";
   }
 
   function /** function(!Object):!Array */ js2obj(/** string */ jssrc)
