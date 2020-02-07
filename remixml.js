@@ -37,6 +37,7 @@
   const /** !RegExp */ splc = /\s*,\s*/g;
   const /** Object */ diacr = {};
   const /** Node */ txta = newel("textarea");
+  const /** !Object */ elmcache = {};
   const /** string */ varinsert = "I=K($,H,x)}catch(x){I=0}";
   const /** !RegExp */ txtentity =
    /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
@@ -1047,7 +1048,9 @@ ntoken:
         name = 0; parent = D.createDocumentFragment();
         break;
       default:
-        parent = newel(/** @type{string} */(name));
+	if (!(parent = elmcache[name]))
+          parent = elmcache[name] = newel(/** @type{string} */(name));
+	parent = parent.cloneNode(false);
         for (name of O.keys(vdom).splice(vdom.length))
           switch (name[0])
           { default:
@@ -1064,6 +1067,7 @@ ntoken:
       parent.appendChild(child[""] ? abstract2dom(child)
        : child.indexOf("&") < 0 ? D.createTextNode(child)
        : (txta.innerHTML = child, txta.firstChild));
+    txta.textContent = "";    // Free memory
     return parent;
   }
 
