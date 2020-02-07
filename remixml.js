@@ -1050,7 +1050,7 @@ ntoken:
       default:
 	if (!(parent = elmcache[name]))
           parent = elmcache[name] = newel(/** @type{string} */(name));
-	parent = parent.cloneNode(false);
+	parent = parent.cloneNode();
         for (name of O.keys(vdom).splice(vdom.length))
           switch (name[0])
           { default:
