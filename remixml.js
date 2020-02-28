@@ -720,7 +720,7 @@ ntoken:
                          + ",$,function(H,a,$){let o=$;$=C(a,$,{";
                         { let /** string */ args = getparm("args");
                           if (args && (args = args.replace(/[^-:\w,]/, "")))
-                            obj += '"' + args.replace(splc, '":1,') + '":1';
+                            obj += '"' + args.replace(splc, '":1,"') + '":1';
                         }
                         obj += "}";
                         if (ts = getparm("scope"))
