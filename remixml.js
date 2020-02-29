@@ -719,7 +719,7 @@ ntoken:
                       { obj += "v=0;Q(" + ts
                          + ",$,function(H,a,$){let o=$;$=C(a,$,{";
                         { let /** string */ args = getparm("args");
-                          if (args && (args = args.replace(/[^-:\w,]/, "")))
+                          if (args && (args = args.replace(/[^-:\w,]/g, "")))
                             obj += '"' + args.replace(splc, '":1,"') + '":1';
                         }
                         obj += "}";
