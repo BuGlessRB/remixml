@@ -407,7 +407,7 @@
         { r = r.sort(function(a, b)
           { var x, y, i, n, m;
             var /** number */ ret;
-            x = ord(a[0]); y = ord(b[0]);
+            x = ord(a[1]); y = ord(b[1]);
             for (i = 0, n = x.length; i < n; i++)
             { m = 0;
               if (ia(x[i]))
@@ -799,7 +799,7 @@ ntoken:
                       { obj += "g=G($," + simplify(from) +
                          ((ts = getparm("orderby"))
                           ? ",(m=$._,function(_index){_=$._=_index;return["
-			    + ts + "]}));$._=m"
+			    + evalexpr(ts) + "]}));$._=m"
 			  : ")")
                          + ";while(!(m=g.next()).done)"
 			 + "{k=(m=m.value)[1];i=m[0];W=S({_value:k,";
