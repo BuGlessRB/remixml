@@ -1,6 +1,6 @@
 {
   "name": "remixml",
-  "version": "2.1.20",
+  "version": "2.1.21",
   "description": "XML/HTML-like macro language/template compiler engine",
   "main": "remixml.js",
   "browser": "remixml.js",

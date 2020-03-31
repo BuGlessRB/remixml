@@ -640,7 +640,7 @@
       let /** string */ ts = "";
       if (lasttoken >= rxmls.length)
       { if (RUNTIMEDEBUG || ASSERT)
-	{ let /** string */ shouldtag = tagstack.pop();
+	{ let /** string */ shouldtag = tagstack[tagstack.length - 1];
 	  if (shouldtag)
           { if (RUNTIMEDEBUG)
 	      logerr(shouldtag, "Missing close tag");
