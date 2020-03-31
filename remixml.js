@@ -798,7 +798,7 @@ ntoken:
                       if (from)
                       { obj += "g=G($," + simplify(from) +
                          ((ts = getparm("orderby"))
-                          ? ",(m=$._,function(_){_index=_[0];$._=_=_[1];return["
+                          ? ",(m=$._,function(_){let _index=_[0];$._=_=_[1];return["
 			    + evalexpr(ts) + "]}));$._=m"
 			  : ")")
                          + ";while(!(m=g.next()).done)"
