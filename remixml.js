@@ -6,6 +6,7 @@
 */
 
 /** @define {number} */ var DEBUG = 1;
+/** @define {number} */ var ALERTS = 0;
 /** @define {number} */ var RUNTIMEDEBUG = 1;
 /** @define {number} */ var MEASUREMENT = 0;
 /** @define {number} */ var ASSERT = 1;
@@ -634,9 +635,23 @@
     { var /** !Array */ tagstack = [];
     }
     var /** number */ lasttoken = 0;
-    while (lasttoken < rxmls.length)
+    for (;;)
     { var /** Array */ rm;
       let /** string */ ts = "";
+      if (lasttoken >= rxmls.length)
+      { if (RUNTIMEDEBUG || ASSERT)
+	{ let /** string */ shouldtag = tagstack.pop();
+	  if (shouldtag)
+          { if (RUNTIMEDEBUG)
+	      logerr(shouldtag, "Missing close tag");
+	    if (ASSERT)
+	    { rxmls += "</" + shouldtag + ">";
+	      continue;
+	    }
+	  }
+	}
+	break;
+      }
 ntoken:
       switch (rxmls[lasttoken])
       { case "<":
@@ -860,7 +875,7 @@ ntoken:
               }
             } while(0);
           if (close)
-	    for(;;)
+	    for (;;)
 	    { let /** string|undefined */ shouldtag = tag;
               if (RUNTIMEDEBUG || ASSERT)
 	      { let /** string */ shouldtag = tagstack.pop();
@@ -984,7 +999,7 @@ ntoken:
 
   // For use in Javascript Remixml
   abstract2txt = Y = function /** string */(/** !Array|string */ vdom)
-  { for(;;)
+  { for (;;)
     { if (!ia(vdom))
         return vdom;
       switch (vdom.length)
