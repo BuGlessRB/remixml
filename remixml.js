@@ -554,6 +554,11 @@
     return x;
   };
 
+  function /** string */ decodentity(/** string */ input)
+  { return (new DOMParser().parseFromString(input, "text/html")).
+     documentElement.textContent;
+  }
+
   function /** string */ substentities(/** string */ sbj)
   { var /** string */ obj = "";
     let /** number */ i;
@@ -567,11 +572,13 @@
       while (a5 = txtentity.exec(sbj))
       { switch ((s = a5[0])[0])
         { case "&":
-            if (s.slice(-1) === ";" && s.indexOf(".") > 0)
-            { obj += sep + "(function(){" + varent(a5)
-               + 'return x}catch(x){}return ""})()';
-              break;
-            }
+            if (s.slice(-1) === ";")
+	      if (s.indexOf(".") > 0)
+              { obj += sep + "(function(){" + varent(a5)
+                 + 'return x}catch(x){}return ""})()';
+                break;
+              } else
+	        s = decodentity(s);
           default:
             s = JSON.stringify(s);
 	    obj = obj.slice(-1) === '"'
