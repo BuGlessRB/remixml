@@ -452,6 +452,8 @@
   Z = function /** * */(/** !Object */ $,/** string|!Array */ vname,
    /** string= */ quot,/** string= */ fmt)
   { var /** * */ x = ia(vname) ? vname[0] : ve($, vname);
+    if (x == null)
+      x = "";
     if (typeof x === "function")
       x = x($["_"], $);
     if (x[""])
