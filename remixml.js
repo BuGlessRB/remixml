@@ -44,9 +44,9 @@
   const /** !RegExp */ txtentity =
    /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
   const /** !RegExp */ varentity
-   = /([\w$]+\.[\w$]+(?:[.[][\w$]+]?)*)(?::([\w$]*))?(?:%([^;]*))?;/g;
-  const /** !RegExp */ commentrx = /!--{0,2}(.*?)-->/g;
-  const /** !RegExp */ textrx = /[^&<]+/g;
+   = /([\w$]+\.[\w$]+(?:[.[][\w$]+]?)*)(?::([\w$]*))?(?:%([^;]*))?;/y;
+  const /** !RegExp */ commentrx = /!--{0,2}(.*?)-->/y;
+  const /** !RegExp */ textrx = /[^&<]+/y;
   const /** !RegExp */ params
    = /\s*(?:([-\w:]+|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?|>)/g;
   const /** !RegExp */ complexlabel = /[^\w]/;
