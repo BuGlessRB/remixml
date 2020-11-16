@@ -7,7 +7,7 @@
 
 /** @define {number} */ var DEBUG = 1;
 /** @define {number} */ var ALERTS = 0;
-/** @define {number} */ var RUNTIMEDEBUG = 1;
+/** @define {number} */ var RUNTIMEDEBUG = 32;  // error context length
 /** @define {number} */ var MEASUREMENT = 0;
 /** @define {number} */ var ASSERT = 1;
 /** @define {number} */ var VERBOSE = 0;
@@ -890,7 +890,8 @@ ntoken:
 	      { let /** string */ shouldtag = tagstack.pop();
 	        if (tag !== shouldtag)
                 { if (RUNTIMEDEBUG)
-	            logerr(rxmls.substr(lasttoken - 15, 32),
+	            logerr(rxmls.substr(lasttoken - RUNTIMEDEBUG,
+		           RUNTIMEDEBUG*2 + (tag ? tag.length() : 0)),
 		     "Expected " + shouldtag + " got " + tag);
 		  if (ASSERT)
 		    if (tagstack.lastIndexOf(tag) >= 0)
