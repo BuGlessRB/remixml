@@ -7,7 +7,8 @@
 
 /** @define {number} */ var DEBUG = 1;
 /** @define {number} */ var ALERTS = 0;
-/** @define {number} */ var RUNTIMEDEBUG = 32;  // error context length
+                            // error context length
+/** @define {number} */ var RUNTIMEDEBUG = 64;
 /** @define {number} */ var MEASUREMENT = 0;
 /** @define {number} */ var ASSERT = 1;
 /** @define {number} */ var VERBOSE = 0;
