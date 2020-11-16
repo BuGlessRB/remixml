@@ -891,8 +891,8 @@ ntoken:
 	        if (tag !== shouldtag)
                 { if (RUNTIMEDEBUG)
 	            logerr(rxmls.substr(lasttoken - RUNTIMEDEBUG,
-		           RUNTIMEDEBUG*2 + (tag ? tag.length() : 0)),
-		     "Expected " + shouldtag + " got " + tag);
+		            RUNTIMEDEBUG*2 + (tag ? tag.length : 0)),
+		           "Expected " + shouldtag + " got " + tag);
 		  if (ASSERT)
 		    if (tagstack.lastIndexOf(tag) >= 0)
 		      continue;
