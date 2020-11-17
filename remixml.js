@@ -512,7 +512,10 @@
         break;
       default:
         if (!x[""])
+	{ if (ia(x))
+	    x = x.join(", ");
           x = x.replace(/[&<]/g, htmlmap);
+	}
       case "":case "none":case "r":case "recurse":;
     }
     switch (x.length)
