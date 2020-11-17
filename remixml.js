@@ -192,8 +192,7 @@
     if (t == k)
       t = ({"EUR":"\u20AC", "USD":"$", "CNY":"\u00A5"}[cur] || cur)
         + fmtf(k, lang, 2);
-    t = t.match(/([^-0-9\s]+)\s*([-0-9].*)/);
-    return t[1] + "&nbsp;" + t[2];
+    return t.replace(/\s+/g, '&nbsp;');
   }
 
   function /** void */ logerr(/** * */ t,/** string */ x)
