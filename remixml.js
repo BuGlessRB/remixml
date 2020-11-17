@@ -1082,9 +1082,7 @@ ntoken:
           { default:
               let /** string */ val = /** @type{Object} */(vdom)[name];
 	      if (val != null && !iso(val))
-                parent.setAttribute(name,
-		 !val.indexOf || val.indexOf("&") < 0 ? val
-                  : (txta.innerHTML = val, txta.innerHTML));
+                parent.setAttribute(name, val);
             case "_":case undefined:;
           }
     }
