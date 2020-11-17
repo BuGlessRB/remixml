@@ -244,8 +244,7 @@ nostr:
     if (t == k)
       t = ({"EUR":"\u20AC", "USD":"$", "CNY":"\u00A5"}[cur] || cur)
 	+ fmtf(k, lang, 2);
-    var /** Array(string) */ field = t.match(/([^-0-9\s]+)\s*([-0-9].*)/);
-    return field[1] + "&nbsp;" + field[2];
+    return t.replace(/\s+/g, '&nbsp;');
   }
 
   function /** string|!Array{string} */ insert(/** string */ k,
