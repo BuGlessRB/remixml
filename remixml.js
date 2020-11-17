@@ -767,7 +767,7 @@ ntoken:
         		}
                         obj += ");";
                         if (ts = getparm("join"))
-                          obj += "x=x.join(" + ts + ");";
+                          obj += "x=x.join?x.join(" + ts + "):x;";
                         if ((ts = getparm("offset"))
                          || (vname = getparm("limit")) !== undefined)
                           obj += "x=F(x," + ts +
