@@ -5,12 +5,20 @@ stripcomments='/^[	 ]*\/\// d'
 
  sed -e '/ Cut BEGIN for externs/,/ Cut END for externs/ d' \
   -e '/ Cut BEGIN for prepend/,/ Cut END for prepend/ d' \
-   <remixml.js >remixml.meat.tmp
+   <remixml.master.js >remixml.meat.tmp
  sed -e '/ Cut BEGIN for externs/,/ Cut END for externs/ !d' \
-     -e '/ Cut [BE]/ d' <remixml.js >remixml.h.tmp
+     -e '/ Cut [BE]/ d' <remixml.master.js >remixml.h.tmp
  sed -e '/ Cut BEGIN for prepend/,/ Cut END for prepend/ !d' \
      -e 's/^  *//g' -e 's%/\*.*\*/%%g' \
-     -e '/ Cut [BE]/ d' <remixml.js >remixml.prep.tmp
+     -e '/ Cut [BE]/ d' <remixml.master.js >remixml.prep.tmp
+
+( sed -e '/ Cut END delete/,$ d' \
+      -e '/ Cut [BE]/ d' <remixml.meat.tmp
+  echo ""
+  sed -e 's/^/  /' remixml.prep.tmp
+  sed -e '/ Cut END delete/,$ !d' \
+      -e '/ Cut [BE]/ d' <remixml.meat.tmp
+) >remixml.js
 
 google-closure-compiler \
  --strict_mode_input --assume_function_wrapper \
