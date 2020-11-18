@@ -553,7 +553,7 @@
         H.push(x);
       x = 1;
     } else if (x || x !== undefined && (x += ""))
-      T(H, x), x = 1;
+      T(H, /** @type{string} */(x)), x = 1;
     else
       x = 0;
     return x;
@@ -837,7 +837,8 @@ ntoken:
 		      if (ia(av))
 		        obj += "delete " + av[0] + ";";
 		      else
-		        obj += 'eval("delete "+' + vp(av) + ");";
+		        obj += 'eval("delete "+'
+		             + vp(/** @type{string}*/(av)) + ");";
                       continue;
 		    }
                     case "delimiter":
