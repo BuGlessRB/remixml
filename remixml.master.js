@@ -396,10 +396,10 @@
   { var /** !Array */ r;
     var /** !Array|!Object */ k
      = /** @type{!Object} */(ia(vname) ? vname[0] : ve($, vname));
-    if (k.size >= 0)
+    if (k && k.size >= 0)
       r = k.entries();
     else
-    { r = O.entries(k);
+    { r = O.entries(k || 0);
       if (k.length >= 0)
         r.splice(k.length);
       if (ord)
