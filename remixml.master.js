@@ -344,21 +344,9 @@
   }
   			// Create new subcontext
   C = function /** !Object */(/** !Array */ _,
-   /** !Object */ $,/** !Object */ args,/** string= */ scope)
+   /** !Object */ $,/** !Object= */ args,/** string= */ scope)
   { if (/** @type{Object} */(_)[""] !== 1)
-    { defget(_, "_restargs", function()
-        { var /** string */ vname;
-          var /** !Object */ rest = {};
-          for (vname in this)
-            switch (vname[0])
-            { default:
-        	if (!args[vname])
-                  rest[vname] = this[vname];
-              case "_":case undefined:;
-            }
-          return rest;
-        });
-      defget(_, "_contents", function()
+    { defget(_, "_contents", function()
         { let /** function(!Array,!Object):void|undefined */ cfn
            = /** @type{Object} */(_)["_cfn"];
           if (cfn)
@@ -367,6 +355,21 @@
             /** @type{Object} */(_)[""] = 1;
           return _;
         });
+      if (args)
+        defget(_, "_restargs", function()
+          { var /** string */ vname;
+            var /** !Object */ rest = {};
+            for (vname in this)
+              switch (vname[0])
+              { default:
+          	if (!args[vname])
+                    rest[vname] = this[vname];
+                case "_":case undefined:;
+              }
+            return rest;
+          });
+      else
+	return /** @type{Object} */(_);
     }
     var /** !Object */ n$;
     (n$ = O.assign({}, $))["_"]
@@ -438,16 +441,17 @@
     return r[Symbol.iterator]();
   };
   			// Run CSS selector over abstract notation
-  B = function /** void */(/** !Array */ res,/** !Array */ H,/** string */ sel)
+  B = function /** void */(/** !Object */ $,
+       /** !Array */ res,/** !Array */ H,/** string */ sel)
   { var /** number */ i = 0;
     while (i < H.length)
     { let /** !Array|string */ k = H[i++];
       switch (k[""])
       { default:
-          B(res, /** @type{!Array} */(k), sel);
+          B($, res, /** @type{!Array} */(k), sel);
           return;
         case sel:		  // FIXME support more than simple nodenames
-          res.push(k);
+	  res.push(C(k, $));
         case undefined:;
       }
     }
@@ -732,7 +736,7 @@ ntoken:
                       { let /** string|undefined */ xp = getparm("expr");
                         obj += 'w,v=function(){w($);';
                         if (ts = getparm("selector"))
-                          obj += "B(w=L(),H," + ts + ");H=w;";
+                          obj += "B($,w=L(),H," + ts + ");H=w;";
                         else
                         { if (gotparms["json"] !== undefined)
                             obj += "H=JSON.parse(Y(H));";
@@ -874,7 +878,7 @@ ntoken:
                       nooutput++;
                       continue;
                   }
-                obj += "{let H=S({";
+                obj += "{let J=W,H=S({";
                 { let /** string */ sep;
         	  if (sep = gotparms["::"])
         	    gotparms["::"] = sep.slice(0, -1) + ":;";
@@ -957,7 +961,7 @@ ntoken:
                           obj += "};";
 			case "script":
                           if (!nooutput)
-                            obj += "X(W,H,$)";
+                            obj += "X(J,H,$)";
                         case "delimiter":
                         case "if":case "then":case "elif":case "else":
                           obj += "}";
