@@ -1149,11 +1149,12 @@ ntoken:
       { return js2obj(remixml2js(remixml));
       },
     "parse": function
-       /** Node */(/** string|(function(!Object):!Array) */ tpl,
+       /** Node */(/** string|!Array|(function(!Object):!Array) */ tpl,
                   /** !Object */ $)
       { if (isstring(tpl))
           tpl = js2obj(remixml2js(/** @type{string} */(tpl)));
-        return abstract2dom(/** @type{function(!Object):!Array} */(tpl)($));
+        return abstract2dom(ia(tpl)
+	 ? tpl : /** @type{function(!Object):!Array} */(tpl)($));
       },
     "parse2txt": function
        /** string */(/** string|(function(!Object):!Array) */ tpl,
