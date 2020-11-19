@@ -320,7 +320,8 @@
     return r;
   };
   			// New node
-  L = function /** !Array */(/** string= */ nodename)
+  L = function /** !Array */(
+          /** function(!Array,!Array,!Object):void|string= */ nodename)
   { var /** !Array */ r = [];
     /** @type{Object} */(r)[""] = nodename || 1;
     return r;
@@ -358,7 +359,12 @@
           return rest;
         });
       defget(_, "_contents", function()
-        { /** @type{Object} */(_)[""] = 1; return _;
+        { let /** function(!Array,!Array,!Object):void|undefined */ fn
+	   = /** @type{Object} */(_)["__"];
+          /** @type{Object} */(_)[""] = 1;
+	  if (fn)
+	    fn(_, L(), $);
+	  return _;
         });
     }
     var /** !Object */ n$;
@@ -383,7 +389,10 @@
     if (fn)
       fn(J, H, $);
     else
+    { if (H.__)
+	H.__(H, L(), $);
       J.push(H);
+    }
   };
   			// Define new remixml macro
   Q = function /** void */(/** string */ n,/** !Object */ $,
@@ -860,7 +869,7 @@ ntoken:
                       nooutput++;
                       continue;
                   }
-                obj += "{let J=W,H=S({";
+                obj += "{let H=S({";
                 { let /** string */ sep;
         	  if (sep = gotparms["::"])
         	    gotparms["::"] = sep.slice(0, -1) + ":;";
@@ -873,10 +882,11 @@ ntoken:
                       sep = ",";
         	    }
                 }
-                obj += '},"' + tag + '");';
+                obj += '},"' + tag + '")';
               }
               if (tag === "script" && !close)
-              { scriptend.lastIndex = lasttoken;
+              { obj += ";";
+		scriptend.lastIndex = lasttoken;
                 scriptend.exec(rxmls);
                 let /** number */ i = scriptend.lastIndex;
                 if (!comment && !nooutput)      // substract closing script tag
@@ -885,7 +895,8 @@ ntoken:
 		}
                 lasttoken = i;
                 close = 1;
-              }
+              } else
+	        obj += ';H.__=function(H,a,$){let o=$;$=C(a,$,{});';
             } while(0);
           if (close)
 	    for (;;)
@@ -938,8 +949,10 @@ ntoken:
                           obj += "M(J,E(H,v,$))}";
                           break;
                         default:
+                          obj += "$=o};";
+			case "script":
                           if (!nooutput)
-                            obj += "X(J,H,$);";
+                            obj += "X(W,H,$)";
                         case "delimiter":
                         case "if":case "then":case "elif":case "else":
                           obj += "}";
