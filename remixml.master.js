@@ -358,15 +358,18 @@
             }
           return rest;
         });
-      defget(_, "_contents", function()
-        { let /** function(!Array,!Array,!Object):void|undefined */ fn
-	   = /** @type{Object} */(_)["__"];
-          /** @type{Object} */(_)[""] = 1;
-	  if (fn)
-	    fn(_, L(), $);
-	  return _;
-        });
     }
+    defget(_, "_contents", function()
+      { let /** function(!Array,!Object):void|undefined */ cfn
+         = /** @type{Object} */(_)["_cfn"];
+        if (cfn)
+        { let /** !Array */ content = L();
+	  cfn(content, $);
+          return content;
+	}
+        /** @type{Object} */(_)[""] = 1;
+        return _;
+      });
     var /** !Object */ n$;
     (n$ = O.assign({}, $))["_"]
      = O.assign(_ , {"_":$["_"], "_tag":O.assign({}, $["_"]["_tag"])});
@@ -389,8 +392,10 @@
     if (fn)
       fn(J, H, $);
     else
-    { if (H.__)
-	H.__(H, L(), $);
+    { let /** function(!Array,!Object):void|undefined */ cfn
+       = /** @type{Object} */(H)["_cfn"];
+      if (cfn)
+	cfn(H, $);
       J.push(H);
     }
   };
@@ -896,7 +901,7 @@ ntoken:
                 lasttoken = i;
                 close = 1;
               } else
-	        obj += ';H.__=function(H,a,$){let o=$;$=C(a,$,{});';
+	        obj += ';H._cfn=function(H,$){';
             } while(0);
           if (close)
 	    for (;;)
@@ -949,7 +954,7 @@ ntoken:
                           obj += "M(J,E(H,v,$))}";
                           break;
                         default:
-                          obj += "$=o};";
+                          obj += "};";
 			case "script":
                           if (!nooutput)
                             obj += "X(W,H,$)";
