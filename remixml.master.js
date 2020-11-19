@@ -358,18 +358,16 @@
             }
           return rest;
         });
+      defget(_, "_contents", function()
+        { let /** function(!Array,!Object):void|undefined */ cfn
+           = /** @type{Object} */(_)["_cfn"];
+          if (cfn)
+            cfn(_ = L(), $);
+	  else
+            /** @type{Object} */(_)[""] = 1;
+          return _;
+        });
     }
-    defget(_, "_contents", function()
-      { let /** function(!Array,!Object):void|undefined */ cfn
-         = /** @type{Object} */(_)["_cfn"];
-        if (cfn)
-        { let /** !Array */ content = L();
-	  cfn(content, $);
-          return content;
-	}
-        /** @type{Object} */(_)[""] = 1;
-        return _;
-      });
     var /** !Object */ n$;
     (n$ = O.assign({}, $))["_"]
      = O.assign(_ , {"_":$["_"], "_tag":O.assign({}, $["_"]["_tag"])});
@@ -395,7 +393,9 @@
     { let /** function(!Array,!Object):void|undefined */ cfn
        = /** @type{Object} */(H)["_cfn"];
       if (cfn)
+      { delete /** @type{Object} */(H)["_cfn"];
 	cfn(H, $);
+      }
       J.push(H);
     }
   };
