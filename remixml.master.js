@@ -225,8 +225,9 @@
       s = "\n";
     let /** number */ last = H.length - 1;
     if (isstring(H[last]))
-      H[last] += s;
-    else
+    { if (s != "\n" || H[last] != "\n")
+        H[last] += s;
+    } else
       H.push(s);
   };
   			// appendChild (merge into)
