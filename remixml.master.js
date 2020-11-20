@@ -666,6 +666,11 @@
     { var /** !Array */ tagstack = [];
     }
     var /** number */ lasttoken = 0;
+    function logcontext(/** string */ tag,/** string */ msg)
+    { if (RUNTIMEDEBUG)
+	logerr(rxmls.substr(lasttoken - RUNTIMEDEBUG,
+	       RUNTIMEDEBUG*2 + (tag ? tag.length : 0)), msg);
+    }
     for (;;)
     { var /** Array */ rm;
       let /** string */ ts = "";
@@ -673,10 +678,9 @@
       { if (RUNTIMEDEBUG || ASSERT)
 	{ let /** string */ shouldtag = tagstack[tagstack.length - 1];
 	  if (shouldtag)
-          { if (RUNTIMEDEBUG)
-	      logerr(shouldtag, "Missing close tag");
+          { logcontext(shouldtag, "Missing close tag for " + shouldtag);
 	    if (ASSERT)
-	    { rxmls += "</" + shouldtag + ">";
+	    { rxmls += "</" + shouldtag + ">";	// Fix it and continue
 	      continue;
 	    }
 	  }
@@ -914,10 +918,7 @@ ntoken:
               if (RUNTIMEDEBUG || ASSERT)
 	      { let /** string */ shouldtag = tagstack.pop();
 	        if (tag !== shouldtag)
-                { if (RUNTIMEDEBUG)
-	            logerr(rxmls.substr(lasttoken - RUNTIMEDEBUG,
-		            RUNTIMEDEBUG*2 + (tag ? tag.length : 0)),
-		           "Expected " + shouldtag + " got " + tag);
+                { logcontext(tag, "Expected " + shouldtag + " got " + tag);
 		  if (ASSERT)
 		    if (tagstack.lastIndexOf(tag) >= 0)
 		      continue;
