@@ -669,7 +669,8 @@
     function logcontext(/** string */ tag,/** string */ msg)
     { if (RUNTIMEDEBUG)
 	logerr(rxmls.substr(lasttoken - RUNTIMEDEBUG,
-	       RUNTIMEDEBUG*2 + (tag ? tag.length : 0)), msg);
+	       RUNTIMEDEBUG*2 + (tag ? tag.length : 0)),
+	       msg + " at offset " + lasttoken);
     }
     for (;;)
     { var /** Array */ rm;
