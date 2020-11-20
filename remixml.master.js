@@ -555,8 +555,14 @@
   };
                  // cloneabstract
   CA = function /** !Array */ (/** !Array */ k,/** !Array= */ r)
-  { r = /** @type{!Array} */(O.assign(r || [], k));
-    var /** number */ i = r.length;
+  { var /** ? */ i;
+    if (r)
+      for (i in r)
+	delete r[i];
+    else
+      r = [];
+    r = /** @type{!Array} */(O.assign(r, k));
+    i = r.length;
     while (i--)
       if (r[i][""])
         r[i] = CA(r[i]);
