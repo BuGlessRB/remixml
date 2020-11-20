@@ -105,7 +105,7 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
 ### Language tags
 
 - `<set var="" variable="" expr="" regexp="" split="" join=""
-    mkmapping="" selector="" json=""
+    mkmapping="" selector="" json="" clone=""
     tag="" args="" scope="">...</set>`<br />
    Attributes:
    - `var` or `variable`<br />
@@ -127,6 +127,8 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
    - `selector`<br />
      [Extract the selected content into an array of
      Nodes](https://developer.mozilla.org/en-US/docs/Learn/CSS/Introduction_to_CSS/Selectors).
+   - `clone`<br />
+     Clone the first level an array of object into the target while copying.
    - `json`<br />
      Parse the content as JSON.
    - `tag`<br />

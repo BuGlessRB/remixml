@@ -20,7 +20,7 @@
 
   // Cut BEGIN for externs
   // Cut BEGIN for prepend
-  var vp,B,C,E,F,G,K,L,M,N,P,Q,R,S,T,U,V,X,Y,Z,
+  var vp,B,C,CA,E,F,G,K,L,M,N,P,Q,R,S,T,U,V,X,Y,Z,
    sizeof,desc,abstract2txt,abstract2dom;
   // Cut END for prepend
   var A,ve,ia;
@@ -553,21 +553,21 @@
     }
     return x;
   };
-
-  function /** !Array */ cloneabstract(/** !Array */ k)
+                 // cloneabstract
+  CA = function /** !Array */ (/** !Array */ k)
   { var /** !Array */ r = /** @type{!Array} */(O.assign([], k));
     var /** number */ i = r.length;
     while (i--)
       if (r[i][""])
-        r[i] = cloneabstract(r[i]);
+        r[i] = CA(r[i]);
     return r;
   }
-
+                // varinsert
   K = function /** number */
    (/** !Object */ $,/** !Array */ H,/** !Array|string|number */ x)
   { if (x[""])
     { if (x[""] === 1)
-        M(H, cloneabstract(/** @type{!Array} */(x)));
+        M(H, CA(/** @type{!Array} */(x)));
       else
         H.push(x);
       x = 1;
@@ -761,10 +761,11 @@ ntoken:
                              + "for(x=H,H={},i=-1;a.length>++i;)H[a[i]]=x[i];";
                         }
 		        let /** !Array|string */ av = simplify(vname, 1);
+                        xp = gotparms["clone"] !== undefined ? "H" : "CA(H)";
 		        if (ia(av))
-		          obj += av[0] + "=A(H";
+		          obj += av[0] + "=A(" + xp;
 		        else
-		          obj += "A(H,$," + av;
+		          obj += "A(" + xp + ",$," + av;
 		        obj +=")};w=(function(o){";
                       } else if (ts = getparm("tag"))
                       { obj += "v=0;Q(" + ts
