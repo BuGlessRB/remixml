@@ -225,7 +225,7 @@
       s = "\n";
     let /** number */ last = H.length - 1;
     if (isstring(H[last]))
-    { if (s != "\n" || H[last] != "\n")
+    { if (s != "\n" || H[last].slice(-1) != s)
         H[last] += s;
     } else
       H.push(s);
@@ -709,6 +709,17 @@ ntoken:
           { let /** string */ sbj = gotparms[name];
             return sbj && substentities(sbj);
           }
+          function /** void */
+	   domkmapping(/** string */ init,/** string */ vname)
+	  { var /** string */ mapstring = getparm("mkmapping");
+	    if (mapstring)
+	    { let /** !Array */ maplist = mapstring.split(/\s*,\s*/);
+	      obj += init;
+	      while (mapstring = maplist.pop())
+	      obj += vname + '["' + mapstring.replace(/"/g, '\\"') + '"]=k['
+		   + (maplist.length - 1) + "];";
+	    }
+	  }
           let /** string */ fw = params.exec(rxmls)[1];
 	  if (fw === "/")
             gotparms[fw] = 1, fw = params.exec(rxmls)[1];
@@ -762,9 +773,7 @@ ntoken:
         		     + (xp ? evalexpr(xp) : runexpr("Y(H)")) + ";";
                           if (ts = getparm("join"))
                             obj += "H=H.join(" + ts + ");";
-                          if (ts = getparm("mkmapping"))
-                            obj += "let a=" + ts + ".split(/\\s*,\\s*/),i,x;"
-                             + "for(x=H,H={},i=-1;a.length>++i;)H[a[i]]=x[i];";
+                          domkmapping("let k=H;H={};", "H");
                         }
 		        let /** !Array|string */ av = simplify(vname, 1);
 		        if (ia(av))
@@ -857,6 +866,7 @@ ntoken:
                       if (ts = getparm("scope"))
                         obj += "," + ts;
                       obj += ");";
+                      domkmapping("m=$._._value;", "m");
                       continue;
                     }
                     case "eval":
