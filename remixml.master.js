@@ -713,11 +713,12 @@ ntoken:
 	   domkmapping(/** string */ init,/** string */ vname)
 	  { var /** string */ mapstring = getparm("mkmapping");
 	    if (mapstring)
-	    { let /** !Array */ maplist = mapstring.split(/\s*,\s*/);
+	    { let /** !Array */ maplist
+	       = mapstring.slice(1,-1).split(/\s*,\s*/);
 	      obj += init;
 	      while (mapstring = maplist.pop())
-	      obj += vname + '["' + mapstring.replace(/"/g, '\\"') + '"]=k['
-		   + (maplist.length - 1) + "];";
+                obj += vname + '["' + mapstring.replace(/"/g, '\\"') + '"]=k['
+                    + maplist.length + "];";
 	    }
 	  }
           let /** string */ fw = params.exec(rxmls)[1];
@@ -866,7 +867,7 @@ ntoken:
                       if (ts = getparm("scope"))
                         obj += "," + ts;
                       obj += ");";
-                      domkmapping("m=$._._value;", "m");
+                      domkmapping("k=(m=$._)._value;", "m");
                       continue;
                     }
                     case "eval":
