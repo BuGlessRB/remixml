@@ -761,7 +761,7 @@ ntoken:
                              + "for(x=H,H={},i=-1;a.length>++i;)H[a[i]]=x[i];";
                         }
 		        let /** !Array|string */ av = simplify(vname, 1);
-                        xp = gotparms["clone"] !== undefined ? "H" : "CA(H)";
+                        xp = gotparms["clone"] !== undefined ? "CA(H)" : "H";
 		        if (ia(av))
 		          obj += av[0] + "=A(" + xp;
 		        else
