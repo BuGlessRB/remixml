@@ -555,10 +555,10 @@
   };
                  // cloneabstract
   CA = function /** !Array */ (/** !Array */ k,/** !Array= */ r)
-  { var /** ? */ i;
+  { var /** * */ i;
     if (r)
       for (i in r)
-	delete r[i];
+	delete r[/** @type{?} */(i)];
     else
       r = [];
     r = /** @type{!Array} */(O.assign(r, k));
