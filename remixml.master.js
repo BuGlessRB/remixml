@@ -554,8 +554,8 @@
     return x;
   };
                  // cloneabstract
-  CA = function /** !Array */ (/** !Array */ k)
-  { var /** !Array */ r = /** @type{!Array} */(O.assign([], k));
+  CA = function /** !Array */ (/** !Array */ k,/** !Array= */ r)
+  { O.assign(r || [], k);
     var /** number */ i = r.length;
     while (i--)
       if (r[i][""])
@@ -761,11 +761,12 @@ ntoken:
                              + "for(x=H,H={},i=-1;a.length>++i;)H[a[i]]=x[i];";
                         }
 		        let /** !Array|string */ av = simplify(vname, 1);
-                        xp = gotparms["clone"] !== undefined ? "CA(H)" : "H";
 		        if (ia(av))
-		          obj += av[0] + "=A(" + xp;
+		          obj += av[0] + "=A(" +
+			    (gotparms["clone"] !== undefined
+			     ? "CA(H," + av[0] + ")" : "H")
 		        else
-		          obj += "A(" + xp + ",$," + av;
+		          obj += "A(H,$," + av;
 		        obj +=")};w=(function(o){";
                       } else if (ts = getparm("tag"))
                       { obj += "v=0;Q(" + ts
