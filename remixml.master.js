@@ -555,7 +555,7 @@
   };
                  // cloneabstract
   CA = function /** !Array */ (/** !Array */ k,/** !Array= */ r)
-  { O.assign(r || [], k);
+  { r = /** @type{!Array} */(O.assign(r || [], k));
     var /** number */ i = r.length;
     while (i--)
       if (r[i][""])
