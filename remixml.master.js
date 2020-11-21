@@ -20,16 +20,16 @@
 
   // Cut BEGIN for externs
   // Cut BEGIN for prepend
-  var vp,B,C,CA,E,F,G,K,L,M,N,P,Q,R,S,T,U,V,X,Y,Z,
+  var VP,SP,CA,B,C,E,F,G,K,L,M,N,P,Q,R,S,T,U,V,X,Y,Z,
    sizeof,desc,abstract2txt,abstract2dom;
   // Cut END for prepend
-  var A,ve,ia;
+  var A,VE,IA;
   // Cut END for externs
   // Cut BEGIN for prepend
   function A(_,$,v)
-  {if(_&&!_.length&&_[""]===1)_="";return v?eval(vp(v)+"=_;"):_};
-  function ve($,v){return eval(ia(v)?v[0]:vp(v))};
-  function ia(s){return Array.isArray(s)}
+  {if(_&&!_.length&&_[""]===1)_="";return v?eval(VP(v)+"=_;"):_};
+  function VE($,v){return eval(IA(v)?v[0]:VP(v))};
+  function IA(s){return Array.isArray(s)}
   // Cut END for prepend
 
   const W = typeof window == "object" ? window : global;
@@ -214,7 +214,7 @@
    simplify(/** string */ expr,/** number= */ assign)
   { var /** Array */ r = expr.match(/^"([^(+]+)"$/);
     if (r)
-    { expr = vp(r[1]);
+    { expr = VP(r[1]);
       return assign ? [ expr ] : "[" + expr + "]";
     }
     return expr;
@@ -413,7 +413,7 @@
    /** function(...):!Array = */ ord)
   { var /** !Array */ r;
     var /** !Array|!Object */ k
-     = /** @type{!Object} */(ia(vname) ? vname[0] : ve($, vname));
+     = /** @type{!Object} */(IA(vname) ? vname[0] : VE($, vname));
     if ((k = k || 0) && k.size >= 0)
       r = k.entries();
     else
@@ -428,7 +428,7 @@
             x = ord(a); y = ord(b);
             for (i = 0, n = x.length; i < n; i++)
             { m = 0;
-              if (ia(x[i]))
+              if (IA(x[i]))
                 m = 1, x[i] = x[i][0], y[i] = y[i][0];
               if (ret = /** @type {number} */
                        (x[i] > y[i] || -(x[i] !== y[i])))
@@ -458,19 +458,22 @@
     }
   };
 
-  vp = function /** string */(/** string */ vpath)
+  SP = function /** string */(/** string */ membr)
+  { return membr.match(/^[A-Za-z_][\w]*$/) ? "." + membr : '["' + membr + '"]';
+  }
+                          // Evaluate variable entity
+  VP = function /** string */(/** string */ vpath)
   { var /** !Array */ components = vpath.split(/[.[\]]+/);
     var /** string */ word;
     vpath = "$";
     for (word of components)
-      vpath += word.match(/^[A-Za-z_][\w]*$/)
-       ? "." + word : '["' + word + '"]';
+      vpath += SP(word);
     return vpath;
   }
                           // Evaluate variable entity
   Z = function /** * */(/** !Object */ $,/** string|!Array */ vname,
    /** string= */ quot,/** string= */ fmt)
-  { var /** * */ x = ia(vname) ? vname[0] : ve($, vname);
+  { var /** * */ x = IA(vname) ? vname[0] : VE($, vname);
     if (x == null)
       x = "";
     if (typeof x === "function")
@@ -530,7 +533,7 @@
         break;
       default:
         if (!x[""])
-	{ if (ia(x))
+	{ if (IA(x))
 	    x = x.join(", ");
           x = x.replace(/[&<]/g, htmlmap);
 	}
@@ -548,7 +551,7 @@
     { let /** string */ oldx = "";
       while (x !== oldx && x.indexOf("&") >= 0)
       { oldx = /** @type{string} */(x);
-        x = ve($, ["(" + substentities(/** @type{string} */(x)) + ")"]);
+        x = VE($, ["(" + substentities(/** @type{string} */(x)) + ")"]);
       }
     }
     return x;
@@ -717,7 +720,7 @@ ntoken:
 	       = mapstring.slice(1,-1).split(/\s*,\s*/);
 	      obj += init;
 	      while (mapstring = maplist.pop())
-                obj += vname + '["' + mapstring.replace(/"/g, '\\"') + '"]=k['
+                obj += vname + SP(mapstring) + '=k['
                     + maplist.length + "];";
 	    }
 	  }
@@ -777,7 +780,7 @@ ntoken:
                           domkmapping("let k=H;H={};", "H");
                         }
 		        let /** !Array|string */ av = simplify(vname, 1);
-		        if (ia(av))
+		        if (IA(av))
 		          obj += av[0] + "=A(" +
 			    (gotparms["clone"] !== undefined
 			     ? "CA(H," + av[0] + ")" : "H")
@@ -877,11 +880,11 @@ ntoken:
                     case "unset":
 		    { let /** !Array|string */ av
                        = simplify(getparm("var") || getparm("variable"), 1);
-		      if (ia(av))
+		      if (IA(av))
 		        obj += "delete " + av[0] + ";";
 		      else
 		        obj += 'eval("delete "+'
-		             + vp(/** @type{string}*/(av)) + ");";
+		             + VP(/** @type{string}*/(av)) + ");";
                       continue;
 		    }
                     case "delimiter":
@@ -1058,7 +1061,7 @@ ntoken:
   // For use in Javascript Remixml
   abstract2txt = Y = function /** string */(/** !Array|string */ vdom)
   { for (;;)
-    { if (!ia(vdom))
+    { if (!IA(vdom))
         return vdom;
       switch (vdom.length)
       { case 0:
@@ -1179,7 +1182,7 @@ ntoken:
                   /** !Object */ $)
       { if (isstring(tpl))
           tpl = js2obj(remixml2js(/** @type{string} */(tpl)));
-        return abstract2dom(ia(tpl)
+        return abstract2dom(IA(tpl)
 	 ? tpl : /** @type{function(!Object):!Array} */(tpl)($));
       },
     "parse2txt": function
