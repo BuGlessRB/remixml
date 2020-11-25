@@ -777,7 +777,7 @@ ntoken:
         		     + (xp ? evalexpr(xp) : runexpr("Y(H)")) + ";";
                           if (ts = getparm("join"))
                             obj += "H=H.join(" + ts + ");";
-                          domkmapping("let k=H;H={};", "H");
+                          domkmapping("let k=H[0];H={};", "H");
                         }
 		        let /** !Array|string */ av = simplify(vname, 1);
 		        if (IA(av))
