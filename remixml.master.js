@@ -41,7 +41,7 @@
   const /** Node */ txta = newel("textarea");
   const /** !Object */ elmcache = {};
   const /** string */ varinsert = "I=K($,H,x)}catch(x){I=0}";
-  const /** string */ cfnprefix = ";H._cfn=function(H,$){";
+  const /** string */ cfnprefix = "H._cfn=function(H,$){";
   const /** !RegExp */ txtentity =
    /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
   const /** !RegExp */ varentity
@@ -939,7 +939,7 @@ ntoken:
                 lasttoken = i;
                 close = 1;
               } else
-	        obj += cfnprefix;
+	        obj += ";" + cfnprefix;
             } while(0);
           if (close)
 	    for (;;)
