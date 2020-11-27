@@ -989,13 +989,13 @@ ntoken:
                           obj += "M(J,E(H,v,$))}";
                           break;
                         default:
-                          obj += "};";
+			  stripappend(cfnprefix, "};");
 			case "script":
                           if (!nooutput)
                             obj += "X(J,H,$)";
                         case "delimiter":
                         case "if":case "then":case "elif":case "else":
-			  stripappend(cfnprefix, "}");
+                          obj += "}";
                       }
 		case undefined:;
               }
