@@ -897,10 +897,10 @@ ntoken:
                       obj += "if(2>$._._recno){";
                       continue;
                     case "elif":
-                      ts = "!I&&";
+                      ts = "(!I&&";
                     case "if":
-                      obj += "if(I=(" + ts + evalexpr(getparm("expr"))
-                       + "?1:0)){";
+                      obj += "if" + ts + "(I=(" + evalexpr(getparm("expr"))
+                       + "?1:0))" + (ts ? ")" : "") + "{";
                       continue;
                     case "then":
                       obj += "if(I){";
