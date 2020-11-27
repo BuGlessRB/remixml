@@ -41,6 +41,7 @@
   const /** Node */ txta = newel("textarea");
   const /** !Object */ elmcache = {};
   const /** string */ varinsert = "I=K($,H,x)}catch(x){I=0}";
+  const /** string */ cfnprefix = ";H._cfn=function(H,$){";
   const /** !RegExp */ txtentity =
    /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
   const /** !RegExp */ varentity
@@ -314,10 +315,9 @@
   S = function /** !Array */(/** !Object */ attr,/** string= */ tag)
   { var /** !Array */ r = L(tag);
     O.assign(r, attr);
+    delete /** @type{Object} */(r)["::"];
     if (attr = attr["::"])
-    { delete /** @type{Object} */(r)["::"];
       O.assign(r, attr);
-    }
     return r;
   };
   			// New node
@@ -681,6 +681,12 @@
 	       RUNTIMEDEBUG*2 + (tag ? tag.length : 0)),
 	       msg + " at offset " + lasttoken);
     }
+    function /** void */ stripappend(/** string */ prefix,/** string */ postfix)
+    { if (obj.slice(-prefix.length) == prefix)
+	obj = obj.slice(0, obj.length - prefix.length);
+      else
+	obj += postfix;
+    }
     for (;;)
     { var /** Array */ rm;
       let /** string */ ts = "";
@@ -933,7 +939,7 @@ ntoken:
                 lasttoken = i;
                 close = 1;
               } else
-	        obj += ';H._cfn=function(H,$){';
+	        obj += cfnprefix;
             } while(0);
           if (close)
 	    for (;;)
@@ -989,7 +995,7 @@ ntoken:
                             obj += "X(J,H,$)";
                         case "delimiter":
                         case "if":case "then":case "elif":case "else":
-                          obj += "}";
+			  stripappend(cfnprefix, "}");
                       }
 		case undefined:;
               }
