@@ -625,7 +625,7 @@
   }
 
   function /** string */
-   vareval(/** string */ vname,/** string|number */ quot,/** string|number */ fmt)
+   vareval(/** string */ vname,/** string|boolean */ quot,/** string */ fmt)
   { var /** string */ obj = "try{let x=Z($," + simplify(vname);
     if (quot)
       obj += "," + quot;
@@ -642,8 +642,8 @@
   { var /** string */ quot = mtchs[2];
     var /** string */ fmt = mtchs[3];
     return vareval(JSON.stringify(mtchs[1]),
-     isstring(quot) ? JSON.stringify(quot) : 0,
-     fmt ? JSON.stringify(fmt) : 0);
+     isstring(quot) && JSON.stringify(quot),
+     fmt && JSON.stringify(fmt));
   }
 
   function /** string */ runexpr(/** string */ expr)
@@ -820,8 +820,8 @@ ntoken:
                       { obj += vareval(vname, getparm("quote"), getparm("format"));
                         if (ts = getparm("join"))
                           obj += "x=x.join?x.join(" + ts + "):x;";
-                        if ((ts = getparm("offset"))
-                         || (vname = getparm("limit")) !== undefined)
+                        vname = getparm("limit");
+                        if ((ts = getparm("offset")) || vname !== undefined)
                           obj += "x=F(x," + ts +
                            (vname !== undefined ? "," + vname : "") + ");";
                         obj += varinsert;
