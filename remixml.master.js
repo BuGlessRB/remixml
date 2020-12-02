@@ -943,18 +943,8 @@ ntoken:
             } while(0);
           if (close)
 	    for (;;)
-	    { let /** string|undefined */ shouldtag = tag;
-              if (RUNTIMEDEBUG || ASSERT)
-	      { let /** string */ shouldtag = tagstack.pop();
-	        if (tag !== shouldtag)
-                { logcontext(tag, "Expected " + shouldtag + " got " + tag);
-		  if (ASSERT)
-		    if (tagstack.lastIndexOf(tag) >= 0)
-		      continue;
-		    else
-		      break;
-	        }
-	      }
+	    { let /** string|undefined */ shouldtag
+	       = RUNTIMEDEBUG || ASSERT ? tagstack.pop() : tag;
               switch (shouldtag)
               { case "noparse": noparse--; break;
                 case "comment": comment--; break;
@@ -999,6 +989,11 @@ ntoken:
                       }
 		case undefined:;
               }
+              if ((RUNTIMEDEBUG || ASSERT) && tag !== shouldtag)
+	      { logcontext(tag, "Expected " + shouldtag + " got " + tag);
+		if (ASSERT && tagstack.lastIndexOf(tag) >= 0)
+		  continue;
+	      }
 	      break;
             }
           break;
