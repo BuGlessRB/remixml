@@ -624,19 +624,25 @@
     return obj;
   }
 
-  function /** string */ varent(/** !Array */ mtchs)
-  { var /** string */ obj
-     = "try{let x=Z($," + simplify(JSON.stringify(mtchs[1]));
-    var /** string */ quot = mtchs[2];
-    var /** string */ fmt = mtchs[3];
-    if (isstring(quot))
-      obj += "," + JSON.stringify(quot);
+  function /** string */
+   vareval(/** string */ vname,/** string|boolean */ quot,/** string */ fmt)
+  { var /** string */ obj = "try{let x=Z($," + simplify(vname);
+    if (quot)
+      obj += "," + quot;
     if (fmt)
-    { if (quot)
+    { if (!quot)
         obj += ",0";
-      obj += "," + JSON.stringify(fmt);
+      obj += "," + fmt;
     }
     return obj + ");";
+  }
+
+  function /** string */ varent(/** !Array */ mtchs)
+  { var /** string */ quot = mtchs[2];
+    var /** string */ fmt = mtchs[3];
+    return vareval(JSON.stringify(mtchs[1]),
+     isstring(quot) && JSON.stringify(quot),
+     fmt && JSON.stringify(fmt));
   }
 
   function /** string */ runexpr(/** string */ expr)
@@ -810,19 +816,11 @@ ntoken:
                     case "insert":
                     { let vname = getparm("var") || getparm("variable");
                       if (vname)
-                      { obj += "try{let x=Z($," + simplify(vname);
-        		if (ts = getparm("quote"))
-        		  obj += "," + ts;
-                        if (vname = getparm("format"))
-        		{ if (!ts)
-                            obj += ",0";
-        		  obj += "," + vname;
-        		}
-                        obj += ");";
+                      { obj += vareval(vname, getparm("quote"), getparm("format"));
                         if (ts = getparm("join"))
                           obj += "x=x.join?x.join(" + ts + "):x;";
-                        if ((ts = getparm("offset"))
-                         || (vname = getparm("limit")) !== undefined)
+                        vname = getparm("limit");
+                        if ((ts = getparm("offset")) || vname !== undefined)
                           obj += "x=F(x," + ts +
                            (vname !== undefined ? "," + vname : "") + ");";
                         obj += varinsert;
