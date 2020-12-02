@@ -36,6 +36,7 @@
   const D = typeof document == "object" ? document : require("minidom")('');
   const O = Object;
 
+  const ie11 = W["MSInputMethodContext"] && D["documentMode"];
   const /** !RegExp */ splc = /\s*,\s*/g;
   const /** Object */ diacr = {};
   const /** Node */ txta = newel("textarea");
@@ -45,9 +46,9 @@
   const /** !RegExp */ txtentity =
    /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
   const /** !RegExp */ varentity
-   = /([\w$]+\.[\w$]+(?:[.[][\w$]+]?)*)(?::([\w$]*))?(?:%([^;]*))?;/y;
-  const /** !RegExp */ commentrx = /!--{0,2}(.*?)-->/y;
-  const /** !RegExp */ textrx = /[^&<]+/y;
+   = regexpy("([\\w$]+\\.[\\w$]+(?:[.[][\\w$]+]?)*)(?::([\\w$]*))?(?:%([^;]*))?;");
+  const /** !RegExp */ commentrx = regexpy("!--{0,2}(.*?)-->");
+  const /** !RegExp */ textrx = regexpy("[^&<]+");
   const /** !RegExp */ params
    = /\s*(?:([-\w:]+|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?|>)/g;
   const /** !RegExp */ complexlabel = /[^\w]/;
@@ -713,7 +714,7 @@ ntoken:
       switch (rxmls[lasttoken])
       { case "<":
 	  commentrx.lastIndex = ++lasttoken;
-          if (rm = commentrx.exec(rxmls))
+          if (rm = execy(commentrx, rxmls))
           { lasttoken = commentrx.lastIndex;
 	    obj += 'H.push(W=L("!"));W.push(' + JSON.stringify(rm[1]) + ");";
             break;
@@ -997,7 +998,7 @@ ntoken:
           break;
         case "&":
 	  varentity.lastIndex = ++lasttoken;
-	  if (rm = varentity.exec(rxmls))
+	  if (rm = execy(varentity, rxmls))
           { lasttoken = varentity.lastIndex;
             if (!comment && !nooutput)
 	      obj += varent(rm) + varinsert;
@@ -1006,7 +1007,7 @@ ntoken:
 	  ts = "&";	    // No variable, fall back to normal text
         default:
           textrx.lastIndex = lasttoken;
-          ts += textrx.exec(rxmls)[0];
+          ts += execy(textrx, rxmls)[0];
 	  lasttoken = textrx.lastIndex;
           if (!comment && !nooutput)
 	  { if (flags & (KILLWHITE|PRESERVEWHITE))
@@ -1142,6 +1143,19 @@ ntoken:
        : (txta.innerHTML = child, txta.firstChild));
     txta.textContent = "";    // Free memory
     return parent;
+  }
+
+  function /** !RegExp */ regexpy(/** string */ expr)
+  { return RegExp(expr, ie11 ? "g" : "y");
+  }
+
+  function /** Array */ execy(/** !RegExp */ expr,/** string */ haystack)
+  { if (ie11) {
+      var /** number */ last = expr.lastIndex;
+      var /** Array */ ret = expr.exec(haystack);
+      return ret && /** @type{?} */(last == ret.index) && ret;
+    }
+    return expr.exec(haystack);
   }
 
   if (!O.assign)
