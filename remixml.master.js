@@ -1166,7 +1166,7 @@ ntoken:
     });
   if (!O.entries)
     O.entries = function(m)
-    { var k = O.keys(m), i = k.length, r = new Array(i);
+    { var k = m ? O.keys(m) : [], i = k.length, r = new Array(i);
       while (i--)
         r[i] = [k[i], m[k[i]]];
       return r;
