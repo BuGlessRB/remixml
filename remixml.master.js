@@ -1145,28 +1145,6 @@ ntoken:
     return parent;
   }
 
-  if (!O.assign)
-    O.defineProperty(O, "assign",
-    { "value": function(d, s, i)
-      { if (s) for (i in s) d[i] = s[i]; return d;
-      }
-    });
-  if (!O.entries)
-    O.entries = function(m)
-    { var k = O.keys(m), i = k.length, r = new Array(i);
-      while (i--)
-        r[i] = [k[i], m[k[i]]];
-      return r;
-    };
-
-  if ("ab".substr(-1) != "b")
-    (function(p) {
-      let s = p.substr;
-      p.substr = function /** string */
-                 (/** number */ a, /** number= */ n)
-      { return s.call(this, a < 0 ? this.length + a : a, n); };
-    })(String.prototype);
-
   var g =
   { "remixml2js": function /** string */(/** string */ remixml)
       { return remixml2js(remixml);

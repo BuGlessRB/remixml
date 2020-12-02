@@ -8,7 +8,7 @@ existing XML/HTML syntax colouring editors.
 
 ## Requirements
 
-It runs inside any webbrowser (starting at IE11 and up) or NodeJS environment.
+It runs inside any webbrowser (except MSIE) or NodeJS environment.
 
 Minified and gzip-compressed it is less than 8KB of code.
 
