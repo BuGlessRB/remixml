@@ -683,7 +683,7 @@
     }
     var /** number */ lasttoken = 0;
     function /** string */ getposition()
-    { var /** string */ str = obj.slice(0, lasttoken);
+    { var /** string */ str = rxmls.slice(0, lasttoken);
       var /** number */ line = (str.match(/\n/g) || "").length + 1;
       var /** number */ offset = str.match(/[^\n]*$/)[0].length + 1;
       return line + ":" + offset;
