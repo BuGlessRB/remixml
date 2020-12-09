@@ -955,7 +955,9 @@ ntoken:
                     else
                       switch (shouldtag)
                       { case "set":
-                          obj += "$=o});v&&v()}";
+			  if (obj.slice(-1) !== "{")  // Non-empty function?
+                            obj += "$=o";
+                          obj += "});v&&v()}";
                         case "insert":
                         case "unset":
                           break;
