@@ -33,10 +33,10 @@
   // Cut END for prepend
 
   const W = typeof window == "object" ? window : global;
-  const D = typeof document == "object" ? document : require("minidom")('');
+  const D = typeof document == "object" ? document : 0;
   const O = Object;
 
-  const ie11 = W["MSInputMethodContext"] && D["documentMode"];
+  const ie11 = D && W["MSInputMethodContext"] && D["documentMode"];
   const /** !RegExp */ splc = /\s*,\s*/g;
   const /** Object */ diacr = {};
   const /** Node */ txta = newel("textarea");
@@ -45,8 +45,8 @@
   const /** string */ cfnprefix = "H._cfn=function(H,$){";
   const /** !RegExp */ txtentity =
    /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
-  const /** !RegExp */ varentity
-   = regexpy("([\\w$]+\\.[\\w$]+(?:[.[][\\w$]+]?)*)(?::([\\w$]*))?(?:%([^;]*))?;");
+  const /** !RegExp */ varentity = regexpy(
+         "([\\w$]+\\.[\\w$]+(?:[.[][\\w$]+]?)*)(?::([\\w$]*))?(?:%([^;]*))?;");
   const /** !RegExp */ commentrx = regexpy("!--{0,2}(.*?)-->");
   const /** !RegExp */ textrx = regexpy("[^&<]+");
   const /** !RegExp */ params
@@ -982,6 +982,9 @@ ntoken:
                         case "for":
                           obj += "$=o;I=1}}";
                           break;
+                        case "if":case "then":case "elif":case "else":
+                          obj += "I=1}";
+                          break;
                         case "eval":
                           obj += "M(J,E(H,v,$))}";
                           break;
@@ -991,7 +994,6 @@ ntoken:
                           if (!nooutput)
                             obj += "X(J,H,$)";
                         case "delimiter":
-                        case "if":case "then":case "elif":case "else":
                           obj += "}";
                       }
 		case undefined:;
