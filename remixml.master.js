@@ -1,5 +1,5 @@
    /** @license
-   ** Remixml v2.0.0: XML/HTML-like macro language compiler
+   ** Remixml v2.11.0: XML/HTML-like macro language compiler
   ** Copyright (c) 2018-2020 by Stephen R. van den Berg <srb@cuci.nl>
  ** License: ISC OR GPL-3.0
 ** Sponsored by: Cubic Circle, The Netherlands
@@ -32,14 +32,14 @@
   function IA(s){return Array.isArray(s)}
   // Cut END for prepend
 
-  const W = typeof window == "object" ? window : global;
-  const D = typeof document == "object" ? document : 0;
+  const D = typeof document == "object" ? document : null;
+  const W = D && window;
   const O = Object;
 
   const ie11 = D && W["MSInputMethodContext"] && D["documentMode"];
   const /** !RegExp */ splc = /\s*,\s*/g;
   const /** Object */ diacr = {};
-  const /** Node */ txta = newel("textarea");
+  const /** Node */ txta = D && newel("textarea");
   const /** !Object */ elmcache = {};
   const /** string */ varinsert = "I=K($,H,x)}catch(x){I=0}";
   const /** string */ cfnprefix = "H._cfn=function(H,$){";
@@ -1268,8 +1268,8 @@ ntoken:
 
   if (typeof define == "function" && define["amd"])
     define("remixml", [], g);
-  else if (W["exports"])
-    W["exports"]["Remixml"] = g, W["exports"]["document"] = D;
+  else if (typeof exports == "object")
+    O.assign(/** @type{!Object} */(exports), g);
   else
     W["Remixml"] = g;
 
