@@ -35,11 +35,10 @@
   const D = typeof document == "object" ? document : null;
   const W = D && window;
   const O = Object;
-
   const ie11 = D && W["MSInputMethodContext"] && D["documentMode"];
+
   const /** !RegExp */ splc = /\s*,\s*/g;
-  const /** Object */ diacr = {};
-  const /** Node */ txta = D && newel("textarea");
+  const /** Object */ diacr = {}; // Full list of diacrite stripdown aliases
   const /** !Object */ elmcache = {};
   const /** string */ varinsert = "I=K($,H,x)}catch(x){I=0}";
   const /** string */ cfnprefix = "H._cfn=function(H,$){";
@@ -69,10 +68,6 @@
   { return {"&":"&amp;","\"":"&dquot;"}[s]; }
 
   function udate(t) { return t.valueOf() - t.getTimezoneOffset * 60000; }
-
-  function /** !Node */ newel(/** string */ n)
-  { return D.createElement(n);
-  }
 
   function /** !boolean */ iso(/** * */ obj)
   { var type = typeof obj;
@@ -823,7 +818,8 @@ ntoken:
                     case "insert":
                     { let vname = getparm("var") || getparm("variable");
                       if (vname)
-                      { obj += vareval(vname, getparm("quote"), getparm("format"));
+                      { obj +=
+			 vareval(vname, getparm("quote"), getparm("format"));
                         if (ts = getparm("join"))
                           obj += "x=x.join?x.join(" + ts + "):x;";
                         vname = getparm("limit");
@@ -865,8 +861,8 @@ ntoken:
                       let /** string */ from = getparm("in");
                       if (from)
                       { obj += "g=G($," + simplify(from) +
-                         ((ts = getparm("orderby"))
-                          ? ",(m=$._,function(_){let _index=_[0];$._=_=_[1];return["
+                         ((ts = getparm("orderby")) ?
+                       ",(m=$._,function(_){let _index=_[0];$._=_=_[1];return["
 			    + evalexpr(ts) + "]}));$._=m"
 			  : ")")
                          + ";while(!(m=g.next()).done)"
@@ -1122,39 +1118,6 @@ ntoken:
     return parent;
   };
 
-  // For use in Javascript Remixml
-  abstract2dom = function /** !Node */(/** !Array */ vdom)
-  { var /** !Node */ parent;
-    var /** number */ i = 0;
-    var /** string|number */ name = /** @type{Object} */(vdom)[""];
-    switch (name)
-    { case "!":
-        return document.createComment(vdom[0]);
-      case 1:
-        name = 0; parent = D.createDocumentFragment();
-        break;
-      default:
-	if (!(parent = elmcache[name]))
-          parent = elmcache[name] = newel(/** @type{string} */(name));
-	parent = parent.cloneNode();
-        for (name of O.keys(vdom).splice(vdom.length))
-          switch (name[0])
-          { default:
-              let /** string */ val = /** @type{Object} */(vdom)[name];
-	      if (val != null && !iso(val))
-                parent.setAttribute(name, val);
-            case "_":case undefined:;
-          }
-    }
-    var /** !Array|string */ child;
-    while ((child = vdom[i++]) !== undefined)
-      parent.appendChild(child[""] ? abstract2dom(child)
-       : child.indexOf("&") < 0 ? D.createTextNode(child)
-       : (txta.innerHTML = child, txta.firstChild));
-    txta.textContent = "";    // Free memory
-    return parent;
-  }
-
   function /** !RegExp */ regexpy(/** string */ expr)
   { return RegExp(expr, ie11 ? "g" : "y");
   }
@@ -1168,28 +1131,6 @@ ntoken:
     return expr.exec(haystack);
   }
 
-  if (!O.assign)
-    O.defineProperty(O, "assign",
-    { "value": function(d, s, i)
-      { if (s) for (i in s) d[i] = s[i]; return d;
-      }
-    });
-  if (!O.entries)
-    O.entries = function(m)
-    { var k = m ? O.keys(m) : [], i = k.length, r = new Array(i);
-      while (i--)
-        r[i] = [k[i], m[k[i]]];
-      return r;
-    };
-
-  if ("ab".substr(-1) != "b")
-    (function(p) {
-      let s = p.substr;
-      p.substr = function /** string */
-                 (/** number */ a, /** number= */ n)
-      { return s.call(this, a < 0 ? this.length + a : a, n); };
-    })(String.prototype);
-
   var g =
   { "remixml2js": function /** string */(/** string */ remixml)
       { return remixml2js(remixml);
@@ -1199,14 +1140,6 @@ ntoken:
       },
     "compile": function /** function(!Object):!Array */(/** string */ remixml)
       { return js2obj(remixml2js(remixml));
-      },
-    "parse": function
-       /** Node */(/** string|!Array|(function(!Object):!Array) */ tpl,
-                  /** !Object */ $)
-      { if (isstring(tpl))
-          tpl = js2obj(remixml2js(/** @type{string} */(tpl)));
-        return abstract2dom(IA(tpl)
-	 ? tpl : /** @type{function(!Object):!Array} */(tpl)($));
       },
     "parse2txt": function
        /** string */(/** string|(function(!Object):!Array) */ tpl,
@@ -1218,9 +1151,6 @@ ntoken:
     "abstract2txt": function /** string */(/** !Array */ tpl)
       { return Y(tpl);
       },
-    "abstract2dom": function /** Node */(/** !Array */ tpl)
-      { return abstract2dom(tpl);
-      },
     "set_tag": function /** void */(/** function(!Object):!Array */ cb,
        /** !Object */ $,/** string */ name,/** string= */ scope,
        /** string= */ args)
@@ -1231,6 +1161,85 @@ ntoken:
       { log = cb;
       }
   };
+
+    /////////////////////////////////////////////////////////////////////
+   // Only useful inside a browser
+  /////////////////////////////////////////////////////////////////////
+  if (D)
+  { function /** !Node */ newel(/** string */ n)
+    { return D.createElement(n);
+    }
+    
+    const /** Node */ txta = newel("textarea");
+    
+     // For use in Javascript Remixml
+    // Converts the abstract presentation into a live DOM Node structure
+    abstract2dom = D && function /** !Node */(/** !Array */ vdom)
+    { var /** !Node */ parent;
+      var /** number */ i = 0;
+      var /** string|number */ name = /** @type{Object} */(vdom)[""];
+      switch (name)
+      { case "!":
+          return D.createComment(vdom[0]);
+        case 1:
+          name = 0; parent = D.createDocumentFragment();
+          break;
+        default:
+          if (!(parent = elmcache[name]))
+            parent = elmcache[name] = newel(/** @type{string} */(name));
+          parent = parent.cloneNode();
+          for (name of O.keys(vdom).splice(vdom.length))
+            switch (name[0])
+            { default:
+                let /** string */ val = /** @type{Object} */(vdom)[name];
+                if (val != null && !iso(val))
+                  parent.setAttribute(name, val);
+              case "_":case undefined:;
+            }
+      }
+      var /** !Array|string */ child;
+      while ((child = vdom[i++]) !== undefined)
+        parent.appendChild(child[""] ? abstract2dom(child)
+         : child.indexOf("&") < 0 ? D.createTextNode(child)
+         : (txta.innerHTML = child, txta.firstChild));
+      txta.textContent = "";    // Free memory
+      return parent;
+    }
+    
+    if (!O.assign)
+      O.defineProperty(O, "assign",
+      { "value": function(d, s, i)
+        { if (s) for (i in s) d[i] = s[i]; return d;
+        }
+      });
+    if (!O.entries)
+      O.entries = function(m)
+      { var k = m ? O.keys(m) : [], i = k.length, r = new Array(i);
+        while (i--)
+          r[i] = [k[i], m[k[i]]];
+        return r;
+      };
+    
+    if ("ab".substr(-1) != "b")
+      (function(p) {
+        let s = p.substr;
+        p.substr = function /** string */
+                   (/** number */ a, /** number= */ n)
+        { return s.call(this, a < 0 ? this.length + a : a, n); };
+      })(String.prototype);
+
+    g["abstract2dom"] = function /** Node */(/** !Array */ tpl)
+      { return abstract2dom(tpl);
+      };
+    g["parse"] = function
+       /** Node */(/** string|!Array|(function(!Object):!Array) */ tpl,
+                  /** !Object */ $)
+      { if (isstring(tpl))
+          tpl = js2obj(remixml2js(/** @type{string} */(tpl)));
+        return abstract2dom(IA(tpl)
+	 ? tpl : /** @type{function(!Object):!Array} */(tpl)($));
+      };
+  }
 
   (function(fm)
   { var i, j, p;
