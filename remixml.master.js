@@ -56,7 +56,7 @@
   var /** function(...) */ log = console.log;
 
   function /** !boolean */ isstring(/** * */ s)
-  { return O.prototype.toString.call(s) === "[object String]"; }
+  { return typeof s === "string"; }
 
   function /** string */ eumap(/** string */ s)
   { return {"+":"%2B"," ":"+","?":"%3F","&":"%26","#":"%23"}[s]; }
