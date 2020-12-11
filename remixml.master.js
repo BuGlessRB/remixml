@@ -873,7 +873,7 @@ ntoken:
                          + "||1),k=+" + getparm("to")
                          + ";m<0?i>=k:i<=k;i+=m){W=S({";
                       }
-                      obj += "_recno:++n,_index:i});let o=$;$=C(W,$,{}";
+                      obj += "_recno:++n,_index=i});let o=$;$=C(W,$,{}";
                       if (ts = getparm("scope"))
                         obj += "," + ts;
                       obj += ");";
