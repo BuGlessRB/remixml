@@ -867,10 +867,11 @@ ntoken:
 			  : ")")
                          + ";while(!(m=g.next()).done)"
 			 + "{k=(m=m.value)[1];i=m[0];W=S({_value:k,";
-                      } else if ((from = getparm("from")) !== undefined)
-                      { obj += "for(i=+" + from
-                         + ",m=+(" + getparm("step")
-                         + "||1),k=+" + getparm("to")
+                      } else
+                      { obj += "for(i=+" + (getparm("from") || 0)
+                         + ",m=" + ((from = getparm("step"))
+			            ? "+(" + from + "||1)" : 1)
+                         + ",k=+" + (getparm("to") || 0)
                          + ";m<0?i>=k:i<=k;i+=m){W=S({";
                       }
                       obj += "_recno:++n,_index:i});let o=$;$=C(W,$,{}";
