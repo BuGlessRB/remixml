@@ -42,6 +42,10 @@
   const /** !Object */ elmcache = {};
   const /** string */ varinsert = "I=K($,H,x)}catch(x){I=0}";
   const /** string */ cfnprefix = "H._c=function(H,$){";
+  const /** string */ letHprefix = "{let H=L(),";
+  const /** string */ vfnprefix = "w,v=function(){w($);";
+  const /** string */ THprefix = "T(H,";
+  const /** string */ THpostfix = ");";
   const /** !RegExp */ txtentity =
    /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
   const /** !RegExp */ varentity = regexpy(
@@ -673,6 +677,8 @@
     var /** number */ noparse = 0;
     var /** number */ comment = 0;
     var /** number */ nooutput = 0;
+    var /** number */ simpleset;      // Peephole optimiser plain string sets
+    var /** number */ simplecontent; // Peephole optimiser plain contents
     if (RUNTIMEDEBUG || ASSERT)
     { var /** !Array */ tagstack = [];
     }
@@ -688,12 +694,6 @@
 	logerr(rxmls.substr(lasttoken - RUNTIMEDEBUG,
 	       RUNTIMEDEBUG*2 + (tag ? tag.length : 0)),
 	       msg + " at " + getposition());
-    }
-    function /** void */ stripappend(/** string */ prefix,/** string */ postfix)
-    { if (obj.slice(-prefix.length) === prefix)
-	obj = obj.slice(0, obj.length - prefix.length);
-      else
-	obj += postfix;
     }
     for (;;)
     { var /** Array */ rm;
@@ -771,11 +771,13 @@ ntoken:
                 if (!noparse)
                   switch (tag)
                   { case "set":
-                    { obj += "{let H=L(),";
+                    { obj += letHprefix;
                       let vname = getparm("var") || getparm("variable");
+		      simpleset = 0;
                       if (vname)
                       { let /** string|undefined */ xp = getparm("expr");
-                        obj += 'w,v=function(){w($);';
+                        obj += vfnprefix;
+			simpleset = obj.length;
                         if (ts = getparm("selector"))
                           obj += "B($,w=L(),H," + ts + ");H=w;";
                         else
@@ -793,13 +795,15 @@ ntoken:
                             obj += "H=H.join(" + ts + ");";
                           domkmapping("let k=H[0];H={};", "H");
                         }
+			if (obj.length !== simpleset)
+			  simpleset = 0;
 		        let /** !Array|string */ av = simplify(vname, 1);
 		        if (IA(av))
 		          obj += av[0] + "=A(" +
 			    (gotparms["clone"] !== undefined
-			     ? "CA(H," + av[0] + ")" : "H")
+			     ? (simpleset = 0, "CA(H," + av[0] + ")") : "H")
 		        else
-		          obj += "A(H,$," + av;
+		          simpleset = 0, obj += "A(H,$," + av;
 		        obj +=")};w=(function(o){";
                       } else if (ts = getparm("tag"))
                       { obj += "v=0;Q(" + ts
@@ -841,20 +845,20 @@ ntoken:
                       let /** string */ flags = getparm("flags");
                       if (flags === undefined)
                         flags = "g";
-                      obj += "{let J=W,H=L(),v=P(" + xp + ","
+                      obj += letHprefix + "J=W,v=P(" + xp + ","
                        + JSON.stringify(flags) + ",";
                       xp = getparm("expr");
                       obj += (xp ? evalexpr(xp) : getparm("to")) + ");";
                       continue;
                     }
                     case "trim":
-                      obj += "{let J=W,H=L();";
+                      obj += letHprefix + "J=W;";
                       continue;
                     case "maketag":
-                      obj += "{let J=W,H=L(" + getparm("name") + ");";
+                      obj += "{let H=L(" + getparm("name") + "),J=W;";
                       continue;
                     case "attrib":
-                      obj += "{let J=W,H=L(),v=" + getparm("name") + ";";
+                      obj += letHprefix + "v=" + getparm("name") + ",J=W;";
                       continue;
                     case "for":
                     { obj += "{I=0;let g,i,k,m,J=W,n=0;";
@@ -882,8 +886,8 @@ ntoken:
                       continue;
                     }
                     case "eval":
-                      obj += "{let J=W,v=" + (getparm("recurse") || 0)
-                       + ",H=L();";
+                      obj += letHprefix + "v=" + (getparm("recurse") || 0)
+                       + ",J=W;";
                       continue;
                     case "unset":
 		    { let /** !Array|string */ av
@@ -901,8 +905,8 @@ ntoken:
                     case "elif":
                       ts = "(!I&&";
                     case "if":
-                      obj += "if" + ts + "(I=(" + evalexpr(getparm("expr"))
-                       + "?1:0))" + (ts ? ")" : "") + "{";
+                      obj += "if" + ts + "(I=" + evalexpr(getparm("expr"))
+                       + ")" + (ts ? ")" : "") + "{";
                       continue;
                     case "then":
                       obj += "if(I){";
@@ -941,7 +945,9 @@ ntoken:
                 lasttoken = i;
                 close = 1;
               } else
-	        obj += ";" + cfnprefix;
+	      { obj += ";" + cfnprefix;
+		simplecontent = obj.length;
+	      }
             } while(0);
           if (close)
 	    for (;;)
@@ -953,13 +959,22 @@ ntoken:
                 case "nooutput": nooutput--; break;
                 default:
                   if (!comment)
-                    if (noparse)
+                  { if (noparse)
                       obj += "}";
                     else
-                      switch (shouldtag)
+                    { switch (shouldtag)
                       { case "set":
 			  if (obj.slice(-1) !== "{")  // Non-empty function?
-                            obj += "$=o";
+                          { if (simpleset)  // Simplify plain assignment
+			    { let /** Array<string> */ ar = obj.slice(simpleset)
+			                          .match(/([^=]+=).+(".*")/);
+                              obj = obj.slice(0, simpleset
+				     - letHprefix.length - vfnprefix.length)
+                               + ar[1] + ar[2] + ";";
+			      break;
+			    }
+			    obj += "$=o";
+			  }
                           obj += "});v&&v()}";
                         case "insert":
                         case "unset":
@@ -986,13 +1001,23 @@ ntoken:
                           obj += "M(J,E(H,v,$))}";
                           break;
                         default:
-			  stripappend(cfnprefix, "};");
+                          if (simplecontent)
+			  { ts = obj.slice(simplecontent + THprefix.length,
+			                   -THpostfix.length);
+                            obj = obj.slice(0,
+			                    simplecontent - cfnprefix.length)
+			     + "H[0]=" + ts + ";";
+			  } else
+			    obj += "};";
 			case "script":
                           if (!nooutput)
                             obj += "X(J,H,$)";
                         case "delimiter":
                           obj += "}";
                       }
+		      simplecontent = simpleset = 0;
+                    }
+                  }
 		case undefined:;
               }
               if ((RUNTIMEDEBUG || ASSERT) && tag !== shouldtag)
@@ -1009,6 +1034,7 @@ ntoken:
           { lasttoken = varentity.lastIndex;
             if (!comment && !nooutput)
 	      obj += varent(rm) + varinsert;
+	    simplecontent = simpleset = 0;
             break;
           }
 	  ts = "&";	    // No variable, fall back to normal text
@@ -1027,7 +1053,7 @@ ntoken:
                 obj += "T(H);";
 		break;
 	      default:
-                obj += "T(H," + JSON.stringify(ts) + ");";
+                obj += THprefix + JSON.stringify(ts) + THpostfix;
 	      case "":;
 	    }
 	  }
