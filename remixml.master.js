@@ -41,7 +41,7 @@
   const /** Object */ diacr = {}; // Full list of diacrite stripdown aliases
   const /** !Object */ elmcache = {};
   const /** string */ varinsert = "I=K($,H,x)}catch(x){I=0}";
-  const /** string */ cfnprefix = "H._cfn=function(H,$){";
+  const /** string */ cfnprefix = "H._c=function(H,$){";
   const /** !RegExp */ txtentity =
    /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
   const /** !RegExp */ varentity = regexpy(
@@ -222,7 +222,7 @@
       s = "\n";
     let /** number */ last = H.length - 1;
     if (isstring(H[last]))
-    { if (s != "\n" || H[last].slice(-1) != s)
+    { if (s !== "\n" || H[last].slice(-1) !== s)
         H[last] += s;
     } else
       H.push(s);
@@ -345,7 +345,7 @@
   { if (/** @type{Object} */(_)[""] !== 1)
     { defget(_, "_contents", function()
         { let /** function(!Array,!Object):void|undefined */ cfn
-           = /** @type{Object} */(_)["_cfn"];
+           = /** @type{Object} */(_)["_c"];
           if (cfn)
             cfn(_ = L(), $);
 	  else
@@ -391,9 +391,9 @@
       fn(J, H, $);
     else
     { let /** function(!Array,!Object):void|undefined */ cfn
-       = /** @type{Object} */(H)["_cfn"];
+       = /** @type{Object} */(H)["_c"];
       if (cfn)
-      { delete /** @type{Object} */(H)["_cfn"];
+      { delete /** @type{Object} */(H)["_c"];
 	cfn(H, $);
       }
       J.push(H);
@@ -690,7 +690,7 @@
 	       msg + " at " + getposition());
     }
     function /** void */ stripappend(/** string */ prefix,/** string */ postfix)
-    { if (obj.slice(-prefix.length) == prefix)
+    { if (obj.slice(-prefix.length) === prefix)
 	obj = obj.slice(0, obj.length - prefix.length);
       else
 	obj += postfix;
