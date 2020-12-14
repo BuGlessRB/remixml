@@ -6,7 +6,7 @@
   "browser": "remixml.min.js",
   "homepage": "https://remixml.org/",
   "scripts": {
-    "test": "# Can only be tested inside a browser environment.",
+    "test": "./runtest.sh",
     "prepare": "./prepfiles"
   },
   "dependencies": {},

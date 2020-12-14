@@ -1,0 +1,4 @@
+    <set tag="test">a=&_.a;=b=&_.b;=c=&_.c;=d=&_.d;=e=&_.e;=</set>
+    <set tag="foo" args="a,b"><test
+      a="&_.b;" ::="&_._restargs;">&_._contents;</test></set>
+    <foo a="aha" b="bhb" c="abc" d="def" e="etc">whatever</foo>

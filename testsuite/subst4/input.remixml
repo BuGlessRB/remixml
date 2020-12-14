@@ -1,0 +1,2 @@
+<set var="_.foobar">12</set>
+<set var="_.new" expr="+_.foobar + _.foo"></set>xx&_.new;yyy

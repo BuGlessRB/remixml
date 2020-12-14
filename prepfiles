@@ -7,7 +7,7 @@ stripcomments='/^[	 ]*\/\// d'
   -e '/ Cut BEGIN for prepend/,/ Cut END for prepend/ d' \
    <remixml.master.js >remixml.meat.tmp
  sed -e '/ Cut BEGIN for externs/,/ Cut END for externs/ !d' \
-     -e '/ Cut [BE]/ d' <remixml.master.js >externs.local.h
+     -e '/ Cut [BE]/ d' <remixml.master.js >externs.tmp
  sed -e '/ Cut BEGIN for prepend/,/ Cut END for prepend/ !d' \
      -e 's/^  *//g' -e 's%/\*.*\*/%%g' \
      -e '/ Cut [BE]/ d' <remixml.master.js >remixml.prep.tmp
@@ -30,7 +30,7 @@ google-closure-compiler \
  --source_map_format V3 \
  --source_map_include_content \
  --externs externs.h \
- --externs externs.local.h \
+ --externs externs.tmp \
  --warning_level VERBOSE \
  --create_source_map remixml.js.map \
  -D DEBUG=0 \

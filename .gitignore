@@ -9,6 +9,7 @@
 *.[ao]
 *.so
 *.[gx]z
+remixml.js
 core
 core.*
 .npmrc
@@ -17,3 +18,4 @@ node_modules
 *.map
 *.min
 *.min.js
+testsuite/*/output.*

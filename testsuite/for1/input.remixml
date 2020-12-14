@@ -1,0 +1,3 @@
+<set var="_.foobar">12</set>
+<for from="3" to="9">&_._index;</for>
+<set var="_.new" expr="+_.foobar + _.foo"></set>xx&_.new;yyy

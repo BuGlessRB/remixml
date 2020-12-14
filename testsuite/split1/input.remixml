@@ -1,0 +1,4 @@
+    <set var="_.foo" split=",">aa,b,cc,d,eee,f</set>
+    <for in="_.foo">
+     <delimiter>,</delimiter>&_._recno; &_._value;
+    </for>
