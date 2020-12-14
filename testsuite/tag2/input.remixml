@@ -1,0 +1,17 @@
+   <set tag="article">
+    <set tag="link"><div>&_._.linkcontent;</div></set>
+    <set tag="stext">X<eval>&_._contents:;</eval>X</set>
+    prefix<eval>&_._contents:;</eval>postfix
+   </set>
+  <article linkcontent="linkA"><h1>Heading</h1>
+   <stext>Some regular text
+     <link>a link</link>  Some more text
+   </stext>
+   Just a <link>to nowhere</link> in particular
+  </article>
+  <article linkcontent="linkB"><h1>Article2</h1>
+   <stext>New text
+     <link>killed link</link> older text
+   </stext>
+   Faint <link>no</link> where man
+  </article>

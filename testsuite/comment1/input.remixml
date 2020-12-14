@@ -1,4 +1,4 @@
-<!-- hello -->
+<!-- hellO -->
 <set var="_.foobar">12</set>
 <!-- there -->
 <for from="9" to="3" step="-2">

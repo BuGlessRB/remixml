@@ -21,7 +21,7 @@
   // Cut BEGIN for externs
   // Cut BEGIN for prepend
   var VP,SP,CA,B,C,E,F,G,K,L,M,N,P,Q,R,S,T,U,V,X,Y,Z,
-   sizeof,desc,abstract2txt,abstract2dom;
+   log,sizeof,desc,abstract2txt,abstract2dom;
   // Cut END for prepend
   var A,VE,IA;
   // Cut END for externs
@@ -43,7 +43,7 @@
   const /** string */ varinsert = "I=K($,H,x)}catch(x){I=0}";
   const /** string */ cfnprefix = "H._c=function(H,$){";
   const /** string */ letHprefix = "{let H=L(),";
-  const /** string */ vfnprefix = "w,v=function(){w($);";
+  const /** string */ vfnprefix = "w,v=function(){w();";
   const /** string */ THprefix = "T(H,";
   const /** string */ THpostfix = ");";
   const /** !RegExp */ txtentity =
@@ -235,10 +235,11 @@
   M = function /** void */(/** !Array */ H,/** !Array */ elm)
   { var /** !Array|string */ s;
     while (s = elm.shift())
-      if (s[""])
+    { if (s[""])
         H.push(s);
       else
         T(H, s);
+    }
   };
   			// Evaluate recursively
   E = function /** !Array */
@@ -351,13 +352,13 @@
         { let /** function(!Array,!Object):void|undefined */ cfn
            = /** @type{Object} */(_)["_c"];
           if (cfn)
-            cfn(_ = L(), $);
+            cfn(_.slice(), $);
 	  else
             /** @type{Object} */(_)[""] = 1;
           return _;
         });
       if (args)
-        defget(_, "_restargs", function()
+      { defget(_, "_restargs", function()
           { var /** string */ vname;
             var /** !Object */ rest = {};
             for (vname in this)
@@ -369,7 +370,7 @@
               }
             return rest;
           });
-      else
+      } else
 	return /** @type{Object} */(_);
     }
     var /** !Object */ n$;
@@ -479,14 +480,14 @@
     if (typeof x === "function")
       x = x($["_"], $);
     if (x[""])
-      switch (quot)
+    { switch (quot)
       { case "r":case "recurse":case "":case "none":
           if (!fmt)
             break;
         default:
           x = Y(/** @type{!Array} */(x));
       }
-    else if (- - /** @type {string|number} */(x) == x)
+    } else if (- - /** @type {string|number} */(x) == x)
       /** @type {number} */(x) += "";
     if (fmt && !x[""])
     { let /** Array<string> */ r = fmt.match(
@@ -560,15 +561,16 @@
   CA = function /** !Array */ (/** !Array */ k,/** !Array= */ r)
   { var /** * */ i;
     if (r)
-      for (i in r)
+    { for (i in r)
 	delete r[/** @type{?} */(i)];
-    else
+    } else
       r = [];
     r = /** @type{!Array} */(O.assign(r, k));
     i = r.length;
     while (i--)
-      if (r[i][""])
+    { if (r[i][""])
         r[i] = CA(r[i]);
+    }
     return r;
   }
                 // varinsert
@@ -665,6 +667,14 @@
     }
   }
 
+  const /** number */ TS_TAG = 0;
+  const /** number */ TS_PARMS = 1;
+  const /** number */ TS_FLAGS = 2;
+  const /** number */ TS_PREFIX = 3;
+  const /** number */ TRIMWHITE = 1;
+  const /** number */ USERTAG = 2;
+  const /** number */ STASHCONTENT = 4;
+
   const /** number */ KILLWHITE = 1;
   const /** number */ PRESERVEWHITE = 2;
 
@@ -679,30 +689,47 @@
     var /** number */ nooutput = 0;
     var /** number */ simpleset;      // Peephole optimiser plain string sets
     var /** number */ simplecontent; // Peephole optimiser plain contents
-    if (RUNTIMEDEBUG || ASSERT)
-    { var /** !Array */ tagstack = [];
-    }
+    var /** !Array */ tagstack = [];
     var /** number */ lasttoken = 0;
+    var /** !Array */ tagctx;
     function /** string */ getposition()
     { var /** string */ str = rxmls.slice(0, lasttoken);
       var /** number */ line = (str.match(/\n/g) || "").length + 1;
       var /** number */ offset = str.match(/[^\n]*$/)[0].length + 1;
       return line + ":" + offset;
     }
-    function logcontext(/** string */ tag,/** string */ msg)
+    function /** void */ logcontext(/** string */ tag,/** string */ msg)
     { if (RUNTIMEDEBUG)
 	logerr(rxmls.substr(lasttoken - RUNTIMEDEBUG,
 	       RUNTIMEDEBUG*2 + (tag ? tag.length : 0)),
 	       msg + " at " + getposition());
+    }
+    function /** void */ startcfn()
+    { if (tagctx)
+      { if ((tagctx[TS_FLAGS] & (USERTAG|STASHCONTENT)) === USERTAG)
+        { tagctx[TS_FLAGS] |= STASHCONTENT;
+          obj += cfnprefix;
+        }
+        var /** number */ i = tagstack.length - 1;
+        while (i-- > 0)
+        { var /** !Array */ ctx = tagstack[i];
+          if ((ctx[TS_FLAGS] & (USERTAG|STASHCONTENT)) === USERTAG)
+          { ctx[TS_FLAGS] |= STASHCONTENT;
+            ctx[TS_PREFIX] += cfnprefix;
+          }
+        }
+      }
+      simplecontent = 0;
     }
     for (;;)
     { var /** Array */ rm;
       let /** string */ ts = "";
       if (lasttoken >= rxmls.length)
       { if (RUNTIMEDEBUG || ASSERT)
-	{ let /** string */ shouldtag = tagstack[tagstack.length - 1];
-	  if (shouldtag)
-          { logcontext(shouldtag, "Missing close tag for " + shouldtag);
+	{ tagctx = tagstack[tagstack.length - 1];
+	  if (tagctx)
+	  { let /** string */ shouldtag = tagctx[TS_TAG];
+            logcontext(shouldtag, "Missing close tag for " + shouldtag);
 	    if (ASSERT)
 	    { rxmls += "</" + shouldtag + ">";	// Fix it and continue
 	      continue;
@@ -717,7 +744,8 @@ ntoken:
 	  commentrx.lastIndex = ++lasttoken;
           if (rm = execy(commentrx, rxmls))
           { lasttoken = commentrx.lastIndex;
-	    obj += 'H.push(W=L("!"));W.push(' + JSON.stringify(rm[1]) + ");";
+	    if (!comment)
+	      obj += 'H.push(W=L("!"));W.push(' + JSON.stringify(rm[1]) + ");";
             break;
           }
           params.lastIndex = lasttoken;
@@ -757,9 +785,13 @@ ntoken:
           delete gotparms["/"];
           let /** string */ tag = gotparms[""];
           if (close !== 1)
-            do
-            { if (RUNTIMEDEBUG || ASSERT)
-		tagstack.push(tag);
+          { do
+            { tagstack.push(tagctx = [tag, gotparms, 0, obj]);
+	      obj = "";
+	      if (gotparms["-"])
+              { delete gotparms["-"];
+	        tagctx[TS_FLAGS] = TRIMWHITE;
+	      }
               switch (tag)
               { case "noparse": noparse++; continue;
                 case "comment": comment++; break;
@@ -769,9 +801,10 @@ ntoken:
                 if (!nooutput)
                   obj += "W=H;";
                 if (!noparse)
-                  switch (tag)
+                { switch (tag)
                   { case "set":
-                    { obj += letHprefix;
+                    { startcfn();
+		      obj += letHprefix;
                       let vname = getparm("var") || getparm("variable");
 		      simpleset = 0;
                       if (vname)
@@ -779,7 +812,7 @@ ntoken:
                         obj += vfnprefix;
 			simpleset = obj.length;
                         if (ts = getparm("selector"))
-                          obj += "B($,w=L(),H," + ts + ");H=w;";
+		           obj += "B($,w=L(),H," + ts + ");H=w;";
                         else
                         { if (gotparms["json"] !== undefined)
                             obj += "H=JSON.parse(Y(H));";
@@ -804,7 +837,7 @@ ntoken:
 			     ? (simpleset = 0, "CA(H," + av[0] + ")") : "H")
 		        else
 		          simpleset = 0, obj += "A(H,$," + av;
-		        obj +=")};w=(function(o){";
+		        obj +=")};w=(function(){";
                       } else if (ts = getparm("tag"))
                       { obj += "v=0;Q(" + ts
                          + ",$,function(H,a,$){let o=$;$=C(a,$,{";
@@ -821,6 +854,7 @@ ntoken:
                     }
                     case "insert":
                     { let vname = getparm("var") || getparm("variable");
+		      startcfn();
                       if (vname)
                       { obj +=
 			 vareval(vname, getparm("quote"), getparm("format"));
@@ -832,11 +866,12 @@ ntoken:
                            (vname !== undefined ? "," + vname : "") + ");";
                         obj += varinsert;
                       } else
-                        switch(getparm("variables"))
+                      { switch(getparm("variables"))
                         { case "dump":
-                            obj += "console.log((W="
+                            obj += "log((W="
                              + getparm("scope") + ")?$[W]:$);";
                         }
+		      }
                       continue;
                     }
                     case "replace":
@@ -861,7 +896,7 @@ ntoken:
                       obj += letHprefix + "v=" + getparm("name") + ",J=W;";
                       continue;
                     case "for":
-                    { obj += "{I=0;let g,i,k,m,J=W,n=0;";
+                    { startcfn(); obj += "{I=0;let g,i,k,m,J=W,n=0;";
                       let /** string */ from = getparm("in");
                       if (from)
                       { obj += "g=G($," + simplify(from) +
@@ -886,12 +921,14 @@ ntoken:
                       continue;
                     }
                     case "eval":
-                      obj += letHprefix + "v=" + (getparm("recurse") || 0)
-                       + ",J=W;";
+		      startcfn();
+                      obj += letHprefix + "v="
+		       + (getparm("recurse") || 0) + ",J=W;";
                       continue;
                     case "unset":
 		    { let /** !Array|string */ av
                        = simplify(getparm("var") || getparm("variable"), 1);
+		      startcfn();
 		      if (IA(av))
 		        obj += "delete " + av[0] + ";";
 		      else
@@ -918,18 +955,20 @@ ntoken:
                       nooutput++;
                       continue;
                   }
+                }
                 obj += "{let J=W,H=S({";
                 { let /** string */ sep;
         	  if (sep = gotparms["::"])
         	    gotparms["::"] = sep.slice(0, -1) + ":;";
         	  sep = "";
                   for (fw in gotparms)
-                    if (ts = getparm(fw))
+                  { if (ts = getparm(fw))
         	    { obj += sep
 		       + (complexlabel.test(fw) ? '"' + fw + '"' : fw)
 		       + ":" + getparm(fw);
                       sep = ",";
         	    }
+        	  }
                 }
                 obj += '},"' + tag + '")';
               }
@@ -944,15 +983,18 @@ ntoken:
 		}
                 lasttoken = i;
                 close = 1;
-              } else
-	      { obj += ";" + cfnprefix;
-		simplecontent = obj.length;
+              } else if (!comment)
+	      { obj += ";";
+		tagctx[TS_FLAGS] |= USERTAG;
+		//simplecontent = obj.length; // FIXME
 	      }
             } while(0);
+          }
           if (close)
-	    for (;;)
-	    { let /** string|undefined */ shouldtag
-	       = RUNTIMEDEBUG || ASSERT ? tagstack.pop() : tag;
+          {
+closelp:    for (;;)
+            { tagctx = tagstack.pop();
+	      let /** string|undefined */ shouldtag = tagctx[TS_TAG];
               switch (shouldtag)
               { case "noparse": noparse--; break;
                 case "comment": comment--; break;
@@ -962,7 +1004,7 @@ ntoken:
                   { if (noparse)
                       obj += "}";
                     else
-                    { switch (shouldtag)
+	            { switch (shouldtag)
                       { case "set":
 			  if (obj.slice(-1) !== "{")  // Non-empty function?
                           { if (simpleset)  // Simplify plain assignment
@@ -973,7 +1015,6 @@ ntoken:
                                + ar[1] + ar[2] + ";";
 			      break;
 			    }
-			    obj += "$=o";
 			  }
                           obj += "});v&&v()}";
                         case "insert":
@@ -1004,10 +1045,10 @@ ntoken:
                           if (simplecontent)
 			  { ts = obj.slice(simplecontent + THprefix.length,
 			                   -THpostfix.length);
-                            obj = obj.slice(0,
-			                    simplecontent - cfnprefix.length)
+                            obj = obj.slice(0, simplecontent)
 			     + "H[0]=" + ts + ";";
-			  } else
+			  }
+                          if (tagctx[TS_FLAGS] & STASHCONTENT)
 			    obj += "};";
 			case "script":
                           if (!nooutput)
@@ -1022,18 +1063,26 @@ ntoken:
               }
               if ((RUNTIMEDEBUG || ASSERT) && tag !== shouldtag)
 	      { logcontext(tag, "Expected " + shouldtag + " got " + tag);
-		if (ASSERT && tagstack.lastIndexOf(tag) >= 0)
-		  continue;
+		if (ASSERT)
+		{ let /** number */ i = tagstack.length;
+		  while (i > 0)
+		    if (tagstack[--i][TS_TAG] === tag)
+		      continue closelp;
+		}
 	      }
+	      obj = tagctx[TS_PREFIX] + obj;
 	      break;
             }
+	  }
           break;
         case "&":
 	  varentity.lastIndex = ++lasttoken;
 	  if (rm = execy(varentity, rxmls))
           { lasttoken = varentity.lastIndex;
             if (!comment && !nooutput)
+	    { startcfn();
 	      obj += varent(rm) + varinsert;
+	    }
 	    simplecontent = simpleset = 0;
             break;
           }
@@ -1069,13 +1118,13 @@ ntoken:
     } catch(e) {
       if (RUNTIMEDEBUG)
       { logerr(jssrc, e);
-	console.log(jssrc);
+	log(jssrc);
       }
       if (ASSERT)
         constructor = function() { return ""; };
     }
-    if (DEBUG)
-      console.log(constructor);
+    if (D && DEBUG)
+      log(constructor);
     return constructor;
   }
 
