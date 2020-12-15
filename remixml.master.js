@@ -44,8 +44,6 @@
   const /** string */ cfnprefix = "H._c=function(H,$){";
   const /** string */ letHprefix = "{let H=L(),";
   const /** string */ vfnprefix = "w,v=function(){w();";
-  const /** string */ THprefix = "T(H,";
-  const /** string */ THpostfix = ");";
   const /** !RegExp */ txtentity =
    /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
   const /** !RegExp */ varentity = regexpy(
@@ -674,6 +672,7 @@
   const /** number */ TRIMWHITE = 1;
   const /** number */ USERTAG = 2;
   const /** number */ STASHCONTENT = 4;
+  const /** number */ HASBODY = 8;
 
   const /** number */ KILLWHITE = 1;
   const /** number */ PRESERVEWHITE = 2;
@@ -688,10 +687,9 @@
     var /** number */ comment = 0;
     var /** number */ nooutput = 0;
     var /** number */ simpleset;      // Peephole optimiser plain string sets
-    var /** number */ simplecontent; // Peephole optimiser plain contents
-    var /** !Array */ tagstack = [];
+    var /** !Array */ tagctx = [0, {}, 0, ""];
+    var /** !Array */ tagstack = [tagctx];
     var /** number */ lasttoken = 0;
-    var /** !Array */ tagctx;
     function /** string */ getposition()
     { var /** string */ str = rxmls.slice(0, lasttoken);
       var /** number */ line = (str.match(/\n/g) || "").length + 1;
@@ -705,31 +703,36 @@
 	       msg + " at " + getposition());
     }
     function /** void */ startcfn()
-    { if (tagctx)
-      { if ((tagctx[TS_FLAGS] & (USERTAG|STASHCONTENT)) === USERTAG)
-        { tagctx[TS_FLAGS] |= STASHCONTENT;
-          obj += cfnprefix;
-        }
-        var /** number */ i = tagstack.length - 1;
-        while (i-- > 0)
-        { var /** !Array */ ctx = tagstack[i];
-          if ((ctx[TS_FLAGS] & (USERTAG|STASHCONTENT)) === USERTAG)
-          { ctx[TS_FLAGS] |= STASHCONTENT;
-            ctx[TS_PREFIX] += cfnprefix;
-          }
+    { if ((tagctx[TS_FLAGS] & (USERTAG|STASHCONTENT)) === USERTAG)
+      { tagctx[TS_FLAGS] |= STASHCONTENT;
+        obj += cfnprefix;
+      }
+      var /** number */ i = tagstack.length - 1;
+      while (i-- > 0)
+      { var /** !Array */ ctx = tagstack[i];
+        if ((ctx[TS_FLAGS] & (USERTAG|STASHCONTENT)) === USERTAG)
+        { ctx[TS_FLAGS] |= STASHCONTENT;
+          ctx[TS_PREFIX] += cfnprefix;
         }
       }
-      simplecontent = 0;
+    }
+    function /** void */ markhasbody()
+    { tagctx[TS_FLAGS] |= HASBODY;
+    }
+    function /** void */ bodyfromparent()
+    { tagctx[TS_FLAGS] |= tagstack[tagstack.length - 2][TS_FLAGS] & HASBODY;
+    }
+    function /** void */ parenthasbody()
+    { tagstack[tagstack.length - 1][TS_FLAGS] |= HASBODY;
     }
     for (;;)
     { var /** Array */ rm;
       let /** string */ ts = "";
       if (lasttoken >= rxmls.length)
       { if (RUNTIMEDEBUG || ASSERT)
-	{ tagctx = tagstack[tagstack.length - 1];
-	  if (tagctx)
-	  { let /** string */ shouldtag = tagctx[TS_TAG];
-            logcontext(shouldtag, "Missing close tag for " + shouldtag);
+	{ let /** string */ shouldtag = tagctx[TS_TAG];
+	  if (shouldtag)
+	  { logcontext(shouldtag, "Missing close tag for " + shouldtag);
 	    if (ASSERT)
 	    { rxmls += "</" + shouldtag + ">";	// Fix it and continue
 	      continue;
@@ -745,7 +748,9 @@ ntoken:
           if (rm = execy(commentrx, rxmls))
           { lasttoken = commentrx.lastIndex;
 	    if (!comment)
-	      obj += 'H.push(W=L("!"));W.push(' + JSON.stringify(rm[1]) + ");";
+	    { obj += 'H.push(W=L("!"));W.push(' + JSON.stringify(rm[1]) + ");";
+	      markhasbody();
+	    }
             break;
           }
           params.lastIndex = lasttoken;
@@ -849,6 +854,7 @@ ntoken:
                         if (ts = getparm("scope"))
                           obj += "," + ts;
                         obj += ");";
+	                markhasbody();
                       }
                       continue;
                     }
@@ -884,6 +890,7 @@ ntoken:
                        + JSON.stringify(flags) + ",";
                       xp = getparm("expr");
                       obj += (xp ? evalexpr(xp) : getparm("to")) + ");";
+		      bodyfromparent();
                       continue;
                     }
                     case "trim":
@@ -896,7 +903,8 @@ ntoken:
                       obj += letHprefix + "v=" + getparm("name") + ",J=W;";
                       continue;
                     case "for":
-                    { startcfn(); obj += "{I=0;let g,i,k,m,J=W,n=0;";
+                    { startcfn(); markhasbody();
+		      obj += "{I=0;let g,i,k,m,J=W,n=0;";
                       let /** string */ from = getparm("in");
                       if (from)
                       { obj += "g=G($," + simplify(from) +
@@ -938,18 +946,22 @@ ntoken:
 		    }
                     case "delimiter":
                       obj += "if(2>$._._recno){";
+		      bodyfromparent();
                       continue;
                     case "elif":
                       ts = "(!I&&";
                     case "if":
                       obj += "if" + ts + "(I=" + evalexpr(getparm("expr"))
                        + ")" + (ts ? ")" : "") + "{";
+		      bodyfromparent();
                       continue;
                     case "then":
                       obj += "if(I){";
+		      bodyfromparent();
                       continue;
                     case "else":
                       obj += "if(!I){";
+		      bodyfromparent();
                       continue;
                     case "nooutput":
                       nooutput++;
@@ -979,14 +991,13 @@ ntoken:
                 let /** number */ i = scriptend.lastIndex;
                 if (!comment && !nooutput)      // substract closing script tag
 		{ if (ts = rxmls.slice(lasttoken, i - 9))
-                    obj += "H.push(" + JSON.stringify(ts) + ");";
+                    obj += "H[0]=" + JSON.stringify(ts) + ";";
 		}
                 lasttoken = i;
                 close = 1;
               } else if (!comment)
 	      { obj += ";";
 		tagctx[TS_FLAGS] |= USERTAG;
-		//simplecontent = obj.length; // FIXME
 	      }
             } while(0);
           }
@@ -1018,36 +1029,36 @@ closelp:    for (;;)
 			  }
                           obj += "});v&&v()}";
                         case "insert":
+			  parenthasbody();
                         case "unset":
                           break;
                         case "replace":
                           obj += "M(J,R(H,v))}";
+			  parenthasbody();
                           break;
                         case "trim":
                           obj += "M(J,U(R(H)))}";
+			  parenthasbody();
                           break;
                         case "maketag":
                           obj += "J.push(H)}";
+			  parenthasbody();
                           break;
                         case "attrib":
                           obj += "V(H,v,J)}";
                           break;
                         case "for":
                           obj += "$=o;I=1}}";
+			  parenthasbody();
                           break;
                         case "if":case "then":case "elif":case "else":
                           obj += "I=1}";
                           break;
                         case "eval":
                           obj += "M(J,E(H,v,$))}";
+			  parenthasbody();
                           break;
                         default:
-                          if (simplecontent)
-			  { ts = obj.slice(simplecontent + THprefix.length,
-			                   -THpostfix.length);
-                            obj = obj.slice(0, simplecontent)
-			     + "H[0]=" + ts + ";";
-			  }
                           if (tagctx[TS_FLAGS] & STASHCONTENT)
 			    obj += "};";
 			case "script":
@@ -1055,8 +1066,9 @@ closelp:    for (;;)
                             obj += "X(J,H,$)";
                         case "delimiter":
                           obj += "}";
+			  parenthasbody();
                       }
-		      simplecontent = simpleset = 0;
+		      simpleset = 0;
                     }
                   }
 		case undefined:;
@@ -1071,6 +1083,7 @@ closelp:    for (;;)
 		}
 	      }
 	      obj = tagctx[TS_PREFIX] + obj;
+	      tagctx = tagstack[tagstack.length - 1];
 	      break;
             }
 	  }
@@ -1083,7 +1096,8 @@ closelp:    for (;;)
 	    { startcfn();
 	      obj += varent(rm) + varinsert;
 	    }
-	    simplecontent = simpleset = 0;
+	    simpleset = 0;
+	    markhasbody();
             break;
           }
 	  ts = "&";	    // No variable, fall back to normal text
@@ -1097,13 +1111,17 @@ closelp:    for (;;)
 	        ts = subws(ts);
 	    } else
 	      ts = subwnl(ts);		// Coalesce newlines by default
-	    switch (ts)
-	    { case "\n":
-                obj += "T(H);";
-		break;
-	      default:
-                obj += THprefix + JSON.stringify(ts) + THpostfix;
-	      case "":;
+	    if (ts) {
+	      ts = JSON.stringify(ts);
+	      if (!(tagctx[TS_FLAGS] & HASBODY))
+		obj += "H[0]=" + ts, markhasbody();
+	      else
+	      { obj += "T(H";
+		if (ts !== "\"\\n\"")
+		  obj += "," + ts;
+		obj += ")";
+	      }
+              obj += ";";
 	    }
 	  }
       }
