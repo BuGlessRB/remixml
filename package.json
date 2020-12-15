@@ -1,12 +1,12 @@
 {
   "name": "remixml",
-  "version": "2.11.7",
+  "version": "2.12.0",
   "description": "XML/HTML-like macro language/template compiler engine",
   "main": "remixml.min.js",
   "browser": "remixml.min.js",
   "homepage": "https://remixml.org/",
   "scripts": {
-    "test": "./runtest.sh",
+    "test": "./prepfiles && ./runtest.sh",
     "prepare": "./prepfiles"
   },
   "dependencies": {},

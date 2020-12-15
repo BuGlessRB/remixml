@@ -3,13 +3,15 @@
 dirs="$@"
 test -z "$dirs" && dirs="*"
 
+ok=0
+
 for dir in testsuite/$dirs
 do
   rm -f $dir/output.*
   node - <<HERE
 const fs = require("fs");
-//var rxml = require("./remixml.min.js");
-var rxml = require("./remixml.js");
+var rxml = require("./remixml.min.js");
+//var rxml = require("./remixml.js");
 
 var remixmlsrc = fs.readFileSync("$dir/input.remixml").toString();
 var data = fs.readFileSync("$dir/input.json").toString();
@@ -27,5 +29,8 @@ HERE
     echo Succeed: $dir
   else
     echo Failed: $dir
+    ok=1
   fi
 done
+
+exit $ok
