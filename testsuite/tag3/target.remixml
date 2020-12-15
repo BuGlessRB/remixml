@@ -1,0 +1,34 @@
+ <script>This
+     is pseudo javascript</script>
+
+prefix<h1>Heading</h1>
+XSome regular text
+<div>linkA</div> Some more text
+X
+Just a <div>linkA</div> in particular
+postfix
+
+pre<h1>Heading</h1>
+YSome regular text
+<div>linkA</div> Some more text
+Y
+Just a <div>linkA</div> in particular
+post
+<script>This extra
+     is pseudo javascript</script>
+
+prefix<h1>Article2</h1>
+XNew text
+<div>linkB</div> older text
+X
+Faint <div>linkB</div> where man
+postfix
+
+pre<h1>Article2</h1>
+YNew text
+<div>linkB</div> older text
+Y
+Faint <div>linkB</div> where man
+post
+<script>This extra
+     is pseudo javascript</script>
