@@ -1,0 +1,15 @@
+<html ->
+ <head ->
+  <title>&_.title;</title>
+ </head>
+ <body ->
+  <p>&_.text;</p>
+  <for in="_.projects" ->
+   <a href="&_._value.url;">&_._value.name;</a>
+   <p>&_._value.description;</p>
+  </for>
+  <else ->
+   No projects
+  </else>
+ </body>
+</html>

@@ -1,0 +1,13 @@
+<div ->
+ <h1 class='header'>&_.header:;</h1>
+ <h2 class='header2'>&_.header2:;</h2>
+ <h3 class='header3'>&_.header3:;</h3>
+ <h4 class='header4'>&_.header4:;</h4>
+ <h5 class='header5'>&_.header5:;</h5>
+ <h6 class='header6'>&_.header6:;</h6>
+ <ul class='list' ->
+  <for in="_.list" ->
+   <li class='item'>&_._value:;</li>
+  </for>
+ </ul>
+</div>
