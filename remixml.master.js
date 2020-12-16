@@ -1103,7 +1103,9 @@ closelp:    for (;;)
 	        ts = subws(ts);
 	    } else
 	      ts = subwnl(ts);		// Coalesce newlines by default
-	    if (ts) {
+	    if (ts && !(tagctx[TS_FLAGS] & TRIMWHITE
+                     && obj.slice(-2) !== "0}" // Not preceded by varentity?
+	             && ts.match(/^\s+$/))) {
 	      ts = JSON.stringify(ts);
 	      if (!(tagctx[TS_FLAGS] & HASBODY))
 		obj += "H[0]=" + ts, markhasbody();

@@ -1,24 +1,26 @@
-<div class="simple-1" style="background-color: blue; border: 1px solid black">
- <div class="colors">
-  <span class="hello">Hello &_.name:;! <strong>You have &_.messageCount:; messages!</strong></span>
-  <if expr="_.colors">
-   <ul>
-    <for in="_.colors">
-     <li class="color">&_._value:;</li>
+<div class="simple-1"
+  style="background-color: blue; border: 1px solid black" ->
+ <div class="colors" ->
+  <span class="hello" ->Hello &_.name:;!
+   <strong ->You have &_.messageCount:; messages!</strong></span>
+  <if expr="_.colors" ->
+   <ul ->
+    <for in="_.colors" ->
+     <li class="color" ->&_._value:;</li>
     </for>
    </ul>
   </if>
-  <else>
-   <div>
+  <else ->
+   <div ->
     No colors!
    </div>
   </else>
  </div>
- <if expr="_.primary">
+ <if expr="_.primary" ->
   <set var="_.tmp">primary</set>
  </if>
- <else>
+ <else ->
   <set var="_.tmp">secondary</set>
  </else>
- <button type="button" class="&_.tmp:;">Click me!</button>
+ <button type="button" class="&_.tmp:;" ->Click me!</button>
 </div>

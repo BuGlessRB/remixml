@@ -97,12 +97,18 @@ Remixml.parse('<h1>Title of &_.sitename; for &_.description;</h1>'
   Most formats are supported.  Unsupported formats will stay in the
   string unchanged.
 
+Note: all entity references evaluate safely.  If the entity contains
+undefined parts, the resulting substitution string will always be empty.
+
 Note: the entity reference must not contain spaces (the spaces shown
 above are there to clarify the format, they should not be used in a real
 entity reference).  The scope and variablename parts can be described
 using the following regular expression: `[_$a-zA-Z0-9]+`.
 
 ### Language tags
+
+All tags strip fully enclosed whitespace patches on the first level
+if a single `-` parameter is given.
 
 - `<set var="" variable="" expr="" regexp="" split="" join=""
     mkmapping="" selector="" json="" clone=""
@@ -353,25 +359,20 @@ Specified parameters:
   shortcut.  I.e. in Javascript `$._.foo` and `_.foo` will both refer
   to the same variable.
 
-Exposed API-list:
+Exposed API-list (in NodeJS and the browser):
 - `Remixml.remixml2js(remixmlsrc)`<br />
    Compile Remixml into remixml-javascript source.
 - `Remixml.js2obj(jssrc)`<br />
    Compile remixml-javascript source into object code.
    Running the object code with a `context` parameter
-   returns a DOM-abstract structure.
+   returns a DOM-abstract structure (AKA virtual DOM).
 - `Remixml.abstract2txt(abstract)`<br />
-  Converts a DOM-abstract into a Remixml-string.
-- `Remixml.abstract2dom(abstract)`<br />
-  Converts a DOM-abstract into DOM nodes.
+  Converts a DOM-abstract into an HTML/Remixml-string.
 - `Remixml.compile(remixmlsrc)`<br />
   Shorthand for `Remixml.js2obj(Remixml.remixml2js(remixmlsrc))`
-- `Remixml.parse(template, context)`<br />
-  `template` can either be direct remixml source, or a precompiled object
-  from `Remixml.compile`.  Returns DOM nodes.
 - `Remixml.parse2txt(template, context)`<br />
   `template` can either be direct remixml source, or a precompiled object
-  from `Remixml.compile`.  Returns an HTML string.
+  from `Remixml.compile`.  Returns an HTML/Remixml-string.
 - `Remixml.set_tag(callback, context, name, scope?, args?)`<br />
   Creates a tag definition in the given `context` just like
   `<set tag="name"></set>` would have done.
@@ -386,6 +387,13 @@ Exposed API-list:
 - `Remixml.set_log_callback(callback)`<br />
   If not set, it defaults to `console.log()`.  This callback function is used
   to log remixml runtime errors.
+
+Exposed API-list (browser only):
+- `Remixml.abstract2dom(abstract)`<br />
+  Converts a DOM-abstract into DOM nodes.
+- `Remixml.parse(template, context)`<br />
+  `template` can either be direct remixml source, or a precompiled object
+  from `Remixml.compile`.  Returns DOM nodes.
 
 #### Reserved object variables
 
