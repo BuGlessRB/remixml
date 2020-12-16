@@ -1117,18 +1117,10 @@ closelp:    for (;;)
 	      ts = subwnl(ts);		// Coalesce newlines by default
 	    if (ts && !(tagctx[TS_FLAGS] & TRIMWHITE
                      && obj.slice(-2) !== "0}" // Not preceded by varentity?
-	             && ts.match(/^\s+$/))) {
-	      ts = JSON.stringify(ts);
-	      if (!(tagctx[TS_FLAGS] & HASBODY))
-		obj += "H[0]=" + ts, markhasbody();
-	      else
-	      { obj += "T(H";
-		if (ts !== "\"\\n\"")
-		  obj += "," + ts;
-		obj += ")";
-	      }
-              obj += ";";
-	    }
+	             && ts.match(/^\s+$/)))
+              obj += tagctx[TS_FLAGS] & HASBODY
+	       ? ts === "\n" ? "T(H);" : "T(H," + JSON.stringify(ts) + ");"
+               : "H[0]=" + (markhasbody(), JSON.stringify(ts)) + ";";
 	  }
       }
     }
