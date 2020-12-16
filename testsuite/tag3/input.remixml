@@ -5,8 +5,9 @@
     <set tag="stext">X<eval>&_._contents:;</eval>X</set>
     prefix<eval>&_._contents:;</eval>postfix
     <set tag="stext">Y<eval>&_._contents:;</eval>Y</set>
+    <unset tag="link" />
     pre<eval>&_._contents:;</eval>post
-   <script>This extra
+    <script>This extra
      is pseudo javascript</script>
    </set>
   <article linkcontent="linkA"><h1>Heading</h1>

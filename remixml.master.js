@@ -933,21 +933,23 @@ ntoken:
                       continue;
                     }
                     case "eval":
-		      startcfn();
                       obj += letHprefix + "v="
 		       + (getparm("recurse") || 0) + ",J=W;";
                       continue;
                     case "unset":
-		    { let /** !Array|string */ av
-                       = simplify(getparm("var") || getparm("variable"), 1);
-		      startcfn();
-		      if (IA(av))
-		        obj += "delete " + av[0] + ";";
-		      else
-		        obj += 'eval("delete "+'
-		             + VP(/** @type{string}*/(av)) + ");";
+		      if (ts = getparm("tag"))
+		      { startcfn();
+			obj += "delete $._._tag[" + ts + "];";
+		      } else
+		      { let /** !Array|string */ av
+                         = simplify(getparm("var") || getparm("variable"), 1);
+		        if (IA(av))
+		          obj += "delete " + av[0] + ";";
+		        else
+		          obj += 'eval("delete "+'
+		               + VP(/** @type{string}*/(av)) + ");";
+		      }
                       continue;
-		    }
                     case "delimiter":
                       obj += "if(2>$._._recno){";
 		      bodyfromparent();

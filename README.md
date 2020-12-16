@@ -154,10 +154,12 @@ if a single `-` parameter is given.
      an object and spreads out the elements as individual attributes.
    - `scope`<br />
      Create a toplevel alias for the local scope in this tag definition.
-- `<unset var="" variable=""></unset>`<br />
+- `<unset var="" variable="" tag=""></unset>`<br />
    Attributes:
    - `var` or `variable`<br />
      Delete the named variable.
+   - `tag`<br />
+     Delete the named tag.
 - `<if expr="">...</if>`<br />
    Attributes:
    - `expr`<br />

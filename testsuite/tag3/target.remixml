@@ -10,9 +10,9 @@ postfix
 
 pre<h1>Heading</h1>
 YSome regular text
-<div>linkA</div> Some more text
+<link>a link</link> Some more text
 Y
-Just a <div>linkA</div> in particular
+Just a <link>to nowhere</link> in particular
 post
 <script>This extra
      is pseudo javascript</script>
@@ -26,9 +26,9 @@ postfix
 
 pre<h1>Article2</h1>
 YNew text
-<div>linkB</div> older text
+<link>killed link</link> older text
 Y
-Faint <div>linkB</div> where man
+Faint <link>no</link> where man
 post
 <script>This extra
      is pseudo javascript</script>
