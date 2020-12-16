@@ -6,6 +6,10 @@ The language and primitives used blend in completely with
 standard XML/HTML syntax and therefore integrate smoothly with
 existing XML/HTML syntax colouring editors.
 
+Compiling and processing XML, HTML and Remixml automatically performs
+sanity checks and shows clear and precise warnings about missing opening
+or closing tags.
+
 ## Requirements
 
 It runs inside any webbrowser (starting at IE11 and up) or NodeJS environment.
