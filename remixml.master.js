@@ -813,8 +813,7 @@ ntoken:
                 if (!noparse)
                 { switch (tag)
                   { case "set":
-                    { startcfn();
-		      obj += letHprefix;
+                    { obj += letHprefix;
                       let vname = getparm("var") || getparm("variable");
 		      simpleset = 0;
                       if (vname)
@@ -849,7 +848,8 @@ ntoken:
 		          simpleset = 0, obj += "A(H,$," + av;
 		        obj +=")};w=(function(){";
                       } else if (ts = getparm("tag"))
-                      { obj += "v=0;Q(" + ts
+		      { startcfn();
+                        obj += "v=0;Q(" + ts
                          + ",$,function(H,a,$){let o=$;$=C(a,$,{";
                         { let /** string */ args = getparm("args");
                           if (args && (args = args.replace(/[^-:\w,]/g, "")))
@@ -865,7 +865,6 @@ ntoken:
                     }
                     case "insert":
                     { let vname = getparm("var") || getparm("variable");
-		      startcfn();
                       if (vname)
                       { obj +=
 			 vareval(vname, getparm("quote"), getparm("format"));
@@ -908,7 +907,7 @@ ntoken:
                       obj += letHprefix + "v=" + getparm("name") + ",J=W;";
                       continue;
                     case "for":
-                    { startcfn(); markhasbody();
+                    { markhasbody();
 		      obj += "{I=0;let g,i,k,m,J=W,n=0;";
                       let /** string */ from = getparm("in");
                       if (from)
@@ -1098,9 +1097,7 @@ closelp:    for (;;)
 	  if (rm = execy(varentity, rxmls))
           { lasttoken = varentity.lastIndex;
             if (!comment && !nooutput)
-	    { startcfn();
 	      obj += varent(rm) + varinsert;
-	    }
 	    simpleset = 0;
 	    markhasbody();
             break;
