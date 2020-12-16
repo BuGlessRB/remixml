@@ -1,56 +1,38 @@
 <!doctype html>
-<html lang="en">
-<head>
+<html lang="en" ->
+<head ->
  <meta charset="UTF-8" />
  <title>Friends</title>
 </head>
-<body>
- <div class="friends">
-  <for in="_.friends">
-   <div class="friend">
-    <ul>
-     <li>Name: &_._value.getFullNameDust:;</li>
-     <li>
-      Balance: &_._value.balance:;
-     </li>
-     <li>
-      Age: &_._value.age:;
-     </li>
-     <li>
-      Address: &_._value.address:;
-     </li>
-     <li>
-      Image: <img src="&_._value.picture:;" />
-     </li>
-     <li>
-      Company: &_._value.company:;
-     </li>
-     <li>
-      Email: <a href="mailto:&_._value.email:;">&_._value.email:;</a>
-     </li>
-     <li>
-      About: &_._value.about:;
-     </li>
-     <if expr="_._value.tags">
-      <li>
+<body ->
+ <div class="friends" ->
+  <for in="_.friends" ->
+   <div class="friend" ->
+    <ul ->
+     <li>Name: &_._value.firstName:; &_._value.lastName:;</li>
+     <li>Balance: &_._value.balance:;</li>
+     <li>Age: &_._value.age:;</li>
+     <li>Address: &_._value.address:;</li>
+     <li>Image: <img src="&_._value.picture:;" /></li>
+     <li>Company: &_._value.company:;</li>
+     <li>Email: <a href="mailto:&_._value.email:;">&_._value.email:;</a></li>
+     <li>About: &_._value.about:;</li>
+     <if expr="_._value.tags" ->
+      <li ->
        Tags:
-       <ul>
-        <for in="_._value.tags">
-         <li>
-          &_._value:;
-         </li>
+       <ul ->
+        <for in="_._value.tags" ->
+         <li>&_._value:;</li>
         </for>
        </ul>
       </li>
      </if>
-     <if expr="_._value.friends">
-      <li>
+     <if expr="_._value.friends" ->
+      <li ->
        Friends:
-       <ul>
-        <for in="_._value.friends">
-         <li>
-          &_._value.name:; (&_._value.id:;)
-         </li>
+       <ul ->
+        <for in="_._value.friends" ->
+         <li>&_._value.name:; (&_._value.id:;)</li>
         </for>
        </ul>
       </li>
