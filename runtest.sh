@@ -30,8 +30,10 @@ var t1;
 do {
  t1 = new Date();
  var iters = totaliters *= 2;
- do abstract = macrofn(data);
- while (--iters);
+ do {
+   abstract = macrofn(data);
+   //rxml.abstract2txt(abstract);
+ } while (--iters);
  t2 = new Date();
 } while (t2 - t1 < $mspertest)
 var dt = (t2-t1)/totaliters;
