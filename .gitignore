@@ -19,3 +19,4 @@ node_modules
 *.min
 *.min.js
 testsuite/*/output.*
+testsuite.html

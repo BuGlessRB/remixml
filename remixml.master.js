@@ -687,7 +687,7 @@
     var /** number */ comment = 0;
     var /** number */ nooutput = 0;
     var /** number */ simpleset;      // Peephole optimiser plain string sets
-    var /** !Array */ tagctx = [0, {}, 0, ""];
+    var /** !Array */ tagctx = [0, {}, STASHCONTENT];
     var /** !Array */ tagstack = [tagctx];
     var /** number */ lasttoken = 0;
     function /** string */ getposition()
@@ -706,14 +706,6 @@
     { if ((tagctx[TS_FLAGS] & (USERTAG|STASHCONTENT)) === USERTAG)
       { tagctx[TS_FLAGS] |= STASHCONTENT;
         obj += cfnprefix;
-      }
-      var /** number */ i = tagstack.length - 1;
-      while (i-- > 0)
-      { var /** !Array */ ctx = tagstack[i];
-        if ((ctx[TS_FLAGS] & (USERTAG|STASHCONTENT)) === USERTAG)
-        { ctx[TS_FLAGS] |= STASHCONTENT;
-          ctx[TS_PREFIX] += cfnprefix;
-        }
       }
     }
     function /** void */ markhasbody()

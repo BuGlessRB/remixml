@@ -16,3 +16,4 @@ core.*
 node_modules
 *.tgz
 docs
+testsuite.html

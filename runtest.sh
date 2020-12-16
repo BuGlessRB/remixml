@@ -28,8 +28,38 @@ HERE
   then
     echo Succeed: $dir
   else
-    echo Failed: $dir
+    echo "************************** Failed: $dir"
     ok=1
+    ( cat <<\HERE
+<html>
+<head>
+ <script src="remixml.js"></script>
+ <script>
+  var rxml = Remixml;
+  var data = {"_":
+HERE
+     cat $dir/input.json
+     cat <<\HERE
+  };
+  var compfn = rxml.compile(`
+HERE
+     cat $dir/input.remixml
+     cat <<\HERE
+  `);
+  var abstract = compfn(data);
+  var html = rxml.abstract2txt(abstract);
+  var dom = rxml.abstract2dom(abstract);
+  console.log(html);
+  console.log(compfn);
+  console.log(dom);
+ </script>
+</head>
+<body>
+ Test me harder!
+</body>
+</html>
+HERE
+  ) >testsuite.html
   fi
 done
 
