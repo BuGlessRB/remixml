@@ -3,7 +3,7 @@
 dirs="$@"
 test -z "$dirs" && dirs="*"
 
-iters=1000
+mspertest=100
 
 ok=0
 
@@ -25,13 +25,17 @@ var macrofn = rxml.js2obj(jssrc);
 data = {"_":eval("("+data+")")};
 
 var abstract;
-var iters = $iters;
-var t1 = new Date();
-while (iters--)
-  abstract = macrofn(data);
-var t2 = new Date();
-var dt = (t2-t1)/$iters;
-console.log(dt);
+var totaliters = 0.5;
+var t1;
+do {
+ t1 = new Date();
+ var iters = totaliters *= 2;
+ do abstract = macrofn(data);
+ while (--iters);
+ t2 = new Date();
+} while (t2 - t1 < $mspertest)
+var dt = (t2-t1)/totaliters;
+console.log(Math.round(dt*1000)/1000);
 fs.writeFileSync("$dir/output.remixml", rxml.abstract2txt(abstract));
 HERE
   )"

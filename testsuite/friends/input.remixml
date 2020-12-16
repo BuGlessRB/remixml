@@ -9,33 +9,33 @@
   <for in="_.friends">
    <div class="friend">
     <ul>
-     <li>Name: &_.getFullNameDust:;</li>
+     <li>Name: &_._value.getFullNameDust:;</li>
      <li>
-      Balance: &_.balance:;
+      Balance: &_._value.balance:;
      </li>
      <li>
-      Age: &_.age:;
+      Age: &_._value.age:;
      </li>
      <li>
-      Address: &_.address:;
+      Address: &_._value.address:;
      </li>
      <li>
-      Image: <img src="&_.picture:;" />
+      Image: <img src="&_._value.picture:;" />
      </li>
      <li>
-      Company: &_.company:;
+      Company: &_._value.company:;
      </li>
      <li>
-      Email: <a href="mailto:&_.email:;">&_.email:;</a>
+      Email: <a href="mailto:&_._value.email:;">&_._value.email:;</a>
      </li>
      <li>
-      About: &_.about:;
+      About: &_._value.about:;
      </li>
-     <if expr="_.tags">
+     <if expr="_._value.tags">
       <li>
        Tags:
        <ul>
-        <for in="_.tags">
+        <for in="_._value.tags">
          <li>
           &_._value:;
          </li>
@@ -43,11 +43,11 @@
        </ul>
       </li>
      </if>
-     <if expr="_.friends">
+     <if expr="_._value.friends">
       <li>
        Friends:
        <ul>
-        <for in="_.friends">
+        <for in="_._value.friends">
          <li>
           &_._value.name:; (&_._value.id:;)
          </li>
