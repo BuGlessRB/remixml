@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8" />
+ <title>Friends</title>
+</head>
+<body>
+ <div class="friends">
+  <for in="_.friends">
+   <div class="friend">
+    <ul>
+     <li>Name: &_.getFullNameDust:;</li>
+     <li>
+      Balance: &_.balance:;
+     </li>
+     <li>
+      Age: &_.age:;
+     </li>
+     <li>
+      Address: &_.address:;
+     </li>
+     <li>
+      Image: <img src="&_.picture:;" />
+     </li>
+     <li>
+      Company: &_.company:;
+     </li>
+     <li>
+      Email: <a href="mailto:&_.email:;">&_.email:;</a>
+     </li>
+     <li>
+      About: &_.about:;
+     </li>
+     <if expr="_.tags">
+      <li>
+       Tags:
+       <ul>
+        <for in="_.tags">
+         <li>
+          &_._value:;
+         </li>
+        </for>
+       </ul>
+      </li>
+     </if>
+     <if expr="_.friends">
+      <li>
+       Friends:
+       <ul>
+        <for in="_.friends">
+         <li>
+          &_._value.name:; (&_._value.id:;)
+         </li>
+        </for>
+       </ul>
+      </li>
+     </if>
+    </ul>
+   </div>
+  </for>
+ </div>
+</body>
+</html>

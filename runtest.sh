@@ -40,6 +40,7 @@ HERE
   then
     echo "Succeed: $dir	  $result"
   else
+    echo "$result"
     echo "****************************************** Failed: $dir"
     ok=1
     ( cat <<\HERE

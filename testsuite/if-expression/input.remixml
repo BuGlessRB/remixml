@@ -1,0 +1,21 @@
+<for in="_.accounts" ->
+ <div ->
+  <if expr="_._value.status === 'closed'" ->
+   <div ->
+    Your account has been closed!
+   </div>
+  </if>
+  <elif expr="_._value.status === 'suspended'" ->
+   <div ->
+    Your account has been temporarily suspended
+   </div>
+  </elif>
+  <else ->
+   <div ->
+    Bank balance:
+    <set var="_.tmp" expr="_._value.balance < 0 ? 'negative' : 'positive'" />
+    <span class="&_.tmp:;" ->&_._value.balanceFormatted:;</span>
+   </div>
+  </else>
+ </div>
+</for>

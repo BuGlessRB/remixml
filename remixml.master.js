@@ -48,7 +48,8 @@
    /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
   const /** !RegExp */ varentity = regexpy(
          "([\\w$]+\\.[\\w$]+(?:[.[][\\w$]+]?)*)(?::([\\w$]*))?(?:%([^;]*))?;");
-  const /** !RegExp */ commentrx = regexpy("!--{0,2}(.*?)-->");
+  const /** !RegExp */ commentrx = regexpy("(--.*?--)>");
+  const /** !RegExp */ doctyperx = regexpy("(.*?)>");
   const /** !RegExp */ textrx = regexpy("[^&<]+");
   const /** !RegExp */ params
    = /\s*(?:([-\w:]+|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?|>)/g;
@@ -717,6 +718,20 @@
     function /** void */ parenthasbody()
     { tagstack[tagstack.length - 1][TS_FLAGS] |= HASBODY;
     }
+    function /** number */ getexclm(/** !RegExp */ regex)
+    { var /** Array */ rm;
+      regex.lastIndex = lasttoken;
+      if (rm = execy(regex, rxmls))
+      { lasttoken = regex.lastIndex;
+        if (!comment)
+        { obj += 'H.push(W=L("!"));W[0]='
+           + JSON.stringify(rm[1]) + ";";
+          markhasbody();
+        }
+	return 1;
+      }
+      return 0;
+    }
     for (;;)
     { var /** Array */ rm;
       let /** string */ ts = "";
@@ -736,14 +751,12 @@
 ntoken:
       switch (rxmls[lasttoken])
       { case "<":
-	  commentrx.lastIndex = ++lasttoken;
-          if (rm = execy(commentrx, rxmls))
-          { lasttoken = commentrx.lastIndex;
-	    if (!comment)
-	    { obj += 'H.push(W=L("!"));W.push(' + JSON.stringify(rm[1]) + ");";
-	      markhasbody();
-	    }
-            break;
+	  if (rxmls[++lasttoken] === "!")
+	  { if (rxmls.substr(++lasttoken, 2) === "--")
+	    { if (getexclm(commentrx))
+		break;
+            } else if (getexclm(doctyperx))
+              break;
           }
           params.lastIndex = lasttoken;
           let /** !Object */ gotparms = {};
@@ -1175,7 +1188,7 @@ closelp:    for (;;)
     var /** string|number */ name = vdom[""];
     switch (name)
     { case "!":
-        return "<!--" + vdom[0] + "-->";
+        return "<!" + vdom[0] + ">";
       case 1:
         name = parent = "";
         break;
