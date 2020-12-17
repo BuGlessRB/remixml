@@ -37,13 +37,21 @@
   const O = Object;
   const ie11 = D && W["MSInputMethodContext"] && D["documentMode"];
 
-  const /** !RegExp */ splc = /\s*,\s*/g;
   const /** Object */ diacr = {}; // Full list of diacrite stripdown aliases
-  const /** !Object */ elmcache = {};
+  const /** !Object */ eumapobj
+   = {"+":"%2B"," ":"+","?":"%3F","&":"%26","#":"%23"};
+  const /** !Object */ htmlmapobj = {"&":"&amp;","<":"&lt;"};
+  const /** !Object */ argmapobj = {"&":"&amp;","\"":"&dquot;"};
+  const /** !Object */ currencyobj
+   = {"EUR":"\u20AC", "USD":"$", "CNY":"\u00A5"};
+
   const /** string */ varinsert = "I=K($,H,x)}catch(x){I=0}";
   const /** string */ cfnprefix = "H._c=function(H,$){";
   const /** string */ letHprefix = "{let H=L(),";
   const /** string */ vfnprefix = "w,v=function(){w();";
+
+  const /** !RegExp */ splc = /\s*,\s*/g;
+  const /** !RegExp */ spsplsing = /\s*,\s*/;
   const /** !RegExp */ txtentity =
    /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
   const /** !RegExp */ varentity = regexpy(
@@ -55,6 +63,31 @@
    = /\s*(?:([-\w:]+|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?|>)/g;
   const /** !RegExp */ complexlabel = /[^\w]/;
   const /** !RegExp */ scriptend = /<\/script>/g;
+  const /** !RegExp */ gmtrx = /.+GMT([+-]\d+).+/;
+  const /** !RegExp */ tzrx = /.+\((.+?)\)$/;
+  const /** !RegExp */ nonasciirx = /[^\0-~]/g;
+  const /** !RegExp */ nonalphanumrx = /(?:&(?:[^&;\s]*;)?|[^&a-z0-9])+/g;
+  const /** !RegExp */ pathendingsrx = /^-+|[\u0300-\u036f]+|-+$/g;
+  const /** !RegExp */ noparenplusrx = /^"([^(+]+)"$/;
+  const /** !RegExp */ wordrx = /^[A-Za-z_][\w]*$/;
+  const /** !RegExp */ varentrx = 
+   /^([-+0]+)?([1-9][0-9]*)?(?:\.([0-9]+))?(t([^%]*%.+)|[a-zA-Z]|[A-Z]{3})?$/;
+  const /** !RegExp */ newlinerx = /\n/g;
+  const /** !RegExp */ nonewlinerx = /[^\n]*$/;
+  const /** !RegExp */ extractstrx = /([^=]+=).+(".*")/;
+  const /** !RegExp */ spacelinerx = /^\s+$/;
+  const /** !RegExp */ alphanumsrx = /%([A-Za-z%])/g;
+  const /** !RegExp */ spacesrx = /\s+/g;
+  const /** !RegExp */ spacesprx = /\s\s+/g;
+  const /** !RegExp */ ltrx = /</g;
+  const /** !RegExp */ uricrx = /[+ ?&#]/g;
+  const /** !RegExp */ htmlmaprx = /[&<]/g;
+  const /** !RegExp */ nonwordrx = /[^-:\w,]+/g;
+  const /** !RegExp */ escaperxrx = /([\\^$*+?.|()[{])/g;
+  const /** !RegExp */ ampquotrx = /[&"]/g;
+  const /** !RegExp */ dotbrackrx = /[.[\]]+/;
+  const /** !RegExp */ wnlrx =
+   /(\n)\s+|[ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+(?:(\n)\s*|([ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]))/g;
 
   var /** function(...) */ log = console.log;
 
@@ -62,13 +95,13 @@
   { return typeof s === "string"; }
 
   function /** string */ eumap(/** string */ s)
-  { return {"+":"%2B"," ":"+","?":"%3F","&":"%26","#":"%23"}[s]; }
+  { return eumapobj[s]; }
 
   function /** string */ htmlmap(/** string */ s)
-  { return {"&":"&amp;","<":"&lt;"}[s]; }
+  { return htmlmapobj[s]; }
 
   function /** string */ argmap(/** string */ s)
-  { return {"&":"&amp;","\"":"&dquot;"}[s]; }
+  { return argmapobj[s]; }
 
   function udate(t) { return t.valueOf() - t.getTimezoneOffset * 60000; }
 
@@ -105,7 +138,7 @@
       t.setDate(md - ((dy + 6) % 7) + 3);
       return t;
     }
-    return fmt.replace(/%([A-Za-z%])/g, function(a, p)
+    return fmt.replace(alphanumsrx, function(a, p)
     { switch(p)
       { case "a": return ifm();
         case "A": return ifm(undefined, "long");
@@ -145,8 +178,8 @@
         case "c": return d.toUTCString();
         case "x": return d.toLocaleDateString();
         case "X": return d.toLocaleTimeString();
-        case "z": return d.toTimeString().match(/.+GMT([+-]\d+).+/)[1];
-        case "Z": return d.toTimeString().match(/.+\((.+?)\)$/)[1];
+        case "z": return d.toTimeString().match(gmtrx)[1];
+        case "Z": return d.toTimeString().match(tzrx)[1];
       }
       return a;
     });
@@ -154,9 +187,9 @@
 
   function /** string */ encpath(/** string */ s)
   { return s.toLowerCase()
-        	.replace(/[^\0-~]/g, function(a) { return diacr[a] || a; })
-        	.replace(/(?:&(?:[^&;\s]*;)?|[^&a-z0-9])+/g, "-")
-        	.replace(/^-|[\u0300-\u036f]|-$/g, "");
+            .replace(nonasciirx, function(a) { return diacr[a] || a; })
+            .replace(nonalphanumrx, "-")
+            .replace(pathendingsrx, "");
   }
 
   function /** string */ sp(/** string */ j, /** string */ s)
@@ -190,9 +223,9 @@
      = /** @type {function(string=, Object=):string} */(k.toLocaleString)(lang,
         {"style":"currency", "currency":cur});
     if (t == k)
-      t = ({"EUR":"\u20AC", "USD":"$", "CNY":"\u00A5"}[cur] || cur)
+      t = (currencyobj[cur] || cur)
         + fmtf(k, lang, 2);
-    return t.replace(/\s+/g, '&nbsp;');
+    return t.replace(spacesrx, '&nbsp;');
   }
 
   function /** void */ logerr(/** * */ t,/** string */ x)
@@ -212,7 +245,7 @@
 
   function /** !Array|string */
    simplify(/** string */ expr,/** number= */ assign)
-  { var /** Array */ r = expr.match(/^"([^(+]+)"$/);
+  { var /** Array */ r = expr.match(noparenplusrx);
     if (r)
     { expr = VP(r[1]);
       return assign ? [ expr ] : "[" + expr + "]";
@@ -262,13 +295,11 @@
   };
   			// Replace runs of whitespace with a single space
   function /** string */ subws(/** string */ s)
-  { return s.replace(/\s\s+/g, " ");
+  { return s.replace(spacesprx, " ");
   }
   			// Replace runs of whitespace with a single space or nl
   function /** string */ subwnl(/** string */ s)
-  { return s.replace(
-     /(\n)\s+|[ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+(?:(\n)\s*|([ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]))/g,
-    "$1$2$3");
+  { return s.replace(wnlrx, "$1$2$3");
   }
   			// trim a single space from both ends
   U = function /** !Array */(/** !Array */ elm)
@@ -459,11 +490,11 @@
   };
 
   SP = function /** string */(/** string */ membr)
-  { return membr.match(/^[A-Za-z_][\w]*$/) ? "." + membr : '["' + membr + '"]';
+  { return membr.match(wordrx) ? "." + membr : '["' + membr + '"]';
   }
                           // Evaluate variable entity
   VP = function /** string */(/** string */ vpath)
-  { var /** !Array */ components = vpath.split(/[.[\]]+/);
+  { var /** !Array */ components = vpath.split(dotbrackrx);
     var /** string */ word;
     vpath = "$";
     for (word of components)
@@ -489,8 +520,7 @@
     } else if (- - /** @type {string|number} */(x) == x)
       /** @type {number} */(x) += "";
     if (fmt && !x[""])
-    { let /** Array<string> */ r = fmt.match(
-  /^([-+0]+)?([1-9][0-9]*)?(?:\.([0-9]+))?(t([^%]*%.+)|[a-zA-Z]|[A-Z]{3})?$/);
+    { let /** Array<string> */ r = fmt.match(varentrx);
       let p = r[3], lang = $["sys"] && $["sys"]["lang"] || undefined;
       switch (r[4])
       { case "c": x = String.fromCharCode(+x); break;
@@ -525,9 +555,9 @@
       }
     }
     switch (quot)
-    { case "json": x = JSON.stringify(x).replace(/</g,"\\\\u003c");
+    { case "json": x = JSON.stringify(x).replace(ltrx, "\\\\u003c");
         break;
-      case "uric": x = x.replace(/[+ ?&#]/g, eumap);
+      case "uric": x = x.replace(uricrx, eumap);
         break;
       case "path": x = encpath(/** @type{string} */(x));
         break;
@@ -535,7 +565,7 @@
         if (!x[""])
 	{ if (IA(x))
 	    x = x.join(", ");
-          x = x.replace(/[&<]/g, htmlmap);
+          x = x.replace(htmlmaprx, htmlmap);
 	}
       case "":case "none":case "r":case "recurse":;
     }
@@ -693,8 +723,8 @@
     var /** number */ lasttoken = 0;
     function /** string */ getposition()
     { var /** string */ str = rxmls.slice(0, lasttoken);
-      var /** number */ line = (str.match(/\n/g) || "").length + 1;
-      var /** number */ offset = str.match(/[^\n]*$/)[0].length + 1;
+      var /** number */ line = (str.match(newlinerx) || "").length + 1;
+      var /** number */ offset = str.match(nonewlinerx)[0].length + 1;
       return line + ":" + offset;
     }
     function /** void */ logcontext(/** string */ tag,/** string */ msg)
@@ -769,7 +799,7 @@ ntoken:
 	  { var /** string */ mapstring = getparm("mkmapping");
 	    if (mapstring)
 	    { let /** !Array */ maplist
-	       = mapstring.slice(1,-1).split(/\s*,\s*/);
+	       = mapstring.slice(1,-1).split(spsplsing);
 	      obj += init;
 	      while (mapstring = maplist.pop())
                 obj += vname + SP(mapstring) + '=k['
@@ -852,7 +882,7 @@ ntoken:
                         obj += "v=0;Q(" + ts
                          + ",$,function(H,a,$){let o=$;$=C(a,$,{";
                         { let /** string */ args = getparm("args");
-                          if (args && (args = args.replace(/[^-:\w,]/g, "")))
+                          if (args && (args = args.replace(nonwordrx, "")))
                             obj += '"' + args.replace(splc, '":1,"') + '":1';
                         }
                         obj += "}";
@@ -886,7 +916,7 @@ ntoken:
                     }
                     case "replace":
                     { let /** string */ xp = getparm("regexp") ||
-        	       getparm("from").replace(/([\\^$*+?.|()[{])/g, "\\$1");
+        	       getparm("from").replace(escaperxrx, "\\$1");
                       let /** string */ flags = getparm("flags");
                       if (flags === undefined)
                         flags = "g";
@@ -1026,7 +1056,7 @@ closelp:    for (;;)
 			  if (obj.slice(-1) !== "{")  // Non-empty function?
                           { if (simpleset)  // Simplify plain assignment
 			    { let /** Array<string> */ ar = obj.slice(simpleset)
-			                          .match(/([^=]+=).+(".*")/);
+			                          .match(extractstrx);
                               obj = obj.slice(0, simpleset
 				     - letHprefix.length - vfnprefix.length)
                                + ar[1] + ar[2] + ";";
@@ -1117,7 +1147,7 @@ closelp:    for (;;)
 	      ts = subwnl(ts);		// Coalesce newlines by default
 	    if (ts && !(tagctx[TS_FLAGS] & TRIMWHITE
                      && obj.slice(-2) !== "0}" // Not preceded by varentity?
-	             && ts.match(/^\s+$/)))
+	             && ts.match(spacelinerx)))
               obj += tagctx[TS_FLAGS] & HASBODY
 	       ? ts === "\n" ? "T(H);" : "T(H," + JSON.stringify(ts) + ");"
                : "H[0]=" + (markhasbody(), JSON.stringify(ts)) + ";";
@@ -1194,7 +1224,7 @@ closelp:    for (;;)
               { parent += " " + narg;
 		if (narg !== val)
 	          parent += '="'
-		   + (val.replace ? val.replace(/[&"]/g, argmap) : val) + '"';
+		   + (val.replace ? val.replace(ampquotrx, argmap) : val) + '"';
 	      }
             case "_":case undefined:;
           }
@@ -1263,6 +1293,7 @@ closelp:    for (;;)
     }
     
     const /** Node */ txta = newel("textarea");
+    const /** !Object */ elmcache = {};
     
      // For use in Javascript Remixml
     // Converts the abstract presentation into a live DOM Node structure

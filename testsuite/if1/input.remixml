@@ -2,4 +2,4 @@
 <for from="3" to="9" step="-2">
 <if expr="_._index > 6">&_._index;</if><else>N</else></for>
 <then>then</then><else>else</else>
-<set var="_.new" expr="+_.foobar + _.foo"></set>xx&_.new;yyy
+<set var="_.new" expr="+_.foobar + _.foo" />xx&_.new;yyy
