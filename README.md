@@ -14,9 +14,11 @@ or closing tags.
 
 It runs inside any webbrowser (starting at IE11 and up) or NodeJS environment.
 
-Minified and gzip-compressed it is less than 8KB of code.
+Minified and gzip-compressed it is less than 9 KB of code.
 
 It has zero dependencies on other modules.
+
+It optionally supports output to the incremental-dom.
 
 ## Basic usage
 
@@ -49,6 +51,21 @@ Remixml.parse('<h1>Title of &_.sitename; for &_.description;</h1>'
     whatever: 7
   }
  });
+```
+
+Or using the incremental-dom library:
+
+```js
+var IncrementalDOM = require("incremental-dom");
+
+Remixml.link_incrementaldom(IncrementalDOM);
+
+var rxfn = Remixml.compile("<body>Test</body>");
+var node = document.body;
+var data = {_:{abc:123} };
+var abstract = rxfn(data);
+
+Remixml.abstract2idom(node, abstract);
 ```
 
 ## Reference documentation
@@ -400,6 +417,11 @@ Exposed API-list (browser only):
 - `Remixml.parse(template, context)`<br />
   `template` can either be direct remixml source, or a precompiled object
   from `Remixml.compile`.  Returns DOM nodes.
+- `Remixml.abstract2idom(node, abstract)`<br />
+  Converts a DOM-abstract into the DOM `node` using the
+  incremental-dom library.
+- `Remixml.link_incrementaldom(idom)`<br />
+  `idom` is the incremental-dom library object to be linked to.
 
 #### Reserved object variables
 
@@ -414,5 +436,6 @@ Exposed API-list (browser only):
 - For historical reference:<br />
   Remixml was originally inspired by
 [RXML, the Roxen webserver macro language](http://docs.roxen.com/).
+- [incremental-dom](https://github.com/google/incremental-dom).
 
 Card-carrying member of the `zerodeps` movement.

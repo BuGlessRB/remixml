@@ -1,5 +1,5 @@
    /** @license
-   ** Remixml v2.13.1: XML/HTML-like macro language compiler
+   ** Remixml v3.0.0: XML/HTML-like macro language compiler
   ** Copyright (c) 2018-2020 by Stephen R. van den Berg <srb@cuci.nl>
  ** License: ISC OR GPL-3.0
 ** Sponsored by: Cubic Circle, The Netherlands
@@ -21,7 +21,7 @@
   // Cut BEGIN for externs
   // Cut BEGIN for prepend
   var VP,SP,CA,B,C,E,F,G,K,L,M,N,P,Q,R,S,T,U,V,X,Y,Z,
-   log,sizeof,desc,abstract2txt,abstract2dom;
+   log,sizeof,desc,abstract2txt,abstract2dom,abstract2idom;
   // Cut END for prepend
   var A,VE,IA;
   // Cut END for externs
@@ -70,7 +70,7 @@
   const /** !RegExp */ pathendingsrx = /^-+|[\u0300-\u036f]+|-+$/g;
   const /** !RegExp */ noparenplusrx = /^"([^(+]+)"$/;
   const /** !RegExp */ wordrx = /^[A-Za-z_][\w]*$/;
-  const /** !RegExp */ varentrx = 
+  const /** !RegExp */ varentrx =
    /^([-+0]+)?([1-9][0-9]*)?(?:\.([0-9]+))?(t([^%]*%.+)|[a-zA-Z]|[A-Z]{3})?$/;
   const /** !RegExp */ newlinerx = /\n/g;
   const /** !RegExp */ nonewlinerx = /[^\n]*$/;
@@ -1205,7 +1205,6 @@ closelp:    for (;;)
       break;
     }
     var /** string */ parent;
-    var /** number */ i = 0;
     var /** string|number */ name = vdom[""];
     switch (name)
     { case "!":
@@ -1233,6 +1232,7 @@ closelp:    for (;;)
         parent += ">";
     }
     var /** !Array|string */ child;
+    var /** number */ i = 0;
     while ((child = vdom[i++]) !== undefined)
       parent += child[""] ? Y(child) : child;
     if (name)
@@ -1291,21 +1291,20 @@ closelp:    for (;;)
   { function /** !Node */ newel(/** string */ n)
     { return D.createElement(n);
     }
-    
+
     const /** Node */ txta = newel("textarea");
     const /** !Object */ elmcache = {};
-    
+
      // For use in Javascript Remixml
     // Converts the abstract presentation into a live DOM Node structure
     abstract2dom = D && function /** !Node */(/** !Array */ vdom)
     { var /** !Node */ parent;
-      var /** number */ i = 0;
       var /** string|number */ name = /** @type{Object} */(vdom)[""];
       switch (name)
       { case "!":
           return D.createComment(vdom[0]);
         case 1:
-          name = 0; parent = D.createDocumentFragment();
+          parent = D.createDocumentFragment();
           break;
         default:
           if (!(parent = elmcache[name]))
@@ -1321,6 +1320,7 @@ closelp:    for (;;)
             }
       }
       var /** !Array|string */ child;
+      var /** number */ i = 0;
       while ((child = vdom[i++]) !== undefined)
         parent.appendChild(child[""] ? abstract2dom(child)
          : child.indexOf("&") < 0 ? D.createTextNode(child)
@@ -1328,7 +1328,42 @@ closelp:    for (;;)
       txta.textContent = "";    // Free memory
       return parent;
     }
-    
+
+    let /** !Object */ idom;
+
+    function /** void */ abstract2idom(/** !Array */ vdom)
+    { var /** string|number */ name = /** @type{Object} */(vdom)[""];
+      switch (name)
+      { case "!":
+          return; // incremental-dom does not support comment nodes
+        case 1:
+	  name = 0;
+          break;
+        default:
+	  idom["elementOpenStart"](/** @type{string} */(name)
+	                           /*, FIXME key */);
+	  let /** string */ narg;
+          for (narg of O.keys(vdom).splice(vdom.length))
+            switch (narg[0])
+            { default:
+                let /** string */ val = /** @type{Object} */(vdom)[narg];
+                if (val != null && !iso(val))
+                  idom["attr"](narg, val);
+              case "_":case undefined:;
+            }
+          idom["elementOpenEnd"]();
+      }
+      var /** number */ i = 0;
+      var /** !Array|string */ child;
+      while ((child = vdom[i++]) !== undefined)
+	if (child[""])
+	  abstract2idom(child);
+        else
+	  idom["text"](child);
+      if (name)
+        idom["elementClose"](name);
+    }
+
     if (!O.assign)
       O.defineProperty(O, "assign",
       { "value": function(d, s, i)
@@ -1342,7 +1377,7 @@ closelp:    for (;;)
           r[i] = [k[i], m[k[i]]];
         return r;
       };
-    
+
     if ("ab".substr(-1) != "b")
       (function(p) {
         let s = p.substr;
@@ -1354,6 +1389,14 @@ closelp:    for (;;)
     g["abstract2dom"] = function /** Node */(/** !Array */ tpl)
       { return abstract2dom(tpl);
       };
+    g["abstract2idom"]
+     = function /** void */(/** !Node */ node, /** !Array */ tpl)
+      { idom["patch"](node, abstract2idom, tpl);
+      };
+    g["link_incrementaldom"]
+     = function /** void */(/** !Object */ idomobj)
+      { idom = idomobj;
+      }
     g["parse"] = function
        /** Node */(/** string|!Array|(function(!Object):!Array) */ tpl,
                   /** !Object */ $)
