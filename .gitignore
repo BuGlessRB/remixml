@@ -20,3 +20,4 @@ node_modules
 *.min.js
 testsuite/*/output.*
 testsuite.html
+package-lock.json

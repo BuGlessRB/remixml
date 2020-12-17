@@ -56,8 +56,6 @@ Remixml.parse('<h1>Title of &_.sitename; for &_.description;</h1>'
 Or using the incremental-dom library:
 
 ```js
-var IncrementalDOM = require("incremental-dom");
-
 Remixml.link_incrementaldom(IncrementalDOM);
 
 var rxfn = Remixml.compile("<body>Test</body>");

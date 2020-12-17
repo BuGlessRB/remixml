@@ -17,3 +17,4 @@ node_modules
 *.tgz
 docs
 testsuite.html
+package-lock.json

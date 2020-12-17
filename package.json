@@ -10,14 +10,25 @@
     "prepare": "./prepfiles"
   },
   "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "incremental-dom": "*"
+  },
   "directories": {},
   "repository": {
-    "type": "git", "url": "git://github.com/BuGlessRB/remixml"
+    "type": "git",
+    "url": "git://github.com/BuGlessRB/remixml"
   },
   "keywords": [
-    "RXML", "XML", "HTML", "Roxen", "template", "macro", "language",
-    "compiler", "javascript", "zerodeps"
+    "RXML",
+    "XML",
+    "HTML",
+    "Roxen",
+    "template",
+    "macro",
+    "language",
+    "compiler",
+    "javascript",
+    "zerodeps"
   ],
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
