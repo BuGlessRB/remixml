@@ -252,7 +252,7 @@
     }
     return expr;
   }
-                          // appendChild with text (coalesce strings first)
+                           // appendChild with text (coalesce strings first)
   T = function /** string */(/** !Array */ H,/** string */ s)
   { let /** number */ last = H.length - 1;
     if (isstring(H[last]))
@@ -271,7 +271,7 @@
         T(H, s);
     }
   };
-                          // Evaluate recursively
+                           // Evaluate recursively
   E = function /** !Array */
    (/** !Array */ elm,/** string */ recurse,/** !Object */ $)
   { var /** number */ n = +(recurse || 0);
@@ -295,11 +295,11 @@
   function /** string */ subws(/** string */ s)
   { return s.replace(spacesprx, " ");
   }
-                          // Replace runs of whitespace with a single space or nl
+                       // Replace runs of whitespace with a single space or nl
   function /** string */ subwnl(/** string */ s)
   { return s.replace(wnlrx, "$1$2$3");
   }
-                          // trim a single space from both ends
+                           // trim a single space from both ends
   U = function /** !Array */(/** !Array */ elm)
   { var /** string */ s;
     if (isstring(s = elm[0]) && s[0] === " " && !(elm[0] = s.substr(1)))
@@ -310,7 +310,7 @@
       elm.splice(last, 1);
     return elm;
   };
-                          // Get substring slice
+                                  // Get substring slice
   F = function /** !Array|string */(/** !Array|string */ x,
    /** number|string */ offset,/** number|string= */ limit)
   { offset = +(offset || 0); limit = +limit;
@@ -318,7 +318,7 @@
      : limit > 0 ? x.slice(offset, offset + limit)
      : limit == 0 ? x.slice(offset) : "";
   };
-                          // Run filter fn() tree hierarchy
+                           // Run filter fn() tree hierarchy
   R = function /** !Array */
    (/** !Array */ parent,/** function((!Array|string)):(!Array|string)= */ fn)
   { var /** !Array|string */ val;
@@ -340,7 +340,7 @@
     }
     return parent;
   };
-                                         // Populate attributes on node
+                                          // Populate attributes on node
   S = function /** !Array */(/** !Object */ attr,/** string= */ tag)
   { var /** !Array */ r = L(tag);
     O.assign(r, attr);
@@ -349,14 +349,14 @@
       O.assign(r, attr);
     return r;
   };
-                                 // New node
+                                  // New node
   L = function /** !Array */(
           /** function(!Array,!Array,!Object):void|string= */ nodename)
   { var /** !Array */ r = [];
     /** @type{Object} */(r)[""] = nodename || 1;
     return r;
   };
-                          // Init new context
+                           // Init new context
   N = function /** !Array */(/** !Object */ $)
   { var /** !Object */ _ = $["_"];
     if (!_)
@@ -408,15 +408,15 @@
       n$[scope] = _;
     return n$;
   };
-                             // Process attrib value
+                            // Process attrib value
   V = function /** void */(/** !Array */ H,/** string */ n,/** !Object */ _)
   { if (_[n] === undefined)
       _[n] = H.length === 1 && !H[0][""] ? H[0] : !H.length ? "" : H;
   };
-                        // Execute remixml macro (if any)
-                       // J: Element to append to
-                      // H: Container content
-                     // $: Variable context
+                       // Execute remixml macro (if any)
+                      // J: Element to append to
+                     // H: Container content
+                    // $: Variable context
   X = function /** void */(/** !Array */ J,/** !Array */ H,/** !Object */ $)
   { var /** function(!Array,!Array,!Object):void */ fn
      = $["_"]["_tag"][/** @type{Object} */(H)[""]];
@@ -1307,7 +1307,10 @@ closelp:    for (;;)
     { var /** string|number */ name = /** @type{Object} */(vdom)[""];
       switch (name)
       { case "!":
-          return; // incremental-dom does not support comment nodes
+	  let /** !Node */ node = idom["text"]("!");
+	  // Kludge, because incremental-dom does not support comment nodes
+	  node.parentNode.replaceChild(D.createComment(vdom[0]), node);
+          return;
         case 1:
           name = 0;
           break;
