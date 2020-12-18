@@ -21,7 +21,7 @@
   // Cut BEGIN for externs
   // Cut BEGIN for prepend
   var VP,SP,CA,B,C,E,F,G,K,L,M,N,P,Q,R,S,T,U,V,X,Y,Z,
-   log,sizeof,desc,abstract2txt,abstract2dom,abstract2idom;
+   log,sizeof,desc,abstract2txt,abstract2dom;
   // Cut END for prepend
   var A,VE,IA;
   // Cut END for externs
