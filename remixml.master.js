@@ -256,9 +256,8 @@
   T = function /** string */(/** !Array */ H,/** string */ s)
   { let /** number */ last = H.length - 1;
     if (isstring(H[last]))
-    { if (s !== "\n" || H[last].slice(-1) !== s)
-        H[last] += s;
-    } else
+      H[last] += s;
+    else
       H.push(s);
   };
                           // appendChild (merge into)
@@ -490,7 +489,7 @@
   SP = function /** string */(/** string */ membr)
   { return membr.match(wordrx) ? "." + membr : '["' + membr + '"]';
   }
-                          // Evaluate variable entity
+                               // Canonicalise variable path
   VP = function /** string */(/** string */ vpath)
   { var /** !Array */ components = vpath.split(dotbrackrx);
     var /** string */ word;
@@ -499,7 +498,7 @@
       vpath += SP(word);
     return vpath;
   }
-                          // Evaluate variable entity
+                      // Evaluate variable entity
   Z = function /** * */(/** !Object */ $,/** string|!Array */ vname,
    /** string= */ quot,/** string= */ fmt)
   { var /** * */ x = IA(vname) ? vname[0] : VE($, vname);
@@ -1307,8 +1306,8 @@ closelp:    for (;;)
     { var /** string|number */ name = /** @type{Object} */(vdom)[""];
       switch (name)
       { case "!":
-	  let /** !Node */ node = idom["text"]("!");
 	  // Kludge, because incremental-dom does not support comment nodes
+	  let /** !Node */ node = idom["text"](name);
 	  node.parentNode.replaceChild(D.createComment(vdom[0]), node);
           return;
         case 1:

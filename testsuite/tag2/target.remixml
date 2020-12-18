@@ -1,5 +1,7 @@
  
 
+
+
 prefix<h1>Heading</h1>
 XSome regular text
 <div>linkA</div> Some more text
@@ -7,9 +9,13 @@ X
 Just a <div>linkA</div> in particular
 postfix
 
+
+
+
 prefix<h1>Article2</h1>
 XNew text
 <div>linkB</div> older text
 X
 Faint <div>linkB</div> where man
 postfix
+
