@@ -700,6 +700,7 @@
   const /** number */ TRIMWHITE = 1;
   const /** number */ USERTAG = 2;
   const /** number */ STASHCONTENT = 4;
+  const /** number */ HASBODY = 8;
 
   const /** number */ KILLWHITE = 1;
   const /** number */ PRESERVEWHITE = 2;
@@ -735,14 +736,24 @@
         obj += cfnprefix;
       }
     }
+    function /** void */ markhasbody()
+    { tagctx[TS_FLAGS] |= HASBODY;
+    }
+    function /** void */ bodyfromparent()
+    { tagctx[TS_FLAGS] |= tagstack[tagstack.length - 2][TS_FLAGS] & HASBODY;
+    }
+    function /** void */ parenthasbody()
+    { tagstack[tagstack.length - 1][TS_FLAGS] |= HASBODY;
+    }
     function /** number */ getexclm(/** !RegExp */ regex)
     { var /** Array */ rm;
       regex.lastIndex = lasttoken;
       if (rm = execy(regex, rxmls))
       { lasttoken = regex.lastIndex;
         if (!comment)
-        { obj += 'H.push(W=L("!"));T(W,'
-           + JSON.stringify(rm[1]) + ");";
+        { obj += 'H.push(W=L("!"));W[0]='
+           + JSON.stringify(rm[1]) + ";";
+          markhasbody();
         }
         return 1;
       }
@@ -875,6 +886,7 @@ ntoken:
                         if (ts = getparm("scope"))
                           obj += "," + ts;
                         obj += ");";
+                        markhasbody();
                       }
                       continue;
                     }
@@ -909,6 +921,7 @@ ntoken:
                        + JSON.stringify(flags) + ",";
                       xp = getparm("expr");
                       obj += (xp ? evalexpr(xp) : getparm("to")) + ");";
+                      bodyfromparent();
                       continue;
                     }
                     case "trim":
@@ -921,7 +934,8 @@ ntoken:
                       obj += letHprefix + "v=" + getparm("name") + ",J=W;";
                       continue;
                     case "for":
-                    { obj += "{I=0;let g,i,k,m,J=W,n=0;";
+                    { markhasbody();
+                      obj += "{I=0;let g,i,k,m,J=W,n=0;";
                       let /** string */ from = getparm("in");
                       if (from)
                       { obj += "g=G($," + simplify(from) +
@@ -965,18 +979,22 @@ ntoken:
                       continue;
                     case "delimiter":
                       obj += "if(2>$._._recno){";
+                      bodyfromparent();
                       continue;
                     case "elif":
                       ts = "(!I&&";
                     case "if":
                       obj += "if" + ts + "(I=" + evalexpr(getparm("expr"))
                        + ")" + (ts ? ")" : "") + "{";
+                      bodyfromparent();
                       continue;
                     case "then":
                       obj += "if(I){";
+                      bodyfromparent();
                       continue;
                     case "else":
                       obj += "if(!I){";
+                      bodyfromparent();
                       continue;
                     case "nooutput":
                       nooutput++;
@@ -1006,7 +1024,7 @@ ntoken:
                 let /** number */ i = scriptend.lastIndex;
                 if (!comment && !nooutput)      // substract closing script tag
                 { if (ts = rxmls.slice(lasttoken, i - 9))
-                    obj += "T(H," + JSON.stringify(ts) + ");";
+                    obj += "H[0]=" + JSON.stringify(ts) + ";";
                 }
                 lasttoken = i;
                 close = 1;
@@ -1044,28 +1062,34 @@ closelp:    for (;;)
                           }
                           obj += "});v&&v()}";
                         case "insert":
+                          parenthasbody();
                         case "unset":
                           break;
                         case "replace":
                           obj += "M(J,R(H,v))}";
+                          parenthasbody();
                           break;
                         case "trim":
                           obj += "M(J,U(R(H)))}";
+                          parenthasbody();
                           break;
                         case "maketag":
                           obj += "J.push(H)}";
+                          parenthasbody();
                           break;
                         case "attrib":
                           obj += "V(H,v,J)}";
                           break;
                         case "for":
                           obj += "$=o;I=1}}";
+                          parenthasbody();
                           break;
                         case "if":case "then":case "elif":case "else":
                           obj += "I=1}";
                           break;
                         case "eval":
                           obj += "M(J,E(H,v,$))}";
+                          parenthasbody();
                           break;
                         default:
                           if (tagctx[TS_FLAGS] & STASHCONTENT)
@@ -1075,6 +1099,7 @@ closelp:    for (;;)
                             obj += "X(J,H,$)";
                         case "delimiter":
                           obj += "}";
+                          parenthasbody();
                       }
                       simpleset = 0;
                     }
@@ -1103,6 +1128,7 @@ closelp:    for (;;)
             if (!comment && !nooutput)
               obj += varent(rm) + varinsert;
             simpleset = 0;
+            markhasbody();
             break;
           }
           ts = "&";	    // No variable, fall back to normal text
@@ -1120,7 +1146,9 @@ closelp:    for (;;)
                      && obj.slice(-2) !== "0}" // Not preceded by varentity?
                      && ts.match(spacelinerx)))
 	    { ts = JSON.stringify(ts);
-              obj += "T(H," + ts + ");";
+              obj += tagctx[TS_FLAGS] & HASBODY
+               ? "T(H," + ts + ");"
+               : "H[0]=" + (markhasbody(), ts) + ";";
 	    }
           }
       }
