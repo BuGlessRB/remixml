@@ -253,10 +253,8 @@
     return expr;
   }
                           // appendChild with text (coalesce strings first)
-  T = function /** string */(/** !Array */ H,/** string= */ s)
-  { if (!s)
-      s = "\n";
-    let /** number */ last = H.length - 1;
+  T = function /** string */(/** !Array */ H,/** string */ s)
+  { let /** number */ last = H.length - 1;
     if (isstring(H[last]))
     { if (s !== "\n" || H[last].slice(-1) !== s)
         H[last] += s;
@@ -1148,9 +1146,11 @@ closelp:    for (;;)
             if (ts && !(tagctx[TS_FLAGS] & TRIMWHITE
                      && obj.slice(-2) !== "0}" // Not preceded by varentity?
                      && ts.match(spacelinerx)))
-              obj += tagctx[TS_FLAGS] & HASBODY
-               ? ts === "\n" ? "T(H);" : "T(H," + JSON.stringify(ts) + ");"
-               : "H[0]=" + (markhasbody(), JSON.stringify(ts)) + ";";
+	    { ts = JSON.stringify(ts);
+              obj += 1 || tagctx[TS_FLAGS] & HASBODY
+               ? "T(H," + ts + ");"
+               : "H[0]=" + (markhasbody(), ts) + ";";
+	    }
           }
       }
     }
