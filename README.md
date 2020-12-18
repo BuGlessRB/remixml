@@ -379,9 +379,14 @@ Specified parameters:
   as `$._` and that can always be referenced using a direct `_`
   shortcut.  I.e. in Javascript `$._.foo` and `_.foo` will both refer
   to the same variable.
+- `flags` is a bitmask with:
+   - 1: kill all whitespace.
+   - 2: preserve all whitespace.
+   If neither bits are present, it defaults to collapsing whitespace
+   around newlines to a single newline.
 
 Exposed API-list (in NodeJS and the browser):
-- `Remixml.remixml2js(remixmlsrc)`<br />
+- `Remixml.remixml2js(remixmlsrc, flags=)`<br />
    Compile Remixml into remixml-javascript source.
 - `Remixml.js2obj(jssrc)`<br />
    Compile remixml-javascript source into object code.
@@ -391,7 +396,7 @@ Exposed API-list (in NodeJS and the browser):
   Converts a DOM-abstract into an HTML/Remixml-string.
 - `Remixml.compile(remixmlsrc)`<br />
   Shorthand for `Remixml.js2obj(Remixml.remixml2js(remixmlsrc))`
-- `Remixml.parse2txt(template, context)`<br />
+- `Remixml.parse2txt(template, context, flags=)`<br />
   `template` can either be direct remixml source, or a precompiled object
   from `Remixml.compile`.  Returns an HTML/Remixml-string.
 - `Remixml.set_tag(callback, context, name, scope?, args?)`<br />
@@ -412,7 +417,7 @@ Exposed API-list (in NodeJS and the browser):
 Exposed API-list (browser only):
 - `Remixml.abstract2dom(abstract)`<br />
   Converts a DOM-abstract into DOM nodes.
-- `Remixml.parse(template, context)`<br />
+- `Remixml.parse(template, context, flags=)`<br />
   `template` can either be direct remixml source, or a precompiled object
   from `Remixml.compile`.  Returns DOM nodes.
 - `Remixml.abstract2idom(node, abstract)`<br />

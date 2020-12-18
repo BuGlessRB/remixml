@@ -1253,20 +1253,23 @@ closelp:    for (;;)
   }
 
   var g =
-  { "remixml2js": function /** string */(/** string */ remixml)
-      { return remixml2js(remixml);
+  { "remixml2js":
+      function /** string */(/** string */ remixml, /** number= */ flags)
+      { return remixml2js(remixml, flags);
       },
     "js2obj": function /** function(!Object):!Array */(/** string */ jssrc)
       { return js2obj(jssrc);
       },
-    "compile": function /** function(!Object):!Array */(/** string */ remixml)
-      { return js2obj(remixml2js(remixml));
+    "compile":
+      function /** function(!Object):!Array */(/** string */ remixml,
+	                                       /** number= */ flags)
+      { return js2obj(remixml2js(remixml, flags));
       },
     "parse2txt": function
        /** string */(/** string|(function(!Object):!Array) */ tpl,
-                    /** !Object */ $)
+                    /** !Object */ $,/** number= */ flags)
       { if (isstring(tpl))
-          tpl = js2obj(remixml2js(/** @type{string} */(tpl)));
+          tpl = js2obj(remixml2js(/** @type{string} */(tpl), flags));
         return Y(/** @type{function(!Object):!Array} */(tpl)($));
       },
     "abstract2txt": function /** string */(/** !Array */ tpl)
@@ -1401,9 +1404,9 @@ closelp:    for (;;)
       }
     g["parse"] = function
        /** Node */(/** string|!Array|(function(!Object):!Array) */ tpl,
-                  /** !Object */ $)
+                  /** !Object */ $,/** number= */ flags)
       { if (isstring(tpl))
-          tpl = js2obj(remixml2js(/** @type{string} */(tpl)));
+          tpl = js2obj(remixml2js(/** @type{string} */(tpl), flags));
         return abstract2dom(IA(tpl)
          ? tpl : /** @type{function(!Object):!Array} */(tpl)($));
       };
