@@ -15,8 +15,8 @@ const fs = require("fs");
 var rxml = require("./remixml.min.js");
 //var rxml = require("./remixml.js");
 
-var remixmlsrc = fs.readFileSync("$dir/input.remixml").toString();
-var data = fs.readFileSync("$dir/input.json").toString();
+var remixmlsrc = fs.readFileSync("$dir/template.remixml").toString();
+var data = fs.readFileSync("$dir/data.json").toString();
 
 var jssrc = rxml.remixml2js(remixmlsrc);
 fs.writeFileSync("$dir/output.min.js", jssrc);
@@ -57,12 +57,12 @@ HERE
   var rxml = Remixml;
   var data = {"_":
 HERE
-     cat $dir/input.json
+     cat $dir/data.json
      cat <<\HERE
   };
   var compfn = rxml.compile(`
 HERE
-     cat $dir/input.remixml
+     cat $dir/template.remixml
      cat <<\HERE
   `);
   var abstract = compfn(data);
