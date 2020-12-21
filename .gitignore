@@ -21,3 +21,4 @@ node_modules
 testsuite/*/output.*
 testsuite.html
 package-lock.json
+benchmark/engines.js

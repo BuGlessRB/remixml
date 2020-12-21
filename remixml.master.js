@@ -1,6 +1,6 @@
    /** @license
-   ** Remixml v3.0.0: XML/HTML-like macro language compiler
-  ** Copyright (c) 2018-2020 by Stephen R. van den Berg <srb@cuci.nl>
+   ** Remixml v3.0.2: XML/HTML-like macro language compiler
+  ** Copyright (c) 2018-2021 by Stephen R. van den Berg <srb@cuci.nl>
  ** License: ISC OR GPL-3.0
 ** Sponsored by: Cubic Circle, The Netherlands
 */
@@ -391,7 +391,7 @@
             for (vname in this)
               switch (vname[0])
               { default:
-                  if (!args[vname])
+                  if (!(vname >= 0 || args[vname]))
                     rest[vname] = this[vname];
                 case "_":case undefined:;
               }
