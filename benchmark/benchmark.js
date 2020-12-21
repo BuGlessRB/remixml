@@ -488,3 +488,20 @@ window['app'] = function (selector) {
   runTest(function () {
   })
 };
+
+var oldrequire = window["require"];	// pug kludge
+
+window["require"] = function (module) {
+  switch (module) {
+    case "art": return template;
+    case "remixml": return Remixml;
+    case "dot": return doT;
+    case "hbs": return Handlebars;
+    case "eta": return Eta;
+    case "squirrelly": return Sqrl;
+    case "mustache": return Mustache;
+    case "pug": return oldrequire("pug");
+    case "lodash": return _;
+  }
+  return window[module];
+}
