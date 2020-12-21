@@ -500,7 +500,9 @@ window["require"] = function (module) {
     case "eta": return Eta;
     case "squirrelly": return Sqrl;
     case "mustache": return Mustache;
+    case "dustjs-linkedin": return dust;
     case "pug": return oldrequire("pug");
+    case "lodash.template": return _.template;
     case "lodash": return _;
   }
   return window[module];

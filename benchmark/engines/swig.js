@@ -8,8 +8,11 @@ module.exports = {
         callback(null, output);
     },
     load: function(src, templatePath, templateName, callback) {
-        var template = swig.compileFile(templatePath);
-        callback(null, template);
+        var precompiled = swig.compile(src, {
+            filename: templatePath,
+            locals: {}
+        });
+        callback(null, precompiled);
     },
     compile: function(src, templatePath, templateName, callback) {
         var precompiled = swig.precompile(src, {
