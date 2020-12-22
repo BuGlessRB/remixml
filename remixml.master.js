@@ -745,7 +745,8 @@
     { tagctx[TS_FLAGS] |= tagstack[tagstack.length - 2][TS_FLAGS] & HASBODY;
     }
     function /** void */ parenthasbody()
-    { tagstack[tagstack.length - 1][TS_FLAGS] |= HASBODY;
+    { if (tagstack.length)
+        tagstack[tagstack.length - 1][TS_FLAGS] |= HASBODY;
     }
     function /** number */ getexclm(/** !RegExp */ regex)
     { var /** Array */ rm;
