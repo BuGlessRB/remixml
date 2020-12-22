@@ -1,13 +1,32 @@
-var minruntime = 100;     // in ms
-var maxruntime = 2000;    // in ms
+var minruntime = 1000;     // in ms
+var maxruntime = 5000;    // in ms
 
 var plotdata = [];
-plotdata.columns = ["Test"];
-plotdata.y = "Ops/s";
 
 var engine;
-for (engine of engines)
-  plotdata.columns.push(engine.name);
+var engmap = {};
+var i = 0;
+for (engine of engines) {
+  plotdata.push([engine.name]);
+  engmap[engine.name] = i++;
+}
+
+var chart = c3.generate({
+    bindto: "#graph1",
+    data: {
+        columns: [
+            //['data1', 30, 200, 100, 400, 150, 250],
+        ],
+        type: 'bar'
+    },
+    bar: {
+        width: {
+            ratio: 0.5 // this makes bar width 50% of length between ticks
+        }
+        // or
+        //width: 100 // this makes bar width 100px
+    }
+});
 
 async function runtest(testfun) {
   var curiters = 1;
@@ -35,10 +54,9 @@ async function mainfun() {
   for (testname in testsuite) {
     var thistest = testsuite[testname];
     var engine;
-    var plotrow = {"Test":testname};
-    plotdata.push(plotrow);
     for (engine of engines) {
       var templ = thistest[engine.name];
+      var timeresult = 0;
       if (templ) {
         console.log("DOING " + testname + " " + engine.name);
         async function macro2fn() {
@@ -55,48 +73,29 @@ async function mainfun() {
   	    });
   	  });
         }
-        var timeresult = await runtest(async function () {
+        timeresult = await runtest(async function () {
 	  var fn = await macro2fn();
 	  var txt = await run2txt(fn);
         });
-	plotrow[engine.name] = timeresult;
 	console.log(timeresult);
       }
+      plotdata[engmap[engine.name]].push(timeresult); 
     }
+    /*
+    chart.unload({
+      ids: Object.keys(engmap)
+    });
+    chart.load({
+       columns: plotdata
+    });
+    */
   }
 }
 
 mainfun();
 
-
-var width = 500;
-var height = 400;
-var DOM = document.getElementById("tag1");
-  const svg = d3.select(DOM.svg(width, height));
-
-  svg.append("g")
-    .selectAll("g")
-    .data(plotdata)
-    .join("g")
-      .attr("transform", d => `translate(${x0(d[groupKey])},0)`)
-    .selectAll("rect")
-    .data(d => keys.map(key => ({key, value: d[key]})))
-    .join("rect")
-      .attr("x", d => x1(d.key))
-      .attr("y", d => y(d.value))
-      .attr("width", x1.bandwidth())
-      .attr("height", d => y(0) - y(d.value))
-      .attr("fill", d => color(d.key));
-
-/*
-  svg.append("g")
-      .call(xAxis);
-
-  svg.append("g")
-      .call(yAxis);
-
-  svg.append("g")
-      .call(legend);
-*/
-  var t = svg.node();
-
+setTimeout(function() {
+    chart.load({
+       columns: plotdata
+    });
+}, 5000);
