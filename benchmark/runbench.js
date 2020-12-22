@@ -1,6 +1,14 @@
 var minruntime = 100;     // in ms
 var maxruntime = 2000;    // in ms
 
+var plotdata = [];
+plotdata.columns = ["Test"];
+plotdata.y = "Ops/s";
+
+var engine;
+for (engine of engines)
+  plotdata.columns.push(engine.name);
+
 async function runtest(testfun) {
   var curiters = 1;
   var mintime = Infinity;
@@ -27,6 +35,8 @@ async function mainfun() {
   for (testname in testsuite) {
     var thistest = testsuite[testname];
     var engine;
+    var plotrow = {"Test":testname};
+    plotdata.push(plotrow);
     for (engine of engines) {
       var templ = thistest[engine.name];
       if (templ) {
@@ -49,6 +59,7 @@ async function mainfun() {
 	  var fn = await macro2fn();
 	  var txt = await run2txt(fn);
         });
+	plotrow[engine.name] = timeresult;
 	console.log(timeresult);
       }
     }
@@ -56,3 +67,36 @@ async function mainfun() {
 }
 
 mainfun();
+
+
+var width = 500;
+var height = 400;
+var DOM = document.getElementById("tag1");
+  const svg = d3.select(DOM.svg(width, height));
+
+  svg.append("g")
+    .selectAll("g")
+    .data(plotdata)
+    .join("g")
+      .attr("transform", d => `translate(${x0(d[groupKey])},0)`)
+    .selectAll("rect")
+    .data(d => keys.map(key => ({key, value: d[key]})))
+    .join("rect")
+      .attr("x", d => x1(d.key))
+      .attr("y", d => y(d.value))
+      .attr("width", x1.bandwidth())
+      .attr("height", d => y(0) - y(d.value))
+      .attr("fill", d => color(d.key));
+
+/*
+  svg.append("g")
+      .call(xAxis);
+
+  svg.append("g")
+      .call(yAxis);
+
+  svg.append("g")
+      .call(legend);
+*/
+  var t = svg.node();
+

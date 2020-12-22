@@ -502,6 +502,7 @@
   Z = function /** * */(/** !Object */ $,/** string|!Array */ vname,
    /** string= */ quot,/** string= */ fmt)
   { var /** * */ x = IA(vname) ? vname[0] : VE($, vname);
+    var iscurrency;
     if (x == null)
       x = "";
     if (typeof x === "function")
@@ -541,7 +542,8 @@
         default:
           x = r[4][0] === "t"
               ? strftime(r[5], /** @type {string} */(x), lang)
-              : /[A-Z]{3}/.test(r[4]) ? fmtcur(+x, lang, r[4]) : x;
+              : /[A-Z]{3}/.test(r[4])
+	        ? (iscurrency = fmtcur(+x, lang, r[4])) : x;
       }
       if (r[1])
       { if (r[1].indexOf("0") >= 0 && (p = +r[2]))
@@ -559,7 +561,7 @@
       case "path": x = encpath(/** @type{string} */(x));
         break;
       default:
-        if (!x[""])
+        if (!x[""] && !iscurrency)  // Don't escape &nbsp;
         { if (IA(x))
             x = x.join(", ");
           x = x.replace(htmlmaprx, htmlmap);
