@@ -49,6 +49,7 @@
   const /** string */ cfnprefix = "H._c=function(H,$){";
   const /** string */ letHprefix = "{let H=L(),";
   const /** string */ vfnprefix = "w,v=function(){w();";
+  const /** string */ missingg = "Missing <";
 
   const /** !RegExp */ splc = /\s*,\s*/g;
   const /** !RegExp */ spsplsing = /\s*,\s*/;
@@ -89,7 +90,8 @@
   const /** !RegExp */ wnlrx =
    /(\n)\s+|[ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+(?:(\n)\s*|([ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]))/g;
 
-  var /** function(...) */ log = console.log;
+  var /** function(...) */ debuglog = console.log;
+  var /** function(...) */ log = debuglog;
 
   function /** !boolean */ isstring(/** * */ s)
   { return typeof s === "string"; }
@@ -654,8 +656,8 @@
     return obj;
   }
 
-  function /** string */
-   vareval(/** string */ vname,/** string|boolean */ quot,/** string */ fmt)
+  function /** string */ vareval(/** string */ vname,
+              /** string|boolean|undefined */ quot,/** string|undefined */ fmt)
   { var /** string */ obj = "try{let x=Z($," + simplify(vname);
     if (quot)
       obj += "," + quot;
@@ -679,20 +681,23 @@
   { return "(_=$._," + (expr || 0) + ")";
   }
 
-  function /** string */ evalexpr(/** string */ expr)
-  { if (0 > expr.indexOf("("))
-    { if ((expr = /** @type{string} */(JSON.parse(expr))).indexOf("_") >= 0)
-        expr = "_=$._," + expr;
-      return "(" + expr + ")";
-    } else
-    { expr = expr.slice(-1) === '"'
-       ? (expr[0] === '"' ? expr.slice(1,-1) : '"+' + expr.slice(0,-1))
-       : (expr[0] === '"' ? expr.slice(1): '"+' + expr) + '+"';
-      if (expr.indexOf("{") >= 0)
+  function /** string|undefined */ evalexpr(/** string|undefined */ expr)
+  { if (expr)
+    { if (0 > expr.indexOf("("))
+      { if ((expr = /** @type{string} */(JSON.parse(expr))).indexOf("_") >= 0)
+          expr = "_=$._," + expr;
         expr = "(" + expr + ")";
-      expr = 'eval("' + expr + '")';
-      return 0 > expr.indexOf("_") ? expr : "(_=$._," + expr + ")";
+      } else
+      { expr = expr.slice(-1) === '"'
+         ? (expr[0] === '"' ? expr.slice(1,-1) : '"+' + expr.slice(0,-1))
+         : (expr[0] === '"' ? expr.slice(1): '"+' + expr) + '+"';
+        if (expr.indexOf("{") >= 0)
+          expr = "(" + expr + ")";
+        expr = 'eval("' + expr + '")';
+        expr = 0 > expr.indexOf("_") ? expr : "(_=$._," + expr + ")";
+      }
     }
+    return expr;
   }
 
   const /** number */ TS_TAG = 0;
@@ -717,7 +722,7 @@
     var /** number */ comment = 0;
     var /** number */ nooutput = 0;
     var /** number */ simpleset;      // Peephole optimiser plain string sets
-    var /** !Array */ tagctx = [0, {}, STASHCONTENT];
+    var /** !Array */ tagctx = [0, {}, STASHCONTENT, ""];
     var /** !Array */ tagstack = [tagctx];
     var /** number */ lasttoken = 0;
     function /** string */ getposition()
@@ -745,8 +750,7 @@
     { tagctx[TS_FLAGS] |= tagstack[tagstack.length - 2][TS_FLAGS] & HASBODY;
     }
     function /** void */ parenthasbody()
-    { if (tagstack.length)
-        tagstack[tagstack.length - 1][TS_FLAGS] |= HASBODY;
+    { tagstack[tagstack.length - 1][TS_FLAGS] |= HASBODY;
     }
     function /** number */ getexclm(/** !RegExp */ regex)
     { var /** Array */ rm;
@@ -764,12 +768,12 @@
     }
     for (;;)
     { var /** Array */ rm;
-      let /** string */ ts = "";
+      let /** string|undefined */ ts = "";
       if (lasttoken >= rxmls.length)
       { if (RUNTIMEDEBUG || ASSERT)
         { let /** string */ shouldtag = tagctx[TS_TAG];
           if (shouldtag)
-          { logcontext(shouldtag, "Missing close tag for " + shouldtag);
+          { logcontext(shouldtag, missingg + "/" + shouldtag + ">");
             if (ASSERT)
             { rxmls += "</" + shouldtag + ">";	// Fix it and continue
               continue;
@@ -790,13 +794,13 @@ ntoken:
           }
           params.lastIndex = lasttoken;
           let /** !Object */ gotparms = {};
-          function /** string */ getparm(/** string */ name)
+          function /** string|undefined */ getparm(/** string */ name)
           { let /** string */ sbj = gotparms[name];
             return sbj && substentities(sbj);
           }
           function /** void */
            domkmapping(/** string */ init,/** string */ vname)
-          { var /** string */ mapstring = getparm("mkmapping");
+          { var /** string|undefined */ mapstring = getparm("mkmapping");
             if (mapstring)
             { let /** !Array */ maplist
                = mapstring.slice(1,-1).split(spsplsing);
@@ -857,12 +861,12 @@ ntoken:
                             obj += "H=JSON.parse(Y(H));";
                           if (ts = getparm("split"))
                           { obj += "H=Y(H).split("
-                             + (xp ? evalexpr(xp) : ts) + ");";
+                             + (evalexpr(xp) || ts) + ");";
                             xp = undefined;
                           }
                           if (xp !== undefined)
                             obj += "H="
-                             + (xp ? evalexpr(xp) : runexpr("Y(H)")) + ";";
+                             + (evalexpr(xp) || runexpr("Y(H)")) + ";";
                           if (ts = getparm("join"))
                             obj += "H=H.join(" + ts + ");";
                           domkmapping("let k=H[0];H={};", "H");
@@ -881,7 +885,7 @@ ntoken:
                       { startcfn();
                         obj += "v=0;Q(" + ts
                          + ",$,function(H,a,$){let o=$;$=C(a,$,{";
-                        { let /** string */ args = getparm("args");
+                        { let /** string|undefined */ args = getparm("args");
                           if (args && (args = args.replace(nonwordrx, "")))
                             obj += '"' + args.replace(splc, '":1,"') + '":1';
                         }
@@ -915,15 +919,15 @@ ntoken:
                       continue;
                     }
                     case "replace":
-                    { let /** string */ xp = getparm("regexp") ||
-                       getparm("from").replace(escaperxrx, "\\$1");
-                      let /** string */ flags = getparm("flags");
+                    { let /** string|undefined */ flags = getparm("flags");
                       if (flags === undefined)
                         flags = "g";
-                      obj += letHprefix + "J=W,v=P(" + xp + ","
-                       + JSON.stringify(flags) + ",";
-                      xp = getparm("expr");
-                      obj += (xp ? evalexpr(xp) : getparm("to")) + ");";
+                      obj += letHprefix + "J=W,v=P(" + (getparm("regexp")
+			   || getparm("from").replace(escaperxrx, "\\$1"))
+		       + ","
+                       + JSON.stringify(flags) + ","
+                       + (evalexpr(getparm("expr")) || getparm("to"))
+		       + ");";
                       bodyfromparent();
                       continue;
                     }
@@ -939,7 +943,7 @@ ntoken:
                     case "for":
                     { markhasbody();
                       obj += "{I=0;let g,i,k,m,J=W,n=0;";
-                      let /** string */ from = getparm("in");
+                      let /** string|undefined */ from = getparm("in");
                       if (from)
                       { obj += "g=G($," + simplify(from) +
                          ((ts = getparm("orderby")) ?
@@ -970,9 +974,9 @@ ntoken:
                       if (ts = getparm("tag"))
                       { startcfn();
                         obj += "delete $._._tag[" + ts + "];";
-                      } else
+                      } else if (ts = getparm("var") || getparm("variable"))
                       { let /** !Array|string */ av
-                         = simplify(getparm("var") || getparm("variable"), 1);
+                         = simplify(ts, 1);
                         if (IA(av))
                           obj += "delete " + av[0] + ";";
                         else
@@ -987,7 +991,8 @@ ntoken:
                     case "elif":
                       ts = "(!I&&";
                     case "if":
-                      obj += "if" + ts + "(I=" + evalexpr(getparm("expr"))
+                      obj += "if" + ts + "(I="
+		       + (evalexpr(getparm("expr")) || 0)
                        + ")" + (ts ? ")" : "") + "{";
                       bodyfromparent();
                       continue;
@@ -1041,7 +1046,7 @@ ntoken:
           {
 closelp:    for (;;)
             { tagctx = tagstack.pop();
-              let /** string|undefined */ shouldtag = tagctx[TS_TAG];
+              let /** string|number */ shouldtag = tagctx[TS_TAG];
               switch (shouldtag)
               { case "noparse": noparse--; break;
                 case "comment": comment--; break;
@@ -1107,13 +1112,17 @@ closelp:    for (;;)
                       simpleset = 0;
                     }
                   }
-                case undefined:;
+                case 0:;
               }
               if ((RUNTIMEDEBUG || ASSERT) && tag !== shouldtag)
-              { logcontext(tag, "Expected " + shouldtag + " got " + tag);
+              { logcontext(tag,
+		 (shouldtag ? "Expected </" + shouldtag + "> got </"
+		            : missingg) + tag + ">");
                 if (ASSERT)
                 { let /** number */ i = tagstack.length;
-                  while (i > 0)
+		  if (!i)
+                    tagstack.push(tagctx);
+                  while (i)
                     if (tagstack[--i][TS_TAG] === tag)
                       continue closelp;
                 }
@@ -1166,13 +1175,13 @@ closelp:    for (;;)
     } catch(e) {
       if (RUNTIMEDEBUG)
       { logerr(jssrc, e);
-        log(jssrc);
+        debuglog(jssrc);
       }
       if (ASSERT)
         constructor = function() { return ""; };
     }
     if (D && DEBUG)
-      log(constructor);
+      debuglog(constructor);
     return constructor;
   }
 
