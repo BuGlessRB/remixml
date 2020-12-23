@@ -132,7 +132,7 @@ window["require"] = function (module) {
     case "art": return template;
     case "remixml": return Remixml;
     case "dot": return doT;
-    case "hbs": return Handlebars;
+    case "handlebars": return Handlebars;
     case "eta": return Eta;
     case "squirrelly": return Sqrl;
     case "mustache": return Mustache;

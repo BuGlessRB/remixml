@@ -1,32 +1,26 @@
-var minruntime = 1000;     // in ms
-var maxruntime = 5000;    // in ms
+var minruntime = 100;     // in ms
+var maxruntime = 2000;    // in ms
 
 var plotdata = [];
 
 var engine;
 var engmap = {};
+var testlist = [];
+
+var plotdata = [];
+var timings = {};
+
 var i = 0;
 for (engine of engines) {
-  plotdata.push([engine.name]);
+  plotdata.push({
+    histfunc: "sum",
+    type: "histogram",
+    x: testlist,
+    y: timings[engine.name] = [],
+    name: engine.name
+  });
   engmap[engine.name] = i++;
 }
-
-var chart = c3.generate({
-    bindto: "#graph1",
-    data: {
-        columns: [
-            //['data1', 30, 200, 100, 400, 150, 250],
-        ],
-        type: 'bar'
-    },
-    bar: {
-        width: {
-            ratio: 0.5 // this makes bar width 50% of length between ticks
-        }
-        // or
-        //width: 100 // this makes bar width 100px
-    }
-});
 
 async function runtest(testfun) {
   var curiters = 1;
@@ -45,7 +39,7 @@ async function runtest(testfun) {
     dt = dt / curiters;
     if (mintime > dt)
       mintime = dt;
-  } while (performance.now() - startrun > maxruntime);
+  } while (performance.now() - startrun < maxruntime);
   return mintime;
 }
 
@@ -54,8 +48,9 @@ async function mainfun() {
   for (testname in testsuite) {
     var thistest = testsuite[testname];
     var engine;
+    testlist.push(testname);
     for (engine of engines) {
-      var templ = thistest[engine.name];
+      var templ = thistest[engine.ext];
       var timeresult = 0;
       if (templ) {
         console.log("DOING " + testname + " " + engine.name);
@@ -77,25 +72,15 @@ async function mainfun() {
 	  var fn = await macro2fn();
 	  var txt = await run2txt(fn);
         });
+	timeresult = 1000/timeresult;
 	console.log(timeresult);
       }
-      plotdata[engmap[engine.name]].push(timeresult); 
+      timings[engine.name].push(timeresult); 
     }
-    /*
-    chart.unload({
-      ids: Object.keys(engmap)
-    });
-    chart.load({
-       columns: plotdata
-    });
-    */
+    document.getElementById("graph1").textcontent = "";
+    Plotly.newPlot('graph1', plotdata);
   }
 }
 
 mainfun();
 
-setTimeout(function() {
-    chart.load({
-       columns: plotdata
-    });
-}, 5000);
