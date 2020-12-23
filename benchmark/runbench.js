@@ -49,6 +49,7 @@ async function mainfun() {
     var thistest = testsuite[testname];
     var engine;
     testlist.push(testname);
+    var maxspeed = 0;
     for (engine of engines) {
       var templ = thistest[engine.ext];
       var timeresult = 0;
@@ -75,7 +76,14 @@ async function mainfun() {
 	timeresult = 1000/timeresult;
 	console.log(timeresult);
       }
-      timings[engine.name].push(Math.round(timeresult)); 
+      timeresult = Math.round(timeresult); 
+      if (timeresult > maxspeed)
+	maxspeed = timeresult;
+      timings[engine.name].push(timeresult); 
+    }
+    for (engine of engines) {
+      let row = timings[engine.name];
+      row[row.length-1] = row[row.length-1] / maxspeed * 100;
     }
     document.getElementById("graph1").textcontent = "";
     Plotly.newPlot('graph1', plotdata);
