@@ -75,7 +75,7 @@ async function mainfun() {
 	timeresult = 1000/timeresult;
 	console.log(timeresult);
       }
-      timings[engine.name].push(timeresult); 
+      timings[engine.name].push(Math.round(timeresult)); 
     }
     document.getElementById("graph1").textcontent = "";
     Plotly.newPlot('graph1', plotdata);

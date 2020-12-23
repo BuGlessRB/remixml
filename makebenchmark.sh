@@ -17,6 +17,8 @@ echo "var testsuite={};"
 
 for dir in testsuite/*
 do
+  set $dir/template.*
+  test $# -lt 2 && continue
   testname=$(basename $dir)
   echo "testsuite['$testname'] = {data:"
   cat $dir/data.json
