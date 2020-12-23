@@ -10,6 +10,8 @@ var testlist = [];
 var plotdata = [];
 var timings = {};
 
+var parentnode = document.createElement("div");
+
 var i = 0;
 for (engine of engines) {
   plotdata.push({
@@ -35,11 +37,13 @@ async function runtest(testfun) {
     let t2 = performance.now();
     let dt = t2 - t1;
     if (dt < minruntime)
-      iters *= 2;
-    dt = dt / curiters;
-    if (mintime > dt)
-      mintime = dt;
-  } while (performance.now() - startrun < maxruntime);
+      curiters *= 2;
+    else {
+      dt = dt / curiters;
+      if (mintime > dt)
+        mintime = dt;
+    }
+  } while (mintime === Infinity || performance.now() - startrun < maxruntime);
   return mintime;
 }
 
@@ -69,9 +73,24 @@ async function mainfun() {
   	    });
   	  });
         }
+        async function run2dom(fn) {
+  	  return new Promise((success) => {
+            parentnode.textContent = "";
+	    if (engine.render2dom)
+              engine.render2dom(parentnode, fn, thistest.data, function(x, node) {
+                success(node);
+  	      });
+	    else
+              engine.render(fn, thistest.data, function(x, txt) {
+	        parentnode.innerHTML = txt;
+                success(txt);
+  	      });
+  	  });
+        }
+	var fn = await macro2fn();
         timeresult = await runtest(async function () {
-	  var fn = await macro2fn();
-	  var txt = await run2txt(fn);
+	  //var txt = await run2txt(fn);
+	  var dom = await run2dom(fn);
         });
 	timeresult = 1000/timeresult;
 	console.log(timeresult);
@@ -85,7 +104,6 @@ async function mainfun() {
       let row = timings[engine.name];
       row[row.length-1] = row[row.length-1] / maxspeed * 100;
     }
-    document.getElementById("graph1").textcontent = "";
     Plotly.newPlot('graph1', plotdata);
   }
 }
