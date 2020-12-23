@@ -35,7 +35,7 @@ async function runtest(testfun) {
     do result = await testfun();
     while (--iters);
     let t2 = performance.now();
-    let dt = t2 - t1;
+    let dt = t2 - t1 + 1;
     if (dt < minruntime)
       curiters *= 2;
     else {
@@ -58,7 +58,6 @@ async function mainfun() {
       var templ = thistest[engine.ext];
       var timeresult = 0;
       if (templ) {
-        console.log("DOING " + testname + " " + engine.name);
         async function macro2fn() {
   	  return new Promise((success) => {
             engine.load(templ, "", "", function(x, fn) {
@@ -93,7 +92,8 @@ async function mainfun() {
 	  var dom = await run2dom(fn);
         });
 	timeresult = 1000/timeresult;
-	console.log(timeresult);
+        console.log("DOING " + testname + " "
+	 + engine.name + " " + timeresult);
       }
       timeresult = Math.round(timeresult); 
       if (timeresult > maxspeed)

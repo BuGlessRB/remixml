@@ -1198,7 +1198,8 @@ closelp:    for (;;)
   };
 
   // For use in Javascript Remixml
-  abstract2txt = Y = function /** string */(/** !Array|string */ vdom)
+  abstract2txt = Y = function /** string */(/** !Array|string */ vdom,
+   /** number= */ html)
   { for (;;)
     { if (!IA(vdom))
         return vdom;
@@ -1239,7 +1240,7 @@ closelp:    for (;;)
             case "_":case undefined:;
           }
         if (!vdom.length)
-          return parent + "/>";
+          return parent + (html ? "></" + name + ">" : "/>");
         parent += ">";
     }
     var /** !Array|string */ child;
@@ -1284,8 +1285,9 @@ closelp:    for (;;)
           tpl = js2obj(remixml2js(/** @type{string} */(tpl), flags));
         return Y(/** @type{function(!Object):!Array} */(tpl)($));
       },
-    "abstract2txt": function /** string */(/** !Array */ tpl)
-      { return Y(tpl);
+    "abstract2txt":
+      function /** string */(/** !Array */ tpl,/** number= */ html)
+      { return Y(tpl, html);
       },
     "set_tag": function /** void */(/** function(!Object):!Array */ cb,
        /** !Object */ $,/** string */ name,/** string= */ scope,

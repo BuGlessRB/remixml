@@ -381,7 +381,7 @@ Specified parameters:
   to the same variable.
 - `flags` is a bitmask with:
    - 1: kill all whitespace.
-   - 2: preserve all whitespace.
+   - 2: preserve all whitespace.<br />
    If neither bits are present, it defaults to collapsing whitespace
    around newlines to a single newline.
 
@@ -392,8 +392,9 @@ Exposed API-list (in NodeJS and the browser):
    Compile remixml-javascript source into object code.
    Running the object code with a `context` parameter
    returns a DOM-abstract structure (AKA virtual DOM).
-- `Remixml.abstract2txt(abstract)`<br />
-  Converts a DOM-abstract into an HTML/Remixml-string.
+- `Remixml.abstract2txt(abstract, html=)`<br />
+   Converts a DOM-abstract into an XHTML/Remixml-string.
+   If it must be HTML compliant, set `html` to `1`.
 - `Remixml.compile(remixmlsrc)`<br />
   Shorthand for `Remixml.js2obj(Remixml.remixml2js(remixmlsrc))`
 - `Remixml.parse2txt(template, context, flags=)`<br />
