@@ -1,6 +1,6 @@
 {
   "name": "remixml",
-  "version": "3.2.7",
+  "version": "3.2.8",
   "description": "XML/HTML-like macro language/template compiler engine",
   "main": "remixml.min.js",
   "browser": "remixml.min.js",
@@ -9,6 +9,7 @@
     "test": "./prepfiles && ./runtest.sh",
     "prepare": "./prepfiles"
   },
+  "sideEffects": false,
   "dependencies": {},
   "devDependencies": {
     "incremental-dom": "*"
@@ -19,15 +20,18 @@
     "url": "git://github.com/BuGlessRB/remixml"
   },
   "keywords": [
+    "templating",
+    "javascript",
+    "HTML",
+    "parser",
+    "compiler",
+    "autoescape",
+    "template",
     "RXML",
     "XML",
-    "HTML",
     "Roxen",
-    "template",
     "macro",
     "language",
-    "compiler",
-    "javascript",
     "zerodeps"
   ],
   "publishConfig": {
