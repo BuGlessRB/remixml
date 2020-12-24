@@ -75,7 +75,7 @@ Or using the incremental-dom library:
 ```js
 Remixml.link_incrementaldom(IncrementalDOM);
 
-var rxfn = Remixml.compile("<body>Test</body>");
+var rxfn = Remixml.compile("<h1>Test &_.abc;</h1>");
 var node = document.body;
 var data = {_:{abc:123} };
 var abstract = rxfn(data);
