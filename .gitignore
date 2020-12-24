@@ -22,3 +22,4 @@ testsuite/*/output.*
 testsuite.html
 package-lock.json
 benchmark/engines.js
+/.coveralls.yml

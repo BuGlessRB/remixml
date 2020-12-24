@@ -1,0 +1,6 @@
+<set var="_.foobar" expr="12 + 4" />
+<set var="_.foobar2" expr="">12 + 4</set>
+a&_.foobar;b
+c&_.foobar2;d
+xx<insert expr="+_.bar + _.foo" />yyy
+Xx<insert expr="">+_.bar + _.foo</insert>yyy

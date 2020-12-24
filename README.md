@@ -1,5 +1,7 @@
 <h1>Remixml</h1>
 
+[![Coverage Status](https://coveralls.io/repos/github/BuGlessRB/remixml/badge.svg?branch=master)](https://coveralls.io/github/BuGlessRB/remixml?branch=master)
+
 Remixml is a sophisticated XML/HTML macro language/templating compiler engine
 in Javascript.
 

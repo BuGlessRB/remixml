@@ -18,3 +18,4 @@ node_modules
 docs
 testsuite.html
 package-lock.json
+/.coveralls.yml
