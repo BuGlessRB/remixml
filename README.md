@@ -10,6 +10,10 @@ Compiling and processing XML, HTML and Remixml automatically performs
 sanity checks and shows clear and precise warnings about missing opening
 or closing tags.
 
+The package includes a comprehensive regression-testsuite to assure
+code quality.  It also includes a browser template-library benchmark
+framework to compare rendering speed between different template libraries.
+
 ## Requirements
 
 It runs inside any webbrowser (starting at IE11 and up) or NodeJS environment.
