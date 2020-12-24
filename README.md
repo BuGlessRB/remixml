@@ -1,14 +1,16 @@
 <h1>Remixml</h1>
 
-Remixml is a sophisticated XML/HTML macro language/templating compiler engine.
+Remixml is a sophisticated XML/HTML macro language/templating compiler engine
+in Javascript.
 
 The Remixml templating engine has the following features:
 - Rich powerful language with dynamic scopes, autoescaping, macros and more.
 - Fast &amp; lean: Small 9 KB gzipped runtime with precompiled templates
-  in the browser.
+  in the browser.  Compiles to Javascript.
 - Extensible with custom tags programmed in either Javascript or Remixml.
 - Everywhere available in node and all modern web browsers (including IE11),
   with thorough precompilation options.
+- It contains a fully featured fast validating HTML parser.
 
 The language and primitives used blend in completely with
 standard XML/HTML syntax and therefore integrate smoothly with
