@@ -1,6 +1,6 @@
 <h1>Remixml</h1>
 
-Remixml is a sophisticated XML/HTML macro language/template compiler engine.
+Remixml is a sophisticated XML/HTML macro language/templating compiler engine.
 
 The Remixml templating engine has the following features:
 - Rich powerful language with dynamic scopes, autoescaping, macros and more.
