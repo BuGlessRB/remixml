@@ -137,8 +137,9 @@ if a single `-` parameter is given.
      Assign to the named variable.
    - `expr`<br />
      Use the javascript expression specified in this attribute.
-     Or, alternately, if the attribute is empty, a javascript from
-     the content of this tag is stored.
+     Or, alternately, if the attribute is empty, javascript from
+     the content of this tag is used.  Evaluates the javascript and
+     stores the result.
    - `regexp`<br />
      A regular expression to match the content to.
    - `split`<br />
@@ -235,7 +236,7 @@ if a single `-` parameter is given.
    Should be used inside a <b>for</b> loop.  It will suppress its content
    upon the first iteration.
 - `<insert var="" variable="" quote="" format="" offset="" limit="" join=""
-     variables="" scope=""></insert>`<br />
+     variables="" scope="" expr=""></insert>`<br />
    More explicit way to access variable content instead of through
    entities.<br />
    Attributes:
@@ -259,6 +260,11 @@ if a single `-` parameter is given.
        Insert a JSON encoded dump of all accessible variables.
    - `scope`<br />
      Limit the scope of the dumped variables to the mentioned scope only.
+   - `expr`<br />
+     Use the javascript expression specified in this attribute.
+     Or, alternately, if the attribute is empty, javascript from
+     the content of this tag is used.  Evaluates the javascript and inserts
+     the result.
 - `<replace from="" regexp="" flags="" to=""
      expr="">...</replace>`<br />
    Attributes:

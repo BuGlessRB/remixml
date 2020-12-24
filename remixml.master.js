@@ -50,6 +50,8 @@
   const /** string */ letHprefix = "{let H=L(),";
   const /** string */ vfnprefix = "w,v=function(){w();";
   const /** string */ missingg = "Missing <";
+  const /** string */ wfunction = ")};w=(function(){";
+  const /** string */ wfunclose = "});v()}";
 
   const /** !RegExp */ splc = /\s*,\s*/g;
   const /** !RegExp */ spsplsing = /\s*,\s*/;
@@ -700,6 +702,10 @@
     return expr;
   }
 
+  function /** string */ execexpr(/** string|undefined */ xp)
+  { return "H=" + (evalexpr(xp) || runexpr("eval(Y(H))")) + ";";
+  }
+
   const /** number */ TS_TAG = 0;
   const /** number */ TS_PARMS = 1;
   const /** number */ TS_FLAGS = 2;
@@ -708,6 +714,7 @@
   const /** number */ USERTAG = 2;
   const /** number */ STASHCONTENT = 4;
   const /** number */ HASBODY = 8;
+  const /** number */ VFUN = 16;
 
   const /** number */ KILLWHITE = 1;
   const /** number */ PRESERVEWHITE = 2;
@@ -853,6 +860,7 @@ ntoken:
                       if (vname)
                       { let /** string|undefined */ xp = getparm("expr");
                         obj += vfnprefix;
+			tagctx[TS_FLAGS] |= VFUN;
                         simpleset = obj.length;
                         if (ts = getparm("selector"))
                            obj += "B($,w=L(),H," + ts + ");H=w;";
@@ -865,8 +873,7 @@ ntoken:
                             xp = undefined;
                           }
                           if (xp !== undefined)
-                            obj += "H="
-                             + (evalexpr(xp) || runexpr("Y(H)")) + ";";
+                            obj += execexpr(xp);
                           if (ts = getparm("join"))
                             obj += "H=H.join(" + ts + ");";
                           domkmapping("let k=H[0];H={};", "H");
@@ -880,7 +887,7 @@ ntoken:
                              ? (simpleset = 0, "CA(H," + av[0] + ")") : "H")
                         else
                           simpleset = 0, obj += "A(H,$," + av;
-                        obj +=")};w=(function(){";
+                        obj += wfunction;
                       } else if (ts = getparm("tag"))
                       { startcfn();
                         obj += "v=0;Q(" + ts
@@ -909,7 +916,11 @@ ntoken:
                           obj += "x=F(x," + ts +
                            (vname !== undefined ? "," + vname : "") + ");";
                         obj += varinsert;
-                      } else
+                      } else if ((vname = getparm("expr")) !== undefined) {
+                          obj += letHprefix + vfnprefix + execexpr(vname)
+			   + "W.push(A(H)" + wfunction;
+			  markhasbody();
+		      } else
                       { switch(getparm("variables"))
                         { case "dump":
                             obj += "log((W="
@@ -1068,8 +1079,12 @@ closelp:    for (;;)
                               break;
                             }
                           }
-                          obj += "});v&&v()}";
+                          obj += tagctx[TS_FLAGS] & VFUN ? wfunclose : "})}";
+                          parenthasbody();
+                          break;
                         case "insert":
+			  if (tagctx[TS_FLAGS] & HASBODY)
+			    obj += wfunclose;
                           parenthasbody();
                         case "unset":
                           break;

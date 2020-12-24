@@ -16,11 +16,6 @@
    </div>
   </else>
  </div>
- <if expr="_.primary" ->
-  <set var="_.tmp">primary</set>
- </if>
- <else ->
-  <set var="_.tmp">secondary</set>
- </else>
+ <set var="_.tmp" expr='_.primary ? "primary" : "secondary"' />
  <button type="button" class="&_.tmp:;" ->Click me!</button>
 </div>
