@@ -2,8 +2,6 @@
 
 [![NPM version](http://img.shields.io/npm/v/remixml.svg?style=flat)](https://npmjs.org/package/remixml)
 [![Downloads](https://img.shields.io/npm/dm/remixml.svg?style=flat)](https://npmjs.org/package/remixml)
-[![Build Status](https://img.shields.io/github/workflow/status/BuGlessRB/remixml/Node.js%20Test?label=tests&style=flat)](https://github.com/BuGlessRB/remixml/actions?query=workflow%3A%22Node.js+Test%22)
-[![Coverage](http://img.shields.io/coveralls/BuGlessRB/remixml.svg?style=flat)](https://coveralls.io/github/BuGlessRB/remixml?branch=master)
 
 Remixml is a sophisticated XML/HTML macro language/templating compiler engine
 in Javascript.
