@@ -1,6 +1,14 @@
 <h1>Remixml</h1>
 
-Remixml is an XML/HTML macro language/template compiler engine.
+Remixml is a sophisticated XML/HTML macro language/template compiler engine.
+
+The Remixml templating engine has the following features:
+- Rich powerful language with dynamic scopes, autoescaping, macros and more.
+- Fast &amp; lean: Small 9 KB gzipped runtime with precompiled templates
+  in the browser.
+- Extensible with custom tags programmed in either Javascript or Remixml.
+- Everywhere available in node and all modern web browsers (including IE11),
+  with thorough precompilation options.
 
 The language and primitives used blend in completely with
 standard XML/HTML syntax and therefore integrate smoothly with
@@ -18,11 +26,11 @@ framework to compare rendering speed between different template libraries.
 
 It runs inside any webbrowser (starting at IE11 and up) or NodeJS environment.
 
-Minified and gzip-compressed it is less than 9 KB of code.
+Minified and gzip-compressed, it is less than 9 KB of code.
 
 It has zero dependencies on other modules.
 
-It optionally supports output to the incremental-dom.
+It supports (but does not require) output to the incremental-dom.
 
 ## Basic usage
 
@@ -389,22 +397,22 @@ Specified parameters:
   as `$._` and that can always be referenced using a direct `_`
   shortcut.  I.e. in Javascript `$._.foo` and `_.foo` will both refer
   to the same variable.
-- `flags` is a bitmask with:
+- `flags` is an optional bitmask with:
    - 1: kill all whitespace.
    - 2: preserve all whitespace.<br />
-   If neither bits are present, it defaults to collapsing whitespace
-   around newlines to a single newline.
+  If neither bits are present, it defaults to collapsing whitespace
+  around newlines to a single newline.
 
 Exposed API-list (in NodeJS and the browser):
 - `Remixml.remixml2js(remixmlsrc, flags=)`<br />
-   Compile Remixml into remixml-javascript source.
+  Compile Remixml into remixml-javascript source.
 - `Remixml.js2obj(jssrc)`<br />
-   Compile remixml-javascript source into object code.
-   Running the object code with a `context` parameter
-   returns a DOM-abstract structure (AKA virtual DOM).
+  Compile remixml-javascript source into object code.
+  Running the object code with a `context` parameter
+  returns a DOM-abstract structure (AKA virtual DOM).
 - `Remixml.abstract2txt(abstract, html=)`<br />
-   Converts a DOM-abstract into an XHTML/Remixml-string.
-   If it must be HTML compliant, set `html` to `1`.
+  Converts a DOM-abstract into an XHTML/Remixml-string.
+  If it must be HTML compliant, set the optional argument `html` to `1`.
 - `Remixml.compile(remixmlsrc)`<br />
   Shorthand for `Remixml.js2obj(Remixml.remixml2js(remixmlsrc))`
 - `Remixml.parse2txt(template, context, flags=)`<br />
@@ -414,10 +422,10 @@ Exposed API-list (in NodeJS and the browser):
   Creates a tag definition in the given `context` just like
   `<set tag="name"></set>` would have done.
   `callback` is a javascript function
-   which will be called as `callback(context)` and must return
-   the replacing DOM-template.  E.g. when the tag
-   is referenced as `<name foo="bar"></name>` then inside the
-   callback function `context._.foo` will have the value `bar`.
+  which will be called as `callback(context)` and must return
+  the replacing DOM-template.  E.g. when the tag
+  is referenced as `<name foo="bar"></name>` then inside the
+  callback function `context._.foo` will have the value `bar`.
 - `Remixml.path_encode(string)`<br />
   Strips and encodes `string` to something which can be safely inserted in
   an url (compare `path` encoding for entities).
