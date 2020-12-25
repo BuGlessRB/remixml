@@ -37,7 +37,6 @@
   const O = Object;
   const ie11 = D && W["MSInputMethodContext"] && D["documentMode"];
 
-  const /** Object */ diacr = {}; // Full list of diacrite stripdown aliases
   const /** !Object */ eumapobj
    = {"+":"%2B"," ":"+","?":"%3F","&":"%26","#":"%23"};
   const /** !Object */ htmlmapobj = {"&":"&amp;","<":"&lt;"};
@@ -68,9 +67,6 @@
   const /** !RegExp */ scriptend = /<\/script>/g;
   const /** !RegExp */ gmtrx = /.+GMT([+-]\d+).+/;
   const /** !RegExp */ tzrx = /.+\((.+?)\)$/;
-  const /** !RegExp */ nonasciirx = /[^\0-~]/g;
-  const /** !RegExp */ nonalphanumrx = /(?:&(?:[^&;\s]*;)?|[^&a-z0-9])+/g;
-  const /** !RegExp */ pathendingsrx = /^-+|[\u0300-\u036f]+|-+$/g;
   const /** !RegExp */ noparenplusrx = /^"([^(+]+)"$/;
   const /** !RegExp */ wordrx = /^[A-Za-z_][\w]*$/;
   const /** !RegExp */ varentrx =
@@ -187,13 +183,6 @@
       }
       return a;
     });
-  }
-
-  function /** string */ encpath(/** string */ s)
-  { return s.toLowerCase()
-            .replace(nonasciirx, function(a) { return diacr[a] || a; })
-            .replace(nonalphanumrx, "-")
-            .replace(pathendingsrx, "");
   }
 
   function /** string */ sp(/** string */ j, /** string */ s)
@@ -1439,6 +1428,18 @@ closelp:    for (;;)
         return abstract2dom(IA(tpl)
          ? tpl : /** @type{function(!Object):!Array} */(tpl)($));
       };
+  }
+
+  const /** Object */ diacr = {}; // Full list of diacrite stripdown aliases
+  const /** !RegExp */ nonasciirx = /[^\0-~]/g;
+  const /** !RegExp */ nonalphanumrx = /(?:&(?:[^&;\s]*;)?|[^&a-z0-9])+/g;
+  const /** !RegExp */ pathendingsrx = /^-+|[\u0300-\u036f]+|-+$/g;
+
+  function /** string */ encpath(/** string */ s)
+  { return s.toLowerCase()
+            .replace(nonasciirx, function(a) { return diacr[a] || a; })
+            .replace(nonalphanumrx, "-")
+            .replace(pathendingsrx, "");
   }
 
   (function(fm)
