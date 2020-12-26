@@ -13,6 +13,8 @@ do
   result="$(node - <<HERE
 const fs = require("fs");
 var rxml = require("./remixml.min.js");
+var rxmlpathencode
+ = require("./node_modules/remixml-pathencode/remixml-pathencode.min.js");
 //var rxml = require("./remixml.js");
 
 var remixmlsrc = fs.readFileSync("$dir/template.remixml").toString();

@@ -12,6 +12,7 @@ The Remixml templating engine has the following features:
 - Fast &amp; lean: Small 9 KB gzipped runtime with precompiled templates
   in the browser.  Compiles to Javascript.
 - Extensible with custom tags programmed in either Javascript or Remixml.
+- Extensible with custom filters programmed in Javascript.
 - Everywhere available in node and all modern web browsers (including IE11),
   with thorough precompilation options.
 - It contains a fully featured fast validating HTML parser.
@@ -71,19 +72,6 @@ Remixml.parse('<h1>Title of &_.sitename; for &_.description;</h1>'
  });
 ```
 
-Or using the incremental-dom library:
-
-```js
-Remixml.link_incrementaldom(IncrementalDOM);
-
-var rxfn = Remixml.compile("<h1>Test &_.abc;</h1>");
-var node = document.body;
-var data = {_:{abc:123} };
-var abstract = rxfn(data);
-
-Remixml.abstract2idom(node, abstract);
-```
-
 ## Reference documentation
 
 ### Full entity syntax
@@ -105,13 +93,6 @@ Remixml.abstract2idom(node, abstract);
       [HTML entities](https://dev.w3.org/html5/html-author/charref).
     - `uric`<br />
       URI component: encodes URI arguments in an URL.
-    - `path`<br />
-      Path component; performs a lossy transformation of the
-      value into a format that can be inserted into a path:
-      - Cast to lowercase.
-      - Replace diacritics by their ASCII equivalent.
-      - Replace all strings of non-alphanumeric characters with single dashes.
-      - Strip dashes from start and end.
     - `json`<br />
       Encodes as a [JSON](https://www.json.org/) string.
     - `none`<br />
@@ -410,46 +391,33 @@ Specified parameters:
   around newlines to a single newline.
 
 Exposed API-list (in NodeJS and the browser):
-- `Remixml.remixml2js(remixmlsrc, flags=)`<br />
+- `Remixml.remixml2js(remixmlsrc, flags?)`<br />
   Compile Remixml into remixml-javascript source.
 - `Remixml.js2obj(jssrc)`<br />
   Compile remixml-javascript source into object code.
   Running the object code with a `context` parameter
   returns a DOM-abstract structure (AKA virtual DOM).
-- `Remixml.abstract2txt(abstract, html=)`<br />
+- `Remixml.abstract2txt(abstract, html?)`<br />
   Converts a DOM-abstract into an XHTML/Remixml-string.
   If it must be HTML compliant, set the optional argument `html` to `1`.
 - `Remixml.compile(remixmlsrc)`<br />
   Shorthand for `Remixml.js2obj(Remixml.remixml2js(remixmlsrc))`
-- `Remixml.parse2txt(template, context, flags=)`<br />
+- `Remixml.parse2txt(template, context, flags?)`<br />
   `template` can either be direct remixml source, or a precompiled object
   from `Remixml.compile`.  Returns an HTML/Remixml-string.
+- `Remixml.add_filter(name, filterfunction)`<br />
+  Adds a new filter function to be used when inserting entities.
 - `Remixml.set_tag(callback, context, name, scope?, args?)`<br />
   Creates a tag definition in the given `context` just like
   `<set tag="name"></set>` would have done.
   `callback` is a javascript function
   which will be called as `callback(context)` and must return
-  the replacing DOM-template.  E.g. when the tag
+  the replacing DOM-abstract.  E.g. when the tag
   is referenced as `<name foo="bar"></name>` then inside the
   callback function `context._.foo` will have the value `bar`.
-- `Remixml.path_encode(string)`<br />
-  Strips and encodes `string` to something which can be safely inserted in
-  an url (compare `path` encoding for entities).
 - `Remixml.set_log_callback(callback)`<br />
   If not set, it defaults to `console.log()`.  This callback function is used
   to log remixml runtime errors.
-
-Exposed API-list (browser only):
-- `Remixml.abstract2dom(abstract)`<br />
-  Converts a DOM-abstract into DOM nodes.
-- `Remixml.parse(template, context, flags=)`<br />
-  `template` can either be direct remixml source, or a precompiled object
-  from `Remixml.compile`.  Returns DOM nodes.
-- `Remixml.abstract2idom(node, abstract)`<br />
-  Converts a DOM-abstract into the DOM `node` using the
-  incremental-dom library.
-- `Remixml.link_incrementaldom(idom)`<br />
-  `idom` is the incremental-dom library object to be linked to.
 
 #### Reserved object variables
 

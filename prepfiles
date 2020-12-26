@@ -1,24 +1,26 @@
 #!/bin/sh
 
+basename=remixml
+
 stripdebug='/^[	 ]*\/\/ DEBUG_START/,/^[	 ]*\/\/ DEBUG_END/ d'
 stripcomments='/^[	 ]*\/\// d'
 
  sed -e '/ Cut BEGIN for externs/,/ Cut END for externs/ d' \
   -e '/ Cut BEGIN for prepend/,/ Cut END for prepend/ d' \
-   <remixml.master.js >remixml.meat.tmp
+   <$basename.master.js >$basename.meat.tmp
  sed -e '/ Cut BEGIN for externs/,/ Cut END for externs/ !d' \
-     -e '/ Cut [BE]/ d' <remixml.master.js >externs.tmp
+     -e '/ Cut [BE]/ d' <$basename.master.js >externs.tmp
  sed -e '/ Cut BEGIN for prepend/,/ Cut END for prepend/ !d' \
      -e 's/^  *//g' -e 's%/\*.*\*/%%g' \
-     -e '/ Cut [BE]/ d' <remixml.master.js >remixml.prep.tmp
+     -e '/ Cut [BE]/ d' <$basename.master.js >$basename.prep.tmp
 
 ( sed -e '/ Cut END delete/,$ d' \
-      -e '/ Cut [BE]/ d' <remixml.meat.tmp
+      -e '/ Cut [BE]/ d' <$basename.meat.tmp
   echo ""
-  sed -e 's/^/  /' remixml.prep.tmp
+  sed -e 's/^/  /' $basename.prep.tmp
   sed -e '/ Cut END delete/,$ !d' \
-      -e '/ Cut [BE]/ d' <remixml.meat.tmp
-) >remixml.js
+      -e '/ Cut [BE]/ d' <$basename.meat.tmp
+) >$basename.js
 
 google-closure-compiler \
  --strict_mode_input --assume_function_wrapper \
@@ -32,12 +34,12 @@ google-closure-compiler \
  --externs externs.h \
  --externs externs.tmp \
  --warning_level VERBOSE \
- --create_source_map remixml.js.map \
+ --create_source_map $basename.js.map \
  -D DEBUG=0 \
- --js_output_file remixml.min.tmp \
-  remixml.meat.tmp &&
+ --js_output_file $basename.min.tmp \
+  $basename.meat.tmp &&
   ( echo '(function(){"use strict";'
-    cat remixml.prep.tmp remixml.min.tmp
+    cat $basename.prep.tmp $basename.min.tmp
     echo '}).call(this);'
-  ) >remixml.min.js
+  ) >$basename.min.js
 
