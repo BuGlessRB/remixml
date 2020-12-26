@@ -106,11 +106,6 @@
 
   function udate(t) { return t.valueOf() - t.getTimezoneOffset * 60000; }
 
-  function /** !boolean */ iso(/** * */ obj)
-  { var type = typeof obj;
-    return type === 'function' || type === 'object' && !!obj;
-  }
-
   function /** string */ pad0(/** number */ i, /** number */ p)
   { var /** string */ ret;
     for (i < 0 && p--, ret = i + ""; ret.length < p; ret = "0" + ret) {}
@@ -1236,7 +1231,7 @@ closelp:    for (;;)
           switch (narg[0])
           { default:
               let /** string */ val = /** @type{Object} */(vdom)[narg];
-              if (val != null && !iso(val))
+              if (val != null && typeof val !== "object")
               { parent += " " + narg;
                 if (narg !== val)
                   parent += '="'
