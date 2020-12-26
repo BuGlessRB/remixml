@@ -22,16 +22,18 @@ if (incdom = window["IncrementalDOM"])
 module.exports = {
     name: 'remixml',
     ext: 'remixml',
+  /*
     render2dom: function(parentnode, template, data, callback) {
         $._ = data;
         var abstract = template($);
-        if (0 && incdom) {
+        if (incdom) {
           callback(null, rxml.abstract2idom(parentnode, abstract));
 	} else {
 	  parentnode.textContent = "";
           callback(null, parentnode.appendChild(rxml.abstract2dom(abstract)));
 	}
     },
+  */
     render: function(template, data, callback) {
         $._ = data;
         callback(null, rxml.abstract2txt(template($), 1));
