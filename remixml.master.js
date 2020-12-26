@@ -1313,7 +1313,6 @@ closelp:    for (;;)
     }
 
     const /** Node */ txta = newel("textarea");
-    const /** !Object */ elmcache = {};
 
      // For use in Javascript Remixml
     // Converts the abstract presentation into a live DOM Node structure
@@ -1327,9 +1326,7 @@ closelp:    for (;;)
           parent = D.createDocumentFragment();
           break;
         default:
-          if (!(parent = elmcache[name]))
-            parent = elmcache[name] = newel(/** @type{string} */(name));
-          parent = parent.cloneNode();
+          parent = newel(/** @type{string} */(name));
           for (name of O.keys(vdom).splice(vdom.length))
             switch (name[0])
             { default:
@@ -1345,7 +1342,6 @@ closelp:    for (;;)
         parent.appendChild(child[""] ? abstract2dom(child)
          : child.indexOf("&") < 0 ? D.createTextNode(child)
          : (txta.innerHTML = child, txta.firstChild));
-      txta.textContent = "";    // Free memory
       return parent;
     }
 
