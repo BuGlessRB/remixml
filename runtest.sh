@@ -11,10 +11,16 @@ for dir in testsuite/$dirs
 do
   rm -f $dir/output.*
   result="$(node - <<HERE
+var oldrequire = require;
+require = function (mod) {
+  switch(mod) {
+    case "remixml": mod = "./remixml.min.js"; break;
+  }
+  return oldrequire(mod);
+}
 const fs = require("fs");
-var rxml = require("./remixml.min.js");
-var rxmlpathencode
- = require("./node_modules/remixml-pathencode/remixml-pathencode.min.js");
+var rxml = require("remixml");
+var rxmlpathencode = require("remixml-pathencode");
 //var rxml = require("./remixml.js");
 
 var remixmlsrc = fs.readFileSync("$dir/template.remixml").toString();

@@ -13,7 +13,7 @@
   "dependencies": {},
   "devDependencies": {
     "incremental-dom": "*",
-    "remixml-pathencode": "*"
+    "remixml-pathencode": "^4.0.1"
   },
   "directories": {},
   "repository": {
