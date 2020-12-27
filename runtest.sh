@@ -7,21 +7,22 @@ mspertest=100
 
 ok=0
 
+(
+  cd node_modules/remixml
+  for a in remixml.min.js remixml.js
+  do
+    rm -f $a
+    ln -s ../../$a $a
+  done
+)
+
 for dir in testsuite/$dirs
 do
   rm -f $dir/output.*
   result="$(node - <<HERE
-var oldrequire = require;
-require = function (mod) {
-  switch(mod) {
-    case "remixml": mod = "./remixml.min.js"; break;
-  }
-  return oldrequire(mod);
-}
 const fs = require("fs");
 var rxml = require("remixml");
 var rxmlpathencode = require("remixml-pathencode");
-//var rxml = require("./remixml.js");
 
 var remixmlsrc = fs.readFileSync("$dir/template.remixml").toString();
 var data = fs.readFileSync("$dir/data.json").toString();
