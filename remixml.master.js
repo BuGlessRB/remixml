@@ -1250,7 +1250,7 @@ closelp:    for (;;)
     var /** !Array|string */ child;
     var /** number */ i = 0;
     while ((child = vdom[i++]) !== undefined)
-      parent += child[""] ? Y(child) : child;
+      parent += child[""] ? Y(child, html) : child;
     if (name)
       parent += "</" + name + ">";
     return parent;
