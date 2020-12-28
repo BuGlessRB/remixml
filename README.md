@@ -386,9 +386,9 @@ Specified parameters:
   to the same variable.
 - `flags` is an optional bitmask with:
    - 1: kill all whitespace.
-   - 2: preserve all whitespace.<br /><br />
-  If neither bits are present, it defaults to collapsing whitespace
-  around newlines to a single newline.
+   - 2: preserve all whitespace.  
+   If neither bits are present, it defaults to collapsing whitespace
+   around newlines to a single newline.
 
 Exposed API-list (in NodeJS and the browser):
 - `Remixml.remixml2js(remixmlsrc, flags?)`<br />
