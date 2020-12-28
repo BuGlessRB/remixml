@@ -20,7 +20,7 @@
 
   // Cut BEGIN for externs
   // Cut BEGIN for prepend
-  var VP,SP,CA,B,C,E,F,G,K,L,M,N,P,Q,R,S,T,U,V,X,Y,Z,
+  var VP,B,C,D,E,F,G,K,L,M,N,O,P,Q,R,S,T,U,V,X,Y,Z,
    log,sizeof,desc,abstract2txt,abstract2dom;
   // Cut END for prepend
   var A,VE,IA;
@@ -32,10 +32,10 @@
   function IA(s){return Array.isArray(s)}
   // Cut END for prepend
 
-  const D = typeof document == "object" ? document : null;
-  const W = D && window;
-  const O = Object;
-  const ie11 = D && W["MSInputMethodContext"] && D["documentMode"];
+  const Doc = typeof document == "object" ? document : null;
+  const W = Doc && window;
+  const Obj = Object;
+  const ie11 = Doc && W["MSInputMethodContext"] && D["documentMode"];
 
   const /** !Object */ eumapobj
    = {"+":"%2B"," ":"+","?":"%3F","&":"%26","#":"%23"};
@@ -217,7 +217,7 @@
     return t.replace(spacesrx, '&nbsp;');
   }
 
-  function /** void */ logerr(/** * */ t,/** string */ x)
+  D = function /** void */(/** * */ t,/** string */ x)
   { log("Remixml expression: " + JSON.stringify(t) + "\n" + x);
   }
 
@@ -331,10 +331,10 @@
                                           // Populate attributes on node
   S = function /** !Array */(/** !Object */ attr,/** string= */ tag)
   { var /** !Array */ r = L(tag);
-    O.assign(r, attr);
+    Obj.assign(r, attr);
     delete /** @type{Object} */(r)["::"];
     if (attr = attr["::"])
-      O.assign(r, attr);
+      Obj.assign(r, attr);
     return r;
   };
                                   // New node
@@ -358,7 +358,7 @@
 
   function /** void */
    defget(/** !Object */ o,/** string */ name,/** function():* */ fn)
-  { O.defineProperty(o, name, { get: fn, configurable: true });
+  { Obj.defineProperty(o, name, { get: fn, configurable: true });
   }
                           // Create new subcontext
   C = function /** !Object */(/** !Array */ _,
@@ -390,8 +390,8 @@
         return /** @type{Object} */(_);
     }
     var /** !Object */ n$;
-    (n$ = O.assign({}, $))["_"]
-     = O.assign(_ , {"_":$["_"], "_tag":O.assign({}, $["_"]["_tag"])});
+    (n$ = Obj.assign({}, $))["_"]
+     = Obj.assign(_ , {"_":$["_"], "_tag":Obj.assign({}, $["_"]["_tag"])});
     if (scope)
       n$[scope] = _;
     return n$;
@@ -434,7 +434,7 @@
     if ((k = k || 0) && k.size >= 0)
       r = k.entries();
     else
-    { r = O.entries(k);
+    { r = Obj.entries(k);
       if (k.length >= 0)
         r.splice(k.length);
       if (ord)
@@ -453,7 +453,7 @@
             }
             return m ? -ret : ret;
           });
-        } catch(x) { logerr(ord, x); }
+        } catch(x) { D(ord, x); }
       }
     }
     return r[Symbol.iterator]();
@@ -475,7 +475,7 @@
     }
   };
 
-  SP = function /** string */(/** string */ membr)
+  function /** string */ simplemember(/** string */ membr)
   { return membr.match(wordrx) ? "." + membr : '["' + membr + '"]';
   }
                                // Canonicalise variable path
@@ -484,7 +484,7 @@
     var /** string */ word;
     vpath = "$";
     for (word of components)
-      vpath += SP(word);
+      vpath += simplemember(word);
     return vpath;
   }
                       // Evaluate variable entity
@@ -574,19 +574,19 @@
     }
     return x;
   };
-                 // cloneabstract
-  CA = function /** !Array */ (/** !Array */ k,/** !Array= */ r)
+                // cloneabstract
+  O = function /** !Array */ (/** !Array */ k,/** !Array= */ r)
   { var /** * */ i;
     if (r)
     { for (i in r)
         delete r[/** @type{?} */(i)];
     } else
       r = [];
-    r = /** @type{!Array} */(O.assign(r, k));
+    r = /** @type{!Array} */(Obj.assign(r, k));
     i = r.length;
     while (i--)
     { if (r[i][""])
-        r[i] = CA(r[i]);
+        r[i] = O(r[i]);
     }
     return r;
   }
@@ -595,7 +595,7 @@
    (/** !Object */ $,/** !Array */ H,/** !Array|string|number */ x)
   { if (x[""])
     { if (x[""] === 1)
-        M(H, CA(/** @type{!Array} */(x)));
+        M(H, O(/** @type{!Array} */(x)));
       else
         H.push(x);
       x = 1;
@@ -664,8 +664,12 @@
      fmt && JSON.stringify(fmt));
   }
 
+  function /** string */ protectjs(/** string */ expr)
+  { return "(function(){try{return(" + expr + ')}catch(x){D(x)}return ""})()';
+  }
+
   function /** string */ runexpr(/** string */ expr)
-  { return "(_=$._," + (expr || 0) + ")";
+  { return "(_=$._," + (expr ? protectjs(expr) : '""') + ")";
   }
 
   function /** string|undefined */ evalexpr(/** string|undefined */ expr)
@@ -673,14 +677,14 @@
     { if (0 > expr.indexOf("("))
       { if ((expr = /** @type{string} */(JSON.parse(expr))).indexOf("_") >= 0)
           expr = "_=$._," + expr;
-        expr = "(" + expr + ")";
+        expr = protectjs(expr);
       } else
       { expr = expr.slice(-1) === '"'
          ? (expr[0] === '"' ? expr.slice(1,-1) : '"+' + expr.slice(0,-1))
          : (expr[0] === '"' ? expr.slice(1): '"+' + expr) + '+"';
         if (expr.indexOf("{") >= 0)
           expr = "(" + expr + ")";
-        expr = 'eval("' + expr + '")';
+        expr = protectjs('eval("' + expr + '")');
         expr = 0 > expr.indexOf("_") ? expr : "(_=$._," + expr + ")";
       }
     }
@@ -725,7 +729,7 @@
     }
     function /** void */ logcontext(/** string */ tag,/** string */ msg)
     { if (RUNTIMEDEBUG)
-        logerr(rxmls.substr(lasttoken - RUNTIMEDEBUG,
+        D(rxmls.substr(lasttoken - RUNTIMEDEBUG,
                RUNTIMEDEBUG*2 + (tag ? tag.length : 0)),
                msg + " at " + getposition());
     }
@@ -798,7 +802,7 @@ ntoken:
                = mapstring.slice(1,-1).split(spsplsing);
               obj += init;
               while (mapstring = maplist.pop())
-                obj += vname + SP(mapstring) + '=k['
+                obj += vname + simplemember(mapstring) + '=k['
                     + maplist.length + "];";
             }
           }
@@ -869,7 +873,7 @@ ntoken:
                         if (IA(av))
                           obj += av[0] + "=A(" +
                             (gotparms["clone"] !== undefined
-                             ? (simpleset = 0, "CA(H," + av[0] + ")") : "H")
+                             ? (simpleset = 0, "O(H," + av[0] + ")") : "H")
                         else
                           simpleset = 0, obj += "A(H,$," + av;
                         obj += wfunction;
@@ -1174,13 +1178,13 @@ closelp:    for (;;)
       constructor = /** @type{function(!Object):!Array} */(eval(jssrc));
     } catch(e) {
       if (RUNTIMEDEBUG)
-      { logerr(jssrc, e);
+      { D(jssrc, e);
         debuglog(jssrc);
       }
       if (ASSERT)
         constructor = function() { return ""; };
     }
-    if (D && DEBUG)
+    if (Doc && DEBUG)
       debuglog(constructor);
     return constructor;
   }
@@ -1189,7 +1193,7 @@ closelp:    for (;;)
   sizeof = function /** number */(/** * */ s)
   { return Number(s) === s ? 1
      : s ? s.length || s[""] !== 1
-      || O.keys(/** @type {!Object} */(s)).length : 0;
+      || Obj.keys(/** @type {!Object} */(s)).length : 0;
   };
 
   // For use in Javascript Remixml
@@ -1227,7 +1231,7 @@ closelp:    for (;;)
       default:
         parent = "<" + name;
         let /** string */ narg;
-        for (narg of O.keys(vdom).splice(vdom.length))
+        for (narg of Obj.keys(vdom).splice(vdom.length))
           switch (narg[0])
           { default:
               let /** string */ val = /** @type{Object} */(vdom)[narg];
@@ -1306,7 +1310,7 @@ closelp:    for (;;)
   if (typeof define == "function" && define["amd"])
     define("remixml", [], g);
   else if (typeof exports == "object")
-    O.assign(/** @type{!Object} */(exports), g);
+    Obj.assign(/** @type{!Object} */(exports), g);
   else
     W["Remixml"] = g;
 
