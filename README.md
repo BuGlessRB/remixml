@@ -50,7 +50,7 @@ having at least one dot in the entity name.
 The following sample code will illustrate the point:
 
 ```js
-Remixml.parse('<h1>Title of &_.sitename; for &_.description;</h1>'
+Remixml.parse2txt('<h1>Title of &_.sitename; for &_.description;</h1>'
   + '<p at="&anything.whatever;"> Some global variables &var.some; '
   + 'or &var.globalvars; or'
   + ' &var.arrays.1; or &var.arrays.2; or &var.objects.foo; or '
