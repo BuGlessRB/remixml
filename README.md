@@ -9,7 +9,7 @@ in Javascript.
 
 The Remixml templating engine has the following features:
 - Rich powerful language with dynamic scopes, autoescaping, macros and more.
-- Fast &amp; lean: Small 9 KB gzipped runtime with precompiled templates
+- Fast &amp; lean: Small 8 KB gzipped runtime with precompiled templates
   in the browser.  Compiles to Javascript.
 - Extensible with custom tags programmed in either Javascript or Remixml.
 - Extensible with custom filters programmed in Javascript.
@@ -33,7 +33,7 @@ framework to compare rendering speed between different template libraries.
 
 It runs inside any webbrowser (starting at IE11 and up) or NodeJS environment.
 
-Minified and gzip-compressed, it is less than 9 KB of code.
+Minified and gzip-compressed, it is less than 8 KB of code.
 
 It has zero dependencies on other modules.
 
