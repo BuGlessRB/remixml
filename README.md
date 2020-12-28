@@ -4,8 +4,8 @@
 [![Downloads](https://img.shields.io/npm/dm/remixml.svg?style=flat)](https://npmjs.org/package/remixml)
 [![Rate on Openbase](https://badges.openbase.io/js/rating/remixml.svg)](https://openbase.io/js/remixml?utm_source=embedded&utm_medium=badge&utm_campaign=rate-badge)
 
-Remixml is a sophisticated XML/HTML macro language/templating compiler engine
-in Javascript.
+Remixml is a sophisticated XML/XHTML macro language/templating compiler
+engine in Javascript.
 
 The Remixml templating engine has the following features:
 - Rich powerful language with dynamic scopes, autoescaping, macros and more.
@@ -15,13 +15,13 @@ The Remixml templating engine has the following features:
 - Extensible with custom filters programmed in Javascript.
 - Everywhere available in node and all modern web browsers (including IE11),
   with thorough precompilation options.
-- It contains a fully featured fast validating HTML parser.
+- It contains a fully featured fast validating XHTML parser.
 
 The language and primitives used blend in completely with
-standard XML/HTML syntax and therefore integrate smoothly with
-existing XML/HTML syntax colouring editors.
+standard XML/XHTML syntax and therefore integrate smoothly with
+existing XML/XHTML syntax colouring editors.
 
-Compiling and processing XML, HTML and Remixml automatically performs
+Compiling and processing XML, XHTML and Remixml automatically performs
 sanity checks and shows clear and precise warnings about missing opening
 or closing tags.
 
@@ -41,7 +41,7 @@ It supports (but does not require) output to the incremental-dom.
 
 ## Basic usage
 
-In essence Remixml is a macro language that has HTML/XML-like syntax
+In essence Remixml is a macro language that has XHTML/XML-like syntax
 and uses special entities to fill in templates.  The entities that are
 recognised by Remixml are always of the form: &amp;scope.varname;
 I.e. they distinguish themselves from regular HTML entities by always
@@ -399,12 +399,14 @@ Exposed API-list (in NodeJS and the browser):
   returns a DOM-abstract structure (AKA virtual DOM).
 - `Remixml.abstract2txt(abstract, html?)`<br />
   Converts a DOM-abstract into an XHTML/Remixml-string.
-  If it must be HTML compliant, set the optional argument `html` to `1`.
+  By default it produces valid XHTML, if it must be HTML compliant
+  (e.g. for parsing by the browser built-in HTML parser)
+  set the optional argument `html` to `1`.
 - `Remixml.compile(remixmlsrc, flags?)`<br />
   Shorthand for `Remixml.js2obj(Remixml.remixml2js(remixmlsrc))`
 - `Remixml.parse2txt(template, context, flags?)`<br />
   `template` can either be direct remixml source, or a precompiled object
-  from `Remixml.compile`.  Returns an HTML/Remixml-string.
+  from `Remixml.compile`.  Returns an XHTML/Remixml-string.
 - `Remixml.add_filter(name, filterfunction)`<br />
   Adds a new filter function to be used when inserting entities.
 - `Remixml.set_tag(callback, context, name, scope?, args?)`<br />
