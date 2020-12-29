@@ -434,6 +434,10 @@ Exposed API-list (in NodeJS and the browser):
 - For historical reference:<br />
   Remixml was originally inspired by
 [RXML, the Roxen webserver macro language](http://docs.roxen.com/).
-- [incremental-dom](https://github.com/google/incremental-dom).
+- [remixml-dom](https://github.com/BuGlessRB/remixml-dom).
+- [remixml-htmldom](https://github.com/BuGlessRB/remixml-htmldom).
+- [remixml-idom](https://github.com/BuGlessRB/remixml-idom).
+- [remixml-pathencode](https://github.com/BuGlessRB/remixml-pathencode).
+- [remixml-jsobj](https://github.com/BuGlessRB/remixml-jsobj).
 
 Card-carrying member of the `zerodeps` movement.
