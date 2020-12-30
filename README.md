@@ -326,6 +326,10 @@ in the inline Remixml Javascript scripts.
   This function is only available inside the `orderby` parameter of the
   `for` loop.  It causes the argument to be sorted in reverse.
 
+- `abstract2txt(abstract, html?)`
+
+- `abstract2dom(abstract, node?)`
+
 ### Examples
 
 Simple assigment:

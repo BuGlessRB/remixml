@@ -1202,6 +1202,12 @@ closelp:    for (;;)
   };
 
   // For use in Javascript Remixml
+  abstract2dom
+   = function /** !Node */(/** !Array */ abstract,/** !Node= */ node)
+  { return g["abstract2dom"](abstract, node);
+  }
+
+  // For use in Javascript Remixml
   abstract2txt = Y = function /** string */(/** !Array|string */ vdom,
    /** number= */ html)
   { for (;;)
@@ -1270,13 +1276,8 @@ closelp:    for (;;)
   }
 
   var g =
-  { "remixml2js":
-      function /** string */(/** string */ remixml, /** number= */ flags)
-      { return remixml2js(remixml, flags);
-      },
-    "js2obj": function /** function(!Object):!Array */(/** string */ jssrc)
-      { return js2obj(jssrc);
-      },
+  { "remixml2js": remixml2js,
+    "js2obj": js2obj,
     "compile":
       function /** function(!Object):!Array */(/** string */ remixml,
 	                                       /** number= */ flags)
@@ -1289,10 +1290,7 @@ closelp:    for (;;)
           tpl = js2obj(remixml2js(/** @type{string} */(tpl), flags));
         return Y(/** @type{function(!Object):!Array} */(tpl)($));
       },
-    "abstract2txt":
-      function /** string */(/** !Array */ tpl,/** number= */ html)
-      { return Y(tpl, html);
-      },
+    "abstract2txt": Y,
     "add_filter": function /** void */(/** string */ name,
        /** function(string):string */ filterfn)
       { filters[name] = filterfn;
