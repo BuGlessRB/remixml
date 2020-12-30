@@ -1249,8 +1249,8 @@ closelp:    for (;;)
               }
             case "_":case undefined:;
           }
-        if (!vdom.length)
-          return parent + (html ? "></" + name + ">" : "/>");
+        if (!vdom.length)     // </br> is like <br> for a browser
+          return parent + (html && name !== "br" ? "></" + name + ">" : "/>");
         parent += ">";
     }
     var /** !Array|string */ child;
