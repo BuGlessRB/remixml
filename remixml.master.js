@@ -986,7 +986,7 @@ ntoken:
                       }
                       continue;
                     case "delimiter":
-                      obj += "if(2>$._._recno){";
+                      obj += "if($._._recno>1){";
                       bodyfromparent();
                       continue;
                     case "elif":
