@@ -38,7 +38,8 @@
   const ie11 = Doc && W["MSInputMethodContext"] && D["documentMode"];
 
   const /** !Object */ eumapobj
-   = {"+":"%2B"," ":"+","?":"%3F","&":"%26","#":"%23"};
+   = {"+":"%2B"," ":"+","\t":"%09","\n":"%0A","\r":"%0D","?":"%3F","&":"%26",
+      "#":"%23","<":"%3C"};
   const /** !Object */ htmlmapobj = {"&":"&amp;","<":"&lt;"};
   const /** !Object */ argmapobj = {"&":"&amp;","\"":"&dquot;"};
   const /** !Object */ currencyobj
@@ -79,7 +80,7 @@
   const /** !RegExp */ spacesrx = /\s+/g;
   const /** !RegExp */ spacesprx = /\s\s+/g;
   const /** !RegExp */ ltrx = /</g;
-  const /** !RegExp */ uricrx = /[+ ?&#]/g;
+  const /** !RegExp */ uricrx = /[+ \t\n\r?&#<]/g;
   const /** !RegExp */ htmlmaprx = /[&<]/g;
   const /** !RegExp */ nonwordrx = /[^-:\w,]+/g;
   const /** !RegExp */ escaperxrx = /([\\^$*+?.|()[{])/g;
