@@ -834,8 +834,10 @@ ntoken:
                 tagctx[TS_FLAGS] = TRIMWHITE;
               }
               switch (tag)
-              { case "noparse": noparse++; continue;
-                case "comment": comment++; break;
+              { case "noparse": noparse++; markhasbody();
+		  continue;
+                case "comment": comment++;
+		  break;
               }
               if (!comment)
               { delete gotparms[""];
@@ -1055,7 +1057,7 @@ closelp:    for (;;)
                 default:
                   if (!comment)
                   { if (noparse)
-                      obj += "}";
+                      obj += "J.push(H)}";
                     else
                     { switch (shouldtag)
                       { case "set":
@@ -1139,14 +1141,17 @@ closelp:    for (;;)
           }
           break;
         case "&":
-          varentity.lastIndex = ++lasttoken;
-          if (rm = execy(varentity, rxmls))
-          { lasttoken = varentity.lastIndex;
-            if (!comment && !nooutput)
-              obj += varent(rm) + varinsert;
-            simpleset = 0;
-            markhasbody();
-            break;
+	  varentity.lastIndex = ++lasttoken;
+	  if (!noparse)
+	  { if (rm = execy(varentity, rxmls))
+            { lasttoken = varentity.lastIndex;
+              if (!comment && !nooutput)
+	      { obj += varent(rm) + varinsert;
+                simpleset = 0;
+                markhasbody();
+	      }
+              break;
+            }
           }
           ts = "&";	    // No variable, fall back to normal text
         default:

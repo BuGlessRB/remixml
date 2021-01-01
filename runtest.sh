@@ -22,6 +22,7 @@ do
   result="$(node - <<HERE
 const fs = require("fs");
 var rxml = require("remixml");
+//var rxml = require("./remixml.js");
 var rxmlpathencode = require("remixml-pathencode");
 
 var remixmlsrc = fs.readFileSync("$dir/template.remixml").toString();

@@ -1,0 +1,4 @@
+<set var="_.foobar">12</set>
+ABC
+<noparse>A&_.foobar;B<trim>C</trim>D</noparse>
+D<trim>E</trim>F

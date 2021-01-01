@@ -1,0 +1,22 @@
+ABC
+<set var="_.foobar">12</set>
+X&_.foobar;Y
+<noparse>A&_.foobar;B</noparse>
+<if expr="_.foobar == 12">
+ Yes
+</if>
+<else>
+ No
+</else>
+Prefix
+<noparse>
+ <if expr="_.foobar == 12">
+  Indeed
+  <noparse>
+   <else>
+    Else?
+   </else>
+  </noparse>
+ </if>
+</noparse>
+The &_.foobar; end
