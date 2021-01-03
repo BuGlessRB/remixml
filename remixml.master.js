@@ -66,6 +66,7 @@
    = /\s*(?:([-\w:]+|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?|>)/g;
   const /** !RegExp */ complexlabel = /[^\w]/;
   const /** !RegExp */ scriptend = /<\/script>/g;
+  const /** !RegExp */ styleend = /<\/style>/g;
   const /** !RegExp */ gmtrx = /.+GMT([+-]\d+).+/;
   const /** !RegExp */ tzrx = /.+\((.+?)\)$/;
   const /** !RegExp */ noparenplusrx = /^"([^(+]+)"$/;
@@ -1034,18 +1035,25 @@ ntoken:
                 }
                 obj += '},"' + tag + '")';
               }
-              if (tag === "script" && !close)
-              { obj += ";";
-                scriptend.lastIndex = lasttoken;
-                scriptend.exec(rxmls);
-                let /** number */ i = scriptend.lastIndex;
-                if (!comment && !nooutput)      // substract closing script tag
-                { if (ts = rxmls.slice(lasttoken, i - 9))
-                    obj += "H[0]=" + JSON.stringify(ts) + ";";
-                }
-                lasttoken = i;
-                close = 1;
-              } else if (!comment)
+              if (!close)
+              { let /** !RegExp|number */ rxend
+		 = tag === "script" ? scriptend :
+		   tag === "style" ? styleend : 0;
+		if (rxend)
+                { rxend.lastIndex = lasttoken;
+                  rxend.exec(rxmls);
+                  let /** number */ i = rxend.lastIndex;
+                  obj += ";";
+                  if (!comment && !nooutput)      // substract closing tag
+                  { if (ts = rxmls.slice(lasttoken, i - 3 - tag.length))
+                      obj += "H[0]=" + JSON.stringify(ts) + ";";
+                  }
+                  lasttoken = i;
+                  close = 1;
+	          break;
+		}
+	      }
+	      if (!comment)
               { obj += ";";
                 tagctx[TS_FLAGS] |= USERTAG;
               }
@@ -1132,6 +1140,7 @@ skipdef:      do {
                         if (tagctx[TS_FLAGS] & STASHCONTENT)
                           obj += "};";
                       case "script":
+                      case "style":
                         if (!nooutput)
                           obj += "X(J,H,$)";
                       case "delimiter":
@@ -1180,11 +1189,13 @@ skipdef:      do {
           ts += execy(textrx, rxmls)[0];
           lasttoken = textrx.lastIndex;
           if (!comment && !nooutput)
-          { if (flags & (KILLWHITE|PRESERVEWHITE))
-            { if (flags & KILLWHITE)
-                ts = subws(ts);
-            } else
-              ts = subwnl(ts);		// Coalesce newlines by default
+          { if (!noparse)
+	    { if (flags & (KILLWHITE|PRESERVEWHITE))
+              { if (flags & KILLWHITE)
+                  ts = subws(ts);
+              } else
+                ts = subwnl(ts);	// Coalesce newlines by default
+	    }
             if (ts && !(tagctx[TS_FLAGS] & TRIMWHITE
                      && obj.slice(-2) !== "0}" // Not preceded by varentity?
                      && ts.match(spacelinerx)))

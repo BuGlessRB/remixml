@@ -305,6 +305,8 @@ if a single `-` parameter is given.
    Copy the contents of this tag verbatim without further parsing
    (and leave the `script` tag itself).  To force parsing inside
    `script` tags use `<maketag name="script">...</maketag>` instead.
+- `<style>...</style>`<br />
+   Treated exactly like `<script>` tags.
 - `<noparse>...</noparse>`<br />
    Copy the contents of this tag verbatim without further parsing
    (but strip the `noparse` tag itself).
