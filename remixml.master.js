@@ -319,6 +319,7 @@
     while (i--)
     { switch ((val = parent[i])[""])
       { case "!":
+        case "?":
           if (!fn)
             break;
         default:
@@ -1277,6 +1278,8 @@ skipdef:      do {
     switch (name)
     { case "!":
         return "<!" + vdom[0] + ">";
+      case "?":
+        return "<?" + vdom[0] + "?>";
       case 1:
         name = parent = "";
         break;
