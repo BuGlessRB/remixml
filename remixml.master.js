@@ -834,9 +834,15 @@ ntoken:
                 tagctx[TS_FLAGS] = TRIMWHITE;
               }
               switch (tag)
-              { case "noparse": noparse++; markhasbody();
-		  continue;
-                case "comment": comment++;
+              { case "noparse":
+		  if (!noparse++)
+		  { markhasbody();
+		    continue;
+		  }
+		  break;
+                case "comment":
+		  if (!noparse)
+		    comment++;
 		  break;
               }
               if (!comment)
@@ -1050,77 +1056,92 @@ ntoken:
 closelp:    for (;;)
             { tagctx = tagstack.pop();
               let /** string|number */ shouldtag = tagctx[TS_TAG];
-              switch (shouldtag)
-              { case "noparse": noparse--; break;
-                case "comment": comment--; break;
-                case "nooutput": nooutput--; break;
-                default:
-                  if (!comment)
-                  { if (noparse)
-                      obj += "J.push(H)}";
-                    else
-                    { switch (shouldtag)
-                      { case "set":
-                          if (obj.slice(-1) !== "{")  // Non-empty function?
-                          { if (simpleset)  // Simplify plain assignment
-                            { let /** Array<string> */ ar = obj.slice(simpleset)
-                                                  .match(extractstrx);
-                              obj = obj.slice(0, simpleset
-                                     - letHprefix.length - vfnprefix.length)
-                               + ar[1] + ar[2] + ";";
-                              break;
-                            }
+skipdef:      do {
+                switch (shouldtag)
+                { case "noparse":
+		    if(!--noparse)
+		      break skipdef;
+		    break;
+                  case "comment":
+	            if (!noparse)
+	            { comment--;
+		      break skipdef;
+		    }
+	            break;
+                  case "nooutput":
+	            if (!noparse)
+	            { nooutput--;
+		      break skipdef;
+		    }
+	            break;
+                  case 0:
+		    break skipdef;
+	        }
+                if (!comment)
+                { if (noparse)
+                    obj += "J.push(H)}";
+                  else
+                  { switch (shouldtag)
+                    { case "set":
+                        if (obj.slice(-1) !== "{")  // Non-empty function?
+                        { if (simpleset)  // Simplify plain assignment
+                          { let /** Array<string> */ ar = obj.slice(simpleset)
+                                                .match(extractstrx);
+                            obj = obj.slice(0, simpleset
+                                   - letHprefix.length - vfnprefix.length)
+                             + ar[1] + ar[2] + ";";
+                            break;
                           }
-                          obj += tagctx[TS_FLAGS] & VFUN ? wfunclose : "})}";
-                          parenthasbody();
-                          break;
-                        case "insert":
-			  if (tagctx[TS_FLAGS] & HASBODY)
-			    obj += wfunclose;
-                          parenthasbody();
-                        case "unset":
-                          break;
-                        case "replace":
-                          obj += "M(J,R(H,v))}";
-                          parenthasbody();
-                          break;
-                        case "trim":
-                          obj += "M(J,U(R(H)))}";
-                          parenthasbody();
-                          break;
-                        case "maketag":
-                          obj += "J.push(H)}";
-                          parenthasbody();
-                          break;
-                        case "attrib":
-                          obj += "V(H,v,J)}";
-                          break;
-                        case "for":
-                          obj += "$=o;I=1}}";
-                          parenthasbody();
-                          break;
-                        case "if":case "then":case "elif":case "else":
-                          obj += "I=1}";
-                          break;
-                        case "eval":
-                          obj += "M(J,E(H,v,$))}";
-                          parenthasbody();
-                          break;
-                        default:
-                          if (tagctx[TS_FLAGS] & STASHCONTENT)
-                            obj += "};";
-                        case "script":
-                          if (!nooutput)
-                            obj += "X(J,H,$)";
-                        case "delimiter":
-                          obj += "}";
-                          parenthasbody();
-                      }
-                      simpleset = 0;
+                        }
+                        obj += tagctx[TS_FLAGS] & VFUN ? wfunclose : "})}";
+                        parenthasbody();
+                        break;
+                      case "insert":
+		        if (tagctx[TS_FLAGS] & HASBODY)
+		          obj += wfunclose;
+                        parenthasbody();
+                      case "unset":
+                        break;
+                      case "replace":
+                        obj += "M(J,R(H,v))}";
+                        parenthasbody();
+                        break;
+                      case "trim":
+                        obj += "M(J,U(R(H)))}";
+                        parenthasbody();
+                        break;
+                      case "maketag":
+                        obj += "J.push(H)}";
+                        parenthasbody();
+                        break;
+                      case "attrib":
+                        obj += "V(H,v,J)}";
+                        break;
+                      case "for":
+                        obj += "$=o;I=1}}";
+                        parenthasbody();
+                        break;
+                      case "if":case "then":case "elif":case "else":
+                        obj += "I=1}";
+                        break;
+                      case "eval":
+                        obj += "M(J,E(H,v,$))}";
+                        parenthasbody();
+                        break;
+                      default:
+                        if (tagctx[TS_FLAGS] & STASHCONTENT)
+                          obj += "};";
+                      case "script":
+                        if (!nooutput)
+                          obj += "X(J,H,$)";
+                      case "delimiter":
+                        obj += "}";
+                        parenthasbody();
                     }
+                    simpleset = 0;
                   }
-                case 0:;
-              }
+                }
+              } while (0);
               if ((RUNTIMEDEBUG || ASSERT) && tag !== shouldtag)
               { logcontext(tag,
 		 (shouldtag ? "Expected </" + shouldtag + "> got </"

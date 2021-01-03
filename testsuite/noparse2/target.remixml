@@ -10,11 +10,17 @@ Prefix
 
 <if expr="_.foobar == 12">
 Indeed
-
+<noparse>
+Should stay
+</noparse>
+<comment>
+no comment
+<noparse>
 <else>
 Else?
 </else>
-
+</noparse>
+</comment>
 </if>
 
 The 12 end
