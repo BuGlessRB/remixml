@@ -59,10 +59,9 @@
    /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
   const /** !RegExp */ varentity = regexpy(
          "([\\w$]+\\.[\\w$]+(?:[.[][\\w$]+]?)*)(?::([\\w$]*))?(?:%([^;]*))?;");
-  const /** !RegExp */ commentrx = regexpy("(--.*?(--|$))(>|$)");
-  const /** !RegExp */ doctyperx = regexpy("(.*?)(>|$)");
-  const /** !RegExp */ noparserx = regexpy("noparse\\s(.*?)(\\?>|$)");
-  const /** !RegExp */ qmarkrx = regexpy("(.*?)(\\?>|$)");
+  const /** !RegExp */ qemrx
+   = regexpy("!(--.*?(?:--|$)|[^-].*?)(?:>|$)|\\?(.*?)(?:\\?>|$)");
+  const /** !RegExp */ noparserx = regexpy("noparse\\s");
   const /** !RegExp */ textrx = regexpy("[^&<]+");
   const /** !RegExp */ params
    = /\s*(?:([-\w:]+|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?|>)/g;
@@ -753,14 +752,10 @@
     function /** void */ parenthasbody()
     { tagstack[tagstack.length - 1][TS_FLAGS] |= HASBODY;
     }
-    function /** void */ getexclm(/** string */ dlim, /** !RegExp */ regex)
-    { var /** Array */ rm;
-      regex.lastIndex = lasttoken;
-      rm = execy(regex, rxmls);
-      lasttoken = regex.lastIndex;
-      if (!comment)
-      { obj += 'H.push(W=L("' + dlim + '"));W[0]='
-         + JSON.stringify(rm[1]) + ";";
+    function /** void */ getexclm(/** !Array */ rm,/** number */ offset)
+    { if (!comment)
+      { obj += 'H.push(W=L("' + rm[0][0] + '"));W[0]='
+         + JSON.stringify(rm[offset]) + ";";
         markhasbody();
       }
     }
@@ -783,22 +778,24 @@
 ntoken:
       switch (rxmls[lasttoken])
       { case "<":
-	  { let /** string */ firstch = rxmls[++lasttoken];
-            if (firstch === "!")
-            { getexclm(firstch, rxmls.substr(++lasttoken, 2) === "--"
-	                        ? commentrx : doctyperx);
-              break;
-            } else if (firstch === "?")
-            { noparserx.lastIndex = ++lasttoken;
-	      if (rm = noparserx.exec(rxmls))
-	      { obj += "T(H," + JSON.stringify(rm[1]) + ");";
-                lasttoken = noparserx.lastIndex;
-                markhasbody();
+	  qemrx.lastIndex = ++lasttoken;
+	  if (rm = execy(qemrx, rxmls))
+          { lasttoken = qemrx.lastIndex;
+            if (rm[1])
+	      getexclm(rm, 1);
+            else
+            { noparserx.lastIndex = 0;
+	      if (execy(noparserx, ts = rm[2]))
+	      { if (!comment)
+		{ obj += "T(H,"
+		   + JSON.stringify(ts.slice(noparserx.lastIndex)) + ");";
+                  markhasbody();
+		}
 	      } else
-		getexclm(firstch, qmarkrx);
-	      break;
+	        getexclm(rm, 2);
 	    }
-	  }
+	    break;
+          }
           params.lastIndex = lasttoken;
           let /** !Object */ gotparms = {};
           function /** string|undefined */ getparm(/** string */ name)
