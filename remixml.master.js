@@ -59,8 +59,10 @@
    /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
   const /** !RegExp */ varentity = regexpy(
          "([\\w$]+\\.[\\w$]+(?:[.[][\\w$]+]?)*)(?::([\\w$]*))?(?:%([^;]*))?;");
-  const /** !RegExp */ commentrx = regexpy("(--.*?--)>");
-  const /** !RegExp */ doctyperx = regexpy("(.*?)>");
+  const /** !RegExp */ commentrx = regexpy("(--.*?(--|$))(>|$)");
+  const /** !RegExp */ doctyperx = regexpy("(.*?)(>|$)");
+  const /** !RegExp */ noparserx = regexpy("noparse\\s(.*?)(\\?>|$)");
+  const /** !RegExp */ qmarkrx = regexpy("(.*?)(\\?>|$)");
   const /** !RegExp */ textrx = regexpy("[^&<]+");
   const /** !RegExp */ params
    = /\s*(?:([-\w:]+|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?|>)/g;
@@ -750,19 +752,16 @@
     function /** void */ parenthasbody()
     { tagstack[tagstack.length - 1][TS_FLAGS] |= HASBODY;
     }
-    function /** number */ getexclm(/** !RegExp */ regex)
+    function /** void */ getexclm(/** string */ dlim, /** !RegExp */ regex)
     { var /** Array */ rm;
       regex.lastIndex = lasttoken;
-      if (rm = execy(regex, rxmls))
-      { lasttoken = regex.lastIndex;
-        if (!comment)
-        { obj += 'H.push(W=L("!"));W[0]='
-           + JSON.stringify(rm[1]) + ";";
-          markhasbody();
-        }
-        return 1;
+      rm = execy(regex, rxmls);
+      lasttoken = regex.lastIndex;
+      if (!comment)
+      { obj += 'H.push(W=L("' + dlim + '"));W[0]='
+         + JSON.stringify(rm[1]) + ";";
+        markhasbody();
       }
-      return 0;
     }
     for (;;)
     { var /** Array */ rm;
@@ -783,13 +782,22 @@
 ntoken:
       switch (rxmls[lasttoken])
       { case "<":
-          if (rxmls[++lasttoken] === "!")
-          { if (rxmls.substr(++lasttoken, 2) === "--")
-            { if (getexclm(commentrx))
-                break;
-            } else if (getexclm(doctyperx))
+	  { let /** string */ firstch = rxmls[++lasttoken];
+            if (firstch === "!")
+            { getexclm(firstch, rxmls.substr(++lasttoken, 2) === "--"
+	                        ? commentrx : doctyperx);
               break;
-          }
+            } else if (firstch === "?")
+            { noparserx.lastIndex = ++lasttoken;
+	      if (rm = noparserx.exec(rxmls))
+	      { obj += "T(H," + JSON.stringify(rm[1]) + ");";
+                lasttoken = noparserx.lastIndex;
+                markhasbody();
+	      } else
+		getexclm(firstch, qmarkrx);
+	      break;
+	    }
+	  }
           params.lastIndex = lasttoken;
           let /** !Object */ gotparms = {};
           function /** string|undefined */ getparm(/** string */ name)
@@ -1301,7 +1309,7 @@ skipdef:      do {
   };
 
   function /** !RegExp */ regexpy(/** string */ expr)
-  { return RegExp(expr, ie11 ? "g" : "y");
+  { return RegExp(expr, ie11 ? "gs" : "ys");
   }
 
   function /** Array */ execy(/** !RegExp */ expr,/** string */ haystack)

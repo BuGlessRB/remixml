@@ -1,0 +1,30 @@
+ABC
+
+X12Y
+x
+<noparse>A&_.foobar;B</noparse>
+<if expr="_.foobar == 12">
+ Yes
+</if>
+<else>
+ No
+</else>
+Prefix
+<noparse>
+ <if expr="_.foobar == 12">
+  Indeed
+  <noparse>
+   Should stay
+  </noparse>
+  <comment>
+   no comment
+   <noparse>
+    <else>
+     Else?
+    </else>
+   </noparse>
+  </comment>
+ </if>
+</noparse>
+x
+The 12 end

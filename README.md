@@ -310,6 +310,9 @@ if a single `-` parameter is given.
 - `<noparse>...</noparse>`<br />
    Copy the contents of this tag verbatim without further parsing
    (but strip the `noparse` tag itself).
+- `<?noparse ...?>`<br />
+   Copy the contents of this tag verbatim without further parsing
+   (but strip the `noparse` tag itself).
 - `<nooutput>...</nooutput>`<br />
    Suppress output inside this tag.
 - `<comment>...</comment>`<br />
