@@ -60,7 +60,7 @@
   const /** !RegExp */ varentity = regexpy(
          "([\\w$]+\\.[\\w$]+(?:[.[][\\w$]+]?)*)(?::([\\w$]*))?(?:%([^;]*))?;");
   const /** !RegExp */ qemrx
-   = regexpy("!(--.*?(?:--|$)|[^-].*?)(?:>|$)|\\?(.*?)(?:\\?>|$)");
+   = regexpy("!(?:--(.*?)(?:--|$)|([^-].*?))(?:>|$)|\\?(.*?)(?:\\?>|$)");
   const /** !RegExp */ noparserx = regexpy("noparse\\s");
   const /** !RegExp */ textrx = regexpy("[^&<]+");
   const /** !RegExp */ params
@@ -318,6 +318,7 @@
     while (i--)
     { switch ((val = parent[i])[""])
       { case "!":
+        case "<":
         case "?":
           if (!fn)
             break;
@@ -782,16 +783,19 @@ ntoken:
           { lasttoken = qemrx.lastIndex;
             if (rm[1])
 	      getexclm(rm, 1);
-            else
+	    else if (rm[2])
+	    { rm[0] = "<";
+	      getexclm(rm, 2);
+	    } else
             { noparserx.lastIndex = 0;
-	      if (execy(noparserx, ts = rm[2]))
+	      if (execy(noparserx, ts = rm[3]))
 	      { if (!comment)
 		{ obj += "T(H,"
 		   + JSON.stringify(ts.slice(noparserx.lastIndex)) + ");";
                   markhasbody();
 		}
 	      } else
-	        getexclm(rm, 2);
+	        getexclm(rm, 3);
 	    }
 	    break;
           }
@@ -1260,6 +1264,8 @@ nobody:             do
     var /** string|number */ name = vdom[""];
     switch (name)
     { case "!":
+        return "<!--" + vdom[0] + "-->";
+      case "<":
         return "<!" + vdom[0] + ">";
       case "?":
         return "<?" + vdom[0] + "?>";

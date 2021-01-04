@@ -1,7 +1,15 @@
-<!-- hellO -->
+<!--hellO
+ there -->
+aha
+<!doctype testme harder>
+<nooutput>
 <set var="_.foobar">12</set>
 <!-- there -->
+</nooutput>
 <for from="9" to="3" step="-2">
 <if expr="_._index > 6">&_._index;</if><else>N</else></for>
 <then>then</then><else>else</else>
 <set var="_.new" expr="+_.foobar + _.foo"></set>xx&_.new;yyy
+<!--there
+this is
+the end of the line
