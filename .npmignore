@@ -16,6 +16,7 @@ core.*
 node_modules
 *.tgz
 docs
+/testsuite/*/output.*
 testsuite.html
 package-lock.json
 /.coveralls.yml
