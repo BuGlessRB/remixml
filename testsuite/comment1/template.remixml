@@ -4,6 +4,11 @@ aha
 <!doctype testme harder>
 <nooutput>
 <set var="_.foobar">12</set>
+<?comment
+<set var="_.foobar">44</set>
+<if
+<then>
+<else ?>
 <!-- there -->
 </nooutput>
 <for from="9" to="3" step="-2">

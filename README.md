@@ -317,6 +317,8 @@ if a single `-` parameter is given.
    Suppress output inside this tag.
 - `<comment>...</comment>`<br />
    Strip and skip this tag with content.
+- `<?comment ...?>`<br />
+   Strip and skip this tag with content.
 
 #### Javascript helperfunctions
 

@@ -61,7 +61,7 @@
          "([\\w$]+\\.[\\w$]+(?:[.[][\\w$]+]?)*)(?::([\\w$]*))?(?:%([^;]*))?;");
   const /** !RegExp */ qemrx
    = regexpy("!(?:--(.*?)(?:--|$)|([^-].*?))(?:>|$)|\\?(.*?)(?:\\?>|$)");
-  const /** !RegExp */ noparserx = regexpy("noparse\\s");
+  const /** !RegExp */ noparserx = regexpy("(?:noparse|comment)\\s");
   const /** !RegExp */ textrx = regexpy("[^&<]+");
   const /** !RegExp */ params
    = /\s*(?:([-\w:]+|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?|>)/g;
@@ -781,21 +781,23 @@ ntoken:
 	  qemrx.lastIndex = ++lasttoken;
 	  if (rm = execy(qemrx, rxmls))
           { lasttoken = qemrx.lastIndex;
-            if (rm[1])
-	      getexclm(rm, 1);
-	    else if (rm[2])
-	    { rm[0] = "<";
-	      getexclm(rm, 2);
-	    } else
-            { noparserx.lastIndex = 0;
-	      if (execy(noparserx, ts = rm[3]))
-	      { if (!comment)
-		{ obj += "T(H,"
-		   + JSON.stringify(ts.slice(noparserx.lastIndex)) + ");";
-                  markhasbody();
-		}
+	    if (!comment)
+	    { if (rm[1])
+	        getexclm(rm, 1);
+	      else if (rm[2])
+	      { rm[0] = "<";
+	        getexclm(rm, 2);
 	      } else
-	        getexclm(rm, 3);
+              { noparserx.lastIndex = 0;
+	        if (execy(noparserx, ts = rm[3]))
+	        { if (ts[0] === "n")	// noparse or comment?
+	          { obj += "T(H,"
+	             + JSON.stringify(ts.slice(noparserx.lastIndex)) + ");";
+                    markhasbody();
+	          }
+	        } else
+	          getexclm(rm, 3);
+	      }
 	    }
 	    break;
           }
