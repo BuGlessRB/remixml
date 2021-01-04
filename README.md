@@ -432,7 +432,7 @@ Exposed API-list (in NodeJS and the browser):
   `template` can either be direct remixml source, or a precompiled object
   from `Remixml.compile`.  Returns an XHTML/Remixml-string.
 - `Remixml.add_filter(name, filterfunction)`<br />
-  Adds a new filter function to be used when inserting entities.
+  Adds a new filter function to be used as encoding when inserting entities.
 - `Remixml.set_tag(callback, context, name, scope?, args?)`<br />
   Creates a tag definition in the given `context` just like
   `<set tag="name"></set>` would have done.
