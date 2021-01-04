@@ -63,6 +63,7 @@ HERE
 <html>
 <head>
  <script src="remixml.js"></script>
+ <script src="node_modules/remixml-dom/remixml-dom.js"></script>
  <script>
   var rxml = Remixml;
   var data = {"_":

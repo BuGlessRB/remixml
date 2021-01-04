@@ -1,6 +1,6 @@
 {
   "name": "remixml",
-  "version": "4.7.2",
+  "version": "4.7.3",
   "description": "XML/HTML-like macro language/template compiler engine",
   "main": "remixml.min.js",
   "browser": "remixml.min.js",
@@ -13,7 +13,11 @@
   "dependencies": {},
   "devDependencies": {
     "incremental-dom": "*",
-    "remixml-pathencode": "^4.0.1"
+    "remixml-pathencode": "*",
+    "remixml-dom": "*",
+    "remixml-idom": "*",
+    "remixml-htmldom": "*",
+    "remixml-jsobj": "*"
   },
   "directories": {},
   "repository": {
