@@ -92,8 +92,8 @@
    /(\n)\s+|[ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+(?:(\n)\s*|([ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]))/g;
 
   var /** !Object<function(string):string> */ filters = {};
-  var /** function(...) */ debuglog = console.log;
-  var /** function(...) */ log = debuglog;
+  var /** function(...) */ debuglog = console.debug;
+  var /** function(...) */ log = console.error;
 
   function /** !boolean */ isstring(/** * */ s)
   { return typeof s === "string"; }
@@ -220,8 +220,8 @@
     return t.replace(spacesrx, '&nbsp;');
   }
 
-  D = function /** void */(/** * */ t,/** string */ x)
-  { log("Remixml expression: " + JSON.stringify(t) + "\n" + x);
+  D = function /** void */(/** string */ x,/** *= */ t)
+  { log("Remixml expression: " + (t ? JSON.stringify(t) : "") + "\n", x);
   }
 
   function /** void */ settag(/** function(!Object):!Array */ tpl,
@@ -458,7 +458,7 @@
             }
             return m ? -ret : ret;
           });
-        } catch(x) { D(ord, x); }
+        } catch(x) { D(x, ord); }
       }
     }
     return r[Symbol.iterator]();
@@ -670,7 +670,8 @@
   }
 
   function /** string */ protectjs(/** string */ expr)
-  { return "(function(){try{return(" + expr + ')}catch(x){D(x)}return ""})()';
+  { return "(function(){try{return(" + expr +
+     ')}catch(x){D(x)}return ""})()';
   }
 
   function /** string */ runexpr(/** string */ expr)
@@ -733,9 +734,9 @@
     }
     function /** void */ logcontext(/** string */ tag,/** string */ msg)
     { if (RUNTIMEDEBUG)
-        D(rxmls.substr(lasttoken - RUNTIMEDEBUG,
-               RUNTIMEDEBUG*2 + (tag ? tag.length : 0)),
-               msg + " at " + getposition());
+        D(msg + " at " + getposition(),
+	  rxmls.substr(lasttoken - RUNTIMEDEBUG,
+               RUNTIMEDEBUG*2 + (tag ? tag.length : 0)));
     }
     function /** void */ startcfn()
     { if ((tagctx[TS_FLAGS] & (USERTAG|STASHCONTENT)) === USERTAG)
@@ -1214,7 +1215,7 @@ nobody:             do
       constructor = /** @type{function(!Object):!Array} */(eval(jssrc));
     } catch(e) {
       if (RUNTIMEDEBUG)
-      { D(jssrc, e);
+      { D(e, jssrc);
         debuglog(jssrc);
       }
       if (ASSERT)

@@ -438,7 +438,7 @@ Exposed API-list (in NodeJS and the browser):
   is referenced as `<name foo="bar"></name>` then inside the
   callback function `context._.foo` will have the value `bar`.
 - `Remixml.set_log_callback(callback)`<br />
-  If not set, it defaults to `console.log()`.  This callback function is used
+  If not set, it defaults to `console.error()`.  This callback function is used
   to log remixml runtime errors.
 
 #### Reserved object variables
