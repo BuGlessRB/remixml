@@ -720,7 +720,6 @@
     var /** string */ obj = '(function($){"use strict";var I,W,_,H=N($);';
     var /** number */ noparse = 0;
     var /** number */ comment = 0;
-    var /** number */ nooutput = 0;
     var /** number */ simpleset;      // Peephole optimiser plain string sets
     var /** !Array */ tagctx = [0, {}, STASHCONTENT, ""];
     var /** !Array */ tagstack = [tagctx];
@@ -854,8 +853,7 @@ ntoken:
               }
               if (!comment)
               { delete gotparms[""];
-                if (!nooutput)
-                  obj += "W=H;";
+                obj += "W=H;";
                 if (!noparse)
                 { switch (tag)
                   { case "set":
@@ -1020,9 +1018,6 @@ ntoken:
                       obj += "if(!I){";
                       bodyfromparent();
                       continue;
-                    case "nooutput":
-                      nooutput++;
-                      continue;
                   }
                 }
                 obj += "{let J=W,H=S({";
@@ -1050,7 +1045,7 @@ ntoken:
                   rxend.exec(rxmls);
                   let /** number */ i = rxend.lastIndex;
                   obj += ";";
-                  if (!comment && !nooutput)      // substract closing tag
+                  if (!comment)				// substract closing tag
                   { if (ts = rxmls.slice(lasttoken, i - 3 - tag.length))
                       obj += "H[0]=" + JSON.stringify(ts) + ";";
                   }
@@ -1082,12 +1077,6 @@ skipdef:      do {
 		      break skipdef;
 		    }
 	            break;
-                  case "nooutput":
-	            if (!noparse)
-	            { nooutput--;
-		      break skipdef;
-		    }
-	            break;
                   case 0:
 		    break skipdef;
 	        }
@@ -1095,64 +1084,61 @@ skipdef:      do {
                 { if (noparse)
                     obj += "J.push(H)}";
                   else
-                  { switch (shouldtag)
-                    { case "set":
-                        if (obj.slice(-1) !== "{")  // Non-empty function?
-                        { if (simpleset)  // Simplify plain assignment
-                          { let /** Array<string> */ ar = obj.slice(simpleset)
-                                                .match(extractstrx);
-                            obj = obj.slice(0, simpleset
-                                   - letHprefix.length - vfnprefix.length)
-                             + ar[1] + ar[2] + ";";
-                            break;
+                  {
+nobody:             do
+		    { switch (shouldtag)
+                      { case "set":
+                          if (obj.slice(-1) !== "{")  // Non-empty function?
+                          { if (simpleset)  // Simplify plain assignment
+                            { let /** Array<string> */ ar = obj.slice(simpleset)
+                                                  .match(extractstrx);
+                              obj = obj.slice(0, simpleset
+                                     - letHprefix.length - vfnprefix.length)
+                               + ar[1] + ar[2] + ";";
+                              break nobody;
+                            }
                           }
-                        }
-                        obj += tagctx[TS_FLAGS] & VFUN ? wfunclose : "})}";
-                        parenthasbody();
-                        break;
-                      case "insert":
-		        if (tagctx[TS_FLAGS] & HASBODY)
-		          obj += wfunclose;
-                        parenthasbody();
-                      case "unset":
-                        break;
-                      case "replace":
-                        obj += "M(J,R(H,v))}";
-                        parenthasbody();
-                        break;
-                      case "trim":
-                        obj += "M(J,U(R(H)))}";
-                        parenthasbody();
-                        break;
-                      case "maketag":
-                        obj += "J.push(H)}";
-                        parenthasbody();
-                        break;
-                      case "attrib":
-                        obj += "V(H,v,J)}";
-                        break;
-                      case "for":
-                        obj += "$=o;I=1}}";
-                        parenthasbody();
-                        break;
-                      case "if":case "then":case "elif":case "else":
-                        obj += "I=1}";
-                        break;
-                      case "eval":
-                        obj += "M(J,E(H,v,$))}";
-                        parenthasbody();
-                        break;
-                      default:
-                        if (tagctx[TS_FLAGS] & STASHCONTENT)
-                          obj += "};";
-                      case "script":
-                      case "style":
-                        if (!nooutput)
+                          obj += tagctx[TS_FLAGS] & VFUN ? wfunclose : "})}";
+                          break;
+                        case "insert":
+		          if (tagctx[TS_FLAGS] & HASBODY)
+		            obj += wfunclose;
+                          break;
+                        case "replace":
+                          obj += "M(J,R(H,v))}";
+                          break;
+                        case "trim":
+                          obj += "M(J,U(R(H)))}";
+                          break;
+                        case "maketag":
+                          obj += "J.push(H)}";
+                          break;
+                        case "attrib":
+                          obj += "V(H,v,J)}";
+                        case "unset":
+                          break nobody;
+                        case "for":
+                          obj += "$=o;I=1}}";
+                          break;
+                        case "if":case "then":case "elif":case "else":
+                          obj += "I=1}";
+                          break nobody;
+                        case "eval":
+                          obj += "M(J,E(H,v,$))}";
+                          break;
+                        case "nooutput":
+			  obj += "J=[];";
+                        default:
+                          if (tagctx[TS_FLAGS] & STASHCONTENT)
+                            obj += "};";
+                        case "script":
+                        case "style":
                           obj += "X(J,H,$)";
-                      case "delimiter":
-                        obj += "}";
-                        parenthasbody();
-                    }
+                        case "delimiter":
+                          obj += "}";
+                      }
+                      parenthasbody();
+                    } while (0);
                     simpleset = 0;
                   }
                 }
@@ -1181,7 +1167,7 @@ skipdef:      do {
 	  if (!noparse)
 	  { if (rm = execy(varentity, rxmls))
             { lasttoken = varentity.lastIndex;
-              if (!comment && !nooutput)
+              if (!comment)
 	      { obj += varent(rm) + varinsert;
                 simpleset = 0;
                 markhasbody();
@@ -1194,7 +1180,7 @@ skipdef:      do {
           textrx.lastIndex = lasttoken;
           ts += execy(textrx, rxmls)[0];
           lasttoken = textrx.lastIndex;
-          if (!comment && !nooutput)
+          if (!comment)
           { if (!noparse)
 	    { if (flags & (KILLWHITE|PRESERVEWHITE))
               { if (flags & KILLWHITE)
