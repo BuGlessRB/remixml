@@ -319,6 +319,10 @@ if a single `-` parameter is given.
    Strip and skip this tag with content.
 - `<?comment ...?>`<br />
    Strip and skip this tag with content.
+- `<cache>`<br />
+   Reserved for future use.
+- `<nocache>`<br />
+   Reserved for future use.
 
 #### Javascript helperfunctions
 
