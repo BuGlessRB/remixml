@@ -444,6 +444,12 @@ Exposed API-list (in NodeJS and the browser):
 - `Remixml.set_log_callback(callback)`<br />
   If not set, it defaults to `console.error()`.  This callback function is used
   to log remixml runtime errors.
+- `Remixml.abstract2dom(abstract, node?)`<br />
+  Converts a DOM `abstract` into DOM nodes.  If the optional `node` argument
+  is specified, it replaces the children of `node` with the content
+  described in DOM `abstract`.  Returns `node` if specified, or the new
+  nodes.  This API-function is only available from this module if
+  one of the optional `remixml-*dom` modules has been loaded.
 
 #### Reserved object variables
 
