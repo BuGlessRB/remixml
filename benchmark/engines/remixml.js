@@ -39,7 +39,7 @@ module.exports = {
         callback(null, rxml.abstract2txt(template($), 1));
     },
     load: function(src, templatePath, templateName, callback) {
-        callback(null, rxml.compile(src) /* template */ );
+        callback(null, rxml.compile(src, 2) /* template */ );
     },
     compile: function(src, templatePath, templateName, callback) {
         callback(null, "module.exports=" + rxml.remixml2js(src));
