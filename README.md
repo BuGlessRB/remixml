@@ -8,7 +8,8 @@ Remixml is a sophisticated XML/XHTML macro language/templating compiler
 engine in Javascript.
 
 The Remixml templating engine has the following features:
-- Rich powerful language with dynamic scopes, autoescaping, macros and more.
+- Rich powerful language with dynamic scopes, autoescaping, macros,
+  whitespace-collapsing and more.
 - Fast &amp; lean: Small 8 KB gzipped runtime with precompiled templates
   in the browser.  Compiles to Javascript.
 - Extensible with custom tags programmed in either Javascript or Remixml.
@@ -50,11 +51,14 @@ having at least one dot in the entity name.
 The following sample code will illustrate the point:
 
 ```js
-Remixml.parse2txt('<h1>Title of &_.sitename; for &_.description;</h1>'
-  + '<p at="&anything.whatever;"> Some global variables &var.some; '
-  + 'or &var.globalvars; or'
-  + ' &var.arrays.1; or &var.arrays.2; or &var.objects.foo; or '
-  + '&anything.really;',
+Remixml.parse2txt(`
+  <h1>Title of &_.sitename; for &_.description;</h1>
+  <p at="&anything.whatever;">
+   Some global variables &var.some; or &var.globalvars; or
+   &var.arrays.1; or &var.arrays.2; or &var.objects.foo; or
+   &anything.really;
+  </p>
+ `,
  {_: {
     sitename: "foo.bar",
     description: "faster than lightning templates"
@@ -87,7 +91,8 @@ Remixml.parse2txt('<h1>Title of &_.sitename; for &_.description;</h1>'
   to access both objects and arrays).
 - `encoding` (optional)<br />
   Specifies the encoding to be used when substituting the variable.
-  The encodings available are:
+  The standard encodings available are (you can add custom encodings
+  using `add_filter()`):
     - `html`<br />
       Default: encodes using
       [HTML entities](https://dev.w3.org/html5/html-author/charref).
