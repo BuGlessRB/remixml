@@ -19,7 +19,7 @@ The Remixml templating engine has the following features:
 - It contains a fully featured fast validating XHTML parser.
 - It fully shields the Remixml programmer from fatal browser errors by
   trapping and logging all errors from within (even from direct javascript
-  embedded in Remixml), but forgivingly continuing parsing to deliver
+  embedded in Remixml), but forgivingly continues parsing to deliver
   content regardless.
 
 The language and primitives used, blend in completely with
