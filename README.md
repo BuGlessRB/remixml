@@ -31,8 +31,7 @@ sanity checks and shows clear and precise warnings about missing opening
 or closing tags.
 
 The package includes a comprehensive regression-testsuite to assure
-code quality.  It also includes a browser template-library benchmark
-framework to compare rendering speed between different template libraries.
+code quality.
 
 ## Requirements
 
@@ -328,9 +327,9 @@ if a single `-` parameter is given.
    Strip and skip this tag with content.
 - `<?comment ...?>`<br />
    Strip and skip this tag with content.
-- `<cache>`<br />
+- `<cache>...</cache>`<br />
    Reserved for future use.
-- `<nocache>`<br />
+- `<nocache>...</nocache>`<br />
    Reserved for future use.
 
 #### Javascript helperfunctions
@@ -347,8 +346,10 @@ in the inline Remixml Javascript scripts.
   `for` loop.  It causes the argument to be sorted in reverse.
 
 - `abstract2txt(abstract, html?)`
+  A shortcut reference to `Remixml.abstract2txt()`.
 
 - `abstract2dom(abstract, node?)`
+  A shortcut reference to `Remixml.abstract2dom()`.
 
 ### Examples
 
