@@ -60,7 +60,8 @@
   const /** !RegExp */ varentity = regexpy(
          "([\\w$]+\\.[\\w$]+(?:[.[][\\w$]+]?)*)(?::([\\w$]*))?(?:%([^;]*))?;");
   const /** !RegExp */ qemrx
-   = regexpy("!(?:--(.*?)(?:--|$)|([^-].*?))(?:>|$)|\\?(.*?)(?:\\?>|$)");
+   = regexpy("!(?:--([\0-\xff]*?)(?:--|$)|([^-][\0-\xff]*?))(?:>|$)"
+          + "|\\?([\0-\xff]*?)(?:\\?>|$)");
   const /** !RegExp */ noparserx = regexpy("(?:noparse|comment)\\s");
   const /** !RegExp */ textrx = regexpy("[^&<]+");
   const /** !RegExp */ params
@@ -1304,7 +1305,7 @@ nobody:             do
   };
 
   function /** !RegExp */ regexpy(/** string */ expr)
-  { return RegExp(expr, ie11 ? "gs" : "ys");
+  { return RegExp(expr, ie11 ? "g" : "y");
   }
 
   function /** Array */ execy(/** !RegExp */ expr,/** string */ haystack)
