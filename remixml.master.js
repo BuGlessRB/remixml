@@ -35,7 +35,7 @@
   const Doc = typeof document == "object" ? document : null;
   const W = Doc && window;
   const Obj = Object;
-  const ie11 = Doc && W["MSInputMethodContext"] && D["documentMode"];
+  const ie11 = /./.sticky != 0;
 
   const /** !Object */ eumapobj
    = {"+":"%2B"," ":"+","\t":"%09","\n":"%0A","\r":"%0D","?":"%3F","&":"%26",
@@ -1316,6 +1316,13 @@ nobody:             do
     }
     return expr.exec(haystack);
   }
+
+  if (ie11)
+    Obj.defineProperty(Obj, "assign",
+    { "value": function(d, s, i)
+      { if (s) for (i in s) d[i] = s[i]; return d;
+      }
+    });
 
   var g =
   { "remixml2js": remixml2js,
