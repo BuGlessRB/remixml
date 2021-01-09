@@ -9,7 +9,7 @@ engine in Javascript.
 
 The Remixml templating engine has the following features:
 - Rich powerful language with dynamic scopes, autoescaping, macros,
-  whitespace-collapsing and more.
+  whitespace-collapsing, asynchronous control and more.
 - Fast &amp; lean: Small 8 KB gzipped runtime with precompiled templates
   in the browser.  Compiles to Javascript.
 - Extensible with custom tags programmed in either Javascript or Remixml.
@@ -17,7 +17,7 @@ The Remixml templating engine has the following features:
 - Everywhere available in node and all modern web browsers (including IE11),
   with thorough precompilation options.
 - It contains a fully featured fast validating XHTML parser.
-- It fully shields the Remixml programmer from fatal browser errors by
+- It shields the Remixml programmer from fatal browser errors by
   trapping and logging all errors from within (even from direct javascript
   embedded in Remixml), but forgivingly continues parsing to deliver
   content regardless.
@@ -411,9 +411,10 @@ Specified parameters:
   to the same variable.
 - `flags` is an optional bitmask with:
    - 1: kill all whitespace.
-   - 2: preserve all whitespace.  
-   If neither bits are present, it defaults to collapsing whitespace
-   around newlines to a single newline.
+   - 2: preserve all whitespace.  If neither kill or preserve bits are present,
+     it defaults to collapsing whitespace around newlines to a single newline.
+   - 4: async processing (compiled code returns a `Promise` instead of
+     a direct abstract).
 
 Exposed API-list (in NodeJS and the browser):
 - `Remixml.remixml2js(remixmlsrc, flags?)`<br />
@@ -421,7 +422,8 @@ Exposed API-list (in NodeJS and the browser):
 - `Remixml.js2obj(jssrc)`<br />
   Compile remixml-javascript source into object code.
   Running the object code with a `context` parameter
-  returns a DOM-abstract structure (AKA virtual DOM).
+  returns a DOM-abstract structure (AKA virtual DOM), or a Promise to return
+  a DOM-abstract structure when `flags & 4` is true.
 - `Remixml.abstract2txt(abstract, html?)`<br />
   Converts a DOM-abstract into an XHTML/Remixml-string.
   By default it produces valid XHTML, if it must be HTML compliant

@@ -263,20 +263,15 @@
         T(H, s);
     }
   };
-                           // Evaluate recursively
-  E = function /** !Array */
-   (/** !Array */ elm,/** string */ recurse,/** !Object */ $)
-  { var /** number */ n = +(recurse || 0);
-    var /** string */ lastsrc = "";
-    var /** string */ src;
-    var /** function(Object) */ f;
-    do
-    { src = Y(elm);   // FIXME not generating back to txt?
-      if (src === lastsrc)
-        break;
-      elm = js2obj(remixml2js(lastsrc = src))($);
-    } while (--n);
-    return elm;
+
+  function /** function(!Object):!Array */ compile(/** string */ remixml,
+                                           /** number= */ flags)
+  { return js2obj(remixml2js(remixml, flags));
+  }
+                           // Convert to text and back to abstract
+  E = function /** !Array|!Promise */(
+    /** string */ src,/** !Object */ $,/** number= */ flags)
+  { return compile(src, flags)($);
   };
                           // Generic replace function
   P = function /** function(string):string */(/** string */ xp,
@@ -411,11 +406,11 @@
                       // J: Element to append to
                      // H: Container content
                     // $: Variable context
-  X = function /** void */(/** !Array */ J,/** !Array */ H,/** !Object */ $)
-  { var /** function(!Array,!Array,!Object):void */ fn
+  X = function /** Promise */(/** !Array */ J,/** !Array */ H,/** !Object */ $)
+  { var /** function(!Array,!Array,!Object):Promise */ fn
      = $["_"]["_tag"][/** @type{Object} */(H)[""]];
     if (fn)
-      fn(J, H, $);
+      return fn(J, H, $);
     else
     { let /** function(!Array,!Object):void|undefined */ cfn
        = /** @type{Object} */(H)["_c"];
@@ -714,15 +709,24 @@
 
   const /** number */ KILLWHITE = 1;
   const /** number */ PRESERVEWHITE = 2;
+  const /** number */ ASYNC = 4;
 
   function /** string */ remixml2js(/** string */ rxmls,/** number= */ flags)
   {    // H: Current element to append in
       // W: Temporary parent element
      // I: Most recent truth value
     // J: Parent element to append the current element to when finished
-    var /** string */ obj = '(function($){"use strict";var I,W,_,H=N($);';
+    const /** number */ isasync = flags & ASYNC;
+    const /** string */ asyncf = isasync ? "async " : "";
+    const /** string */ awaitf = isasync ? "await " : "";
+    var /** string */ obj = "(" + asyncf
+     + 'function($){"use strict";var I,W,_,H=N($);';
     var /** number */ noparse = 0;
     var /** number */ comment = 0;
+    const /** string */ executecode = awaitf + "X(J,H,$)";
+    const /** string */ evalcode        // FIXME not generating back to txt?
+     = "do{if((k=Y(H))===m)break;H=" + awaitf + "E(m=k,$"
+       + (flags ? "," + flags : "") + ")}while(--n);M(J,H)}";
     var /** number */ simpleset;      // Peephole optimiser plain string sets
     var /** !Array */ tagctx = [0, {}, STASHCONTENT, ""];
     var /** !Array */ tagstack = [tagctx];
@@ -901,8 +905,8 @@ ntoken:
                         obj += wfunction;
                       } else if (ts = getparm("tag"))
                       { startcfn();
-                        obj += "v=0;Q(" + ts
-                         + ",$,function(H,a,$){let o=$;$=C(a,$,{";
+                        obj += "v=0;Q(" + ts + ",$," + asyncf
+			 + "function(H,a,$){let o=$;$=C(a,$,{";
                         { let /** string|undefined */ args = getparm("args");
                           if (args && (args = args.replace(nonwordrx, "")))
                             obj += '"' + args.replace(splc, '":1,"') + '":1';
@@ -989,8 +993,8 @@ ntoken:
                       continue;
                     }
                     case "eval":
-                      obj += letHprefix + "v="
-                       + (getparm("recurse") || 0) + ",J=W;";
+                      obj += letHprefix + "n="
+                       + (getparm("recurse") || 0) + ",J=W,k,m=0;";
                       continue;
                     case "unset":
                       if (ts = getparm("tag"))
@@ -1132,7 +1136,7 @@ nobody:             do
                           obj += "I=1}";
                           break nobody;
                         case "eval":
-                          obj += "M(J,E(H,v,$))}";
+			  obj += evalcode;
                           break;
                         case "nooutput":
 			  obj += "J=[];";
@@ -1141,7 +1145,7 @@ nobody:             do
                             obj += "};";
                         case "script":
                         case "style":
-                          obj += "X(J,H,$)";
+                          obj += executecode;
                         case "delimiter":
                           obj += "}";
                       }
@@ -1185,6 +1189,9 @@ nobody:             do
           }
           ts = "&";	    // No variable, fall back to normal text
         default:
+          textrx.lastIndex = lasttoken;
+          if (!execy(textrx, rxmls))
+	    console.error("**" + rxmls + "**");
           textrx.lastIndex = lasttoken;
           ts += execy(textrx, rxmls)[0];
           lasttoken = textrx.lastIndex;
@@ -1327,11 +1334,7 @@ nobody:             do
   var g =
   { "remixml2js": remixml2js,
     "js2obj": js2obj,
-    "compile":
-      function /** function(!Object):!Array */(/** string */ remixml,
-	                                       /** number= */ flags)
-      { return js2obj(remixml2js(remixml, flags));
-      },
+    "compile":compile,
     "parse2txt": function
        /** string */(/** string|(function(!Object):!Array) */ tpl,
                     /** !Object */ $,/** number= */ flags)

@@ -20,15 +20,16 @@ for dir in testsuite/$dirs
 do
   rm -f $dir/output.*
   result="$(node - <<HERE
+async function main() {
 const fs = require("fs");
 var rxml = require("remixml");
-//var rxml = require("./remixml.js");
+var rxml = require("./remixml.js");
 var rxmlpathencode = require("remixml-pathencode");
 
 var remixmlsrc = fs.readFileSync("$dir/template.remixml").toString();
 var data = fs.readFileSync("$dir/data.json").toString();
 
-var jssrc = rxml.remixml2js(remixmlsrc);
+var jssrc = rxml.remixml2js(remixmlsrc, 4);
 fs.writeFileSync("$dir/output.min.js", jssrc);
 var macrofn = rxml.js2obj(jssrc);
 
@@ -41,7 +42,7 @@ do {
  t1 = new Date();
  var iters = totaliters *= 2;
  do {
-   abstract = macrofn(data);
+   abstract = await macrofn(data);
    //rxml.abstract2txt(abstract);
  } while (--iters);
  t2 = new Date();
@@ -49,6 +50,8 @@ do {
 var dt = (t2-t1)/totaliters;
 console.log(Math.round(dt*1000)/1000);
 fs.writeFileSync("$dir/output.remixml", rxml.abstract2txt(abstract));
+}
+main();
 HERE
   )"
   js-beautify -s 2 $dir/output.min.js >$dir/output.js
@@ -65,6 +68,7 @@ HERE
  <script src="remixml.js"></script>
  <script src="node_modules/remixml-dom/remixml-dom.js"></script>
  <script>
+async function main() {
   var rxml = Remixml;
   var data = {"_":
 HERE
@@ -75,13 +79,15 @@ HERE
 HERE
      cat $dir/template.remixml
      cat <<\HERE
-  `);
+  `,4);
   var abstract = compfn(data);
   var html = rxml.abstract2txt(abstract);
   var dom = rxml.abstract2dom(abstract);
   console.log(html);
   console.log(compfn);
   console.log(dom);
+}
+ main();
  </script>
 </head>
 <body>
