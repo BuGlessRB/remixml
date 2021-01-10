@@ -36,6 +36,8 @@ code quality.
 ## Requirements
 
 It runs inside any webbrowser (starting at IE11 and up) or NodeJS environment.
+The asynchronous control require `Promise` support (and thus does not work
+in IE11).
 
 Minified and gzip-compressed, it is less than 8 KB of code.
 
@@ -422,7 +424,7 @@ Exposed API-list (in NodeJS and the browser):
 - `Remixml.js2obj(jssrc)`<br />
   Compile remixml-javascript source into object code.
   Running the object code with a `context` parameter
-  returns a DOM-abstract structure (AKA virtual DOM), or a Promise to return
+  returns a DOM-abstract structure (AKA virtual DOM), or a `Promise` to return
   a DOM-abstract structure when `flags & 4` is true.
 - `Remixml.abstract2txt(abstract, html?)`<br />
   Converts a DOM-abstract into an XHTML/Remixml-string.
