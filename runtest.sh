@@ -23,17 +23,31 @@ do
 async function main() {
 const fs = require("fs");
 var rxml = require("remixml");
-var rxml = require("./remixml.js");
+//var rxml = require("./remixml.js");
 var rxmlpathencode = require("remixml-pathencode");
 
 var remixmlsrc = fs.readFileSync("$dir/template.remixml").toString();
 var data = fs.readFileSync("$dir/data.json").toString();
 
-var jssrc = rxml.remixml2js(remixmlsrc, 4);
+var jssrcasync = rxml.remixml2js(remixmlsrc, 4);
+var jssrc = rxml.remixml2js(remixmlsrc);
+
+//fs.writeFileSync("$dir/output.min.js", jssrcasync);
 fs.writeFileSync("$dir/output.min.js", jssrc);
+
+var macrofnasync = rxml.js2obj(jssrcasync);
 var macrofn = rxml.js2obj(jssrc);
 
 data = {"_":eval("("+data+")")};
+
+var resultasync = rxml.abstract2txt(await macrofnasync(data));
+var result = rxml.abstract2txt(macrofn(data));
+
+if (resultasync !== result) {
+  fs.writeFileSync("$dir/output.remixml", resultasync);
+  console.error("Async mismatch");
+  return;
+}
 
 var abstract;
 var totaliters = 0.5;
@@ -42,7 +56,8 @@ do {
  t1 = new Date();
  var iters = totaliters *= 2;
  do {
-   abstract = await macrofn(data);
+   //abstract = await macrofn(data);
+   abstract = macrofn(data);
    //rxml.abstract2txt(abstract);
  } while (--iters);
  t2 = new Date();
