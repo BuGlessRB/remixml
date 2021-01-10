@@ -1,0 +1,42 @@
+<set tag="iftree" ->
+ <if expr="+_.a" ->
+  <if expr="+_.b" ->
+   <if expr="+_.c" ->
+    abc
+   </if>
+   <else ->
+    ab
+   </else>
+  </if>
+  <elif expr="+_.c" ->
+   ac
+  </elif>
+  <else ->
+   a
+  </else>
+ </if>
+ <elif expr="+_.c" ->
+  <if expr="+_.b" ->
+   bc
+  </if>
+  <else ->
+   c
+  </else>
+ </elif>
+ <else ->
+  <if expr="+_.b" ->
+   b
+  </if>
+  <else ->
+   none
+  </else>
+ </else>
+</set>
+<iftree a="0" b="0" c="0" />
+<iftree a="0" b="0" c="1" />
+<iftree a="0" b="1" c="0" />
+<iftree a="0" b="1" c="1" />
+<iftree a="1" b="0" c="0" />
+<iftree a="1" b="0" c="1" />
+<iftree a="1" b="1" c="0" />
+<iftree a="1" b="1" c="1" />
