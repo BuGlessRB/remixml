@@ -36,6 +36,7 @@
   const W = Doc && window;
   const Obj = Object;
   const ie11 = /./.sticky != 0;
+  const Mat = Math;
 
   const /** !Object */ eumapobj
    = {"+":"%2B"," ":"+","\t":"%09","\n":"%0A","\r":"%0D","?":"%3F","&":"%26",
@@ -151,10 +152,10 @@
         case "e": return md;
         case "d": return pad0(md, 2);
         case "H": return pad0(h, 2);
-        case "j": return pad0(Math.floor((udate(d) - udate(Date(y))) / h24) + 1,
+        case "j": return pad0(Mat.floor((udate(d) - udate(Date(y))) / h24) + 1,
                                 3);
-        case "C": return Math.floor(y / 100);
-        case "s": return Math.round(d.valueOf() / 1000);
+        case "C": return Mat.floor(y / 100);
+        case "s": return Mat.round(d.valueOf() / 1000);
         case "l": return (h + 11) % 12 + 1;
         case "I": return pad0((h + 11) % 12 + 1, 2);
         case "m": return pad0(m + 1, 2);
@@ -169,7 +170,7 @@
           t = thu(); ut = t.valueOf(); t.setMonth(0, 1);
           if ((j1 = t.getDay()) !== 4)
             t.setMonth(0, 1 + (11 - j1) % 7);
-          return pad0(1 + Math.ceil((ut - t) / (h24 * 7)), 2);
+          return pad0(1 + Mat.ceil((ut - t) / (h24 * 7)), 2);
         case "u": return dy || 7;
         case "w": return dy;
         case "Y": return y;
@@ -202,7 +203,7 @@
     { s = "";
       if (k < 0)
         s = "-", k = -k;
-      t = Math.round(k * Math.pow(10, d)) + "";
+      t = Mat.round(k * Mat.pow(10, d)) + "";
       while (t.length <= d)
         t = "0" + t;
       d = t.length - d; t = s + t.substr(0, d) + "." + t.substr(d);
@@ -606,7 +607,7 @@
       x = 0;
     return x;
   };
-
+            // Predecode entities to unicode (only in browsers)
   function /** string */ decodentity(/** string */ input)
   { return (new DOMParser().parseFromString(input, "text/html")).
      documentElement.textContent;
@@ -630,7 +631,7 @@
               { obj += sep + "(function(){" + varent(a5)
                  + 'return x}catch(x){}return ""})()';
                 break;
-              } else
+              } else if (W)
                 s = decodentity(s);
           default:
             s = JSON.stringify(s);
@@ -1208,7 +1209,7 @@ nobody:             do
                      && ts.match(spacelinerx)))
 	    { ts = JSON.stringify(ts);
               obj += tagctx[TS_FLAGS] & HASBODY
-               ? "T(H," + ts + ");"
+               ? (simpleset = 0, "T(H," + ts + ");")
                : "H[0]=" + (markhasbody(), ts) + ";";
 	    }
           }
