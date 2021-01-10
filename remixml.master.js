@@ -224,7 +224,7 @@
 
   D = function /** void */(/** string */ x,/** *= */ t)
   { log("Remixml expression: " + (t ? JSON.stringify(t) : "") + "\n", x);
-  }
+  };
 
   function /** void */ settag(/** function(!Object):!Array */ tpl,
    /** !Object */ $,/** string */ name,/** string= */ scope,
@@ -488,7 +488,7 @@
     for (word of components)
       vpath += simplemember(word);
     return vpath;
-  }
+  };
                       // Evaluate variable entity
   Z = function /** * */(/** !Object */ $,/** string|!Array */ vname,
    /** string= */ quot,/** string= */ fmt)
@@ -591,7 +591,7 @@
         r[i] = O(r[i]);
     }
     return r;
-  }
+  };
                 // varinsert
   K = function /** number */
    (/** !Object */ $,/** !Array */ H,/** !Array|string|number */ x)
