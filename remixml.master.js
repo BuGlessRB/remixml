@@ -1325,22 +1325,19 @@ nobody:             do
     return expr.exec(haystack);
   }
 
-  if (!Map.prototype.entries)
-  { Set.prototype.entries = /** @type{?} */(Map.prototype.entries
-     = function /** !Array */()
-    { var /** !Array */ res = [];
-      this.forEach(function(/** * */ value,/** * */ key,/** !Map|!Set */ m)
-        { res.push([key, value]);
-        });
-      return /** @type{!IteratorIterable<!Array<(KEY|VALUE)>>} */(res);
-    });
-  }
   if (!Obj.assign)
     Obj.defineProperty(Obj, "assign",
     { "value": function(d, s, i)
       { if (s) for (i in s) d[i] = s[i]; return d;
       }
     });
+  if (!O.entries)
+    Obj.entries = function(m)
+    { var k = m ? Obj.keys(m) : [], i = k.length, r = new Array(i);
+      while (i--)
+        r[i] = [k[i], m[k[i]]];
+      return r;
+    };
 
   var g =
   { "remixml2js": remixml2js,
