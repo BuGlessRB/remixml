@@ -1325,7 +1325,7 @@ nobody:             do
     return expr.exec(haystack);
   }
 
-  if (ie11)
+  if (!Obj.assign)
     Obj.defineProperty(Obj, "assign",
     { "value": function(d, s, i)
       { if (s) for (i in s) d[i] = s[i]; return d;
