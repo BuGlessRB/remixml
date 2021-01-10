@@ -1325,6 +1325,16 @@ nobody:             do
     return expr.exec(haystack);
   }
 
+  if (!Map.prototype.entries)
+  { Set.prototype.entries = /** @type{?} */(Map.prototype.entries
+     = function /** !Array */()
+    { var /** !Array */ res = [];
+      this.forEach(function(/** * */ value,/** * */ key,/** !Map|!Set */ m)
+        { res.push([key, value]);
+        });
+      return /** @type{!IteratorIterable<!Array<(KEY|VALUE)>>} */(res);
+    });
+  }
   if (!Obj.assign)
     Obj.defineProperty(Obj, "assign",
     { "value": function(d, s, i)
