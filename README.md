@@ -36,7 +36,7 @@ code quality.
 ## Requirements
 
 It runs inside any webbrowser (starting at IE11 and up) or NodeJS environment.
-The asynchronous control require `Promise` support (and thus does not work
+The asynchronous control requires `Promise` support (and thus does not work
 in IE11).
 
 Minified and gzip-compressed, it is less than 8 KB of code.
