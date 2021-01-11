@@ -995,7 +995,8 @@ ntoken:
                     }
                     case "eval":
                       obj += letHprefix + "n="
-                       + (getparm("recurse") || 0) + ",J=W,k,m=0;";
+                       + ((ts = getparm("recurse")) === undefined ? 1 : +ts)
+		       + ",J=W,k,m=0;";
                       continue;
                     case "unset":
                       if (ts = getparm("tag"))
@@ -1331,7 +1332,7 @@ nobody:             do
       { if (s) for (i in s) d[i] = s[i]; return d;
       }
     });
-  if (!O.entries)
+  if (!Obj.entries)
     Obj.entries = function(m)
     { var k = m ? Obj.keys(m) : [], i = k.length, r = new Array(i);
       while (i--)
