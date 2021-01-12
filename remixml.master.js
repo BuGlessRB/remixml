@@ -93,7 +93,8 @@
   const /** !RegExp */ wnlrx =
    /(\n)\s+|[ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+(?:(\n)\s*|([ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]))/g;
 
-  var /** !Object<function(string):string> */ filters = {};
+  const /** !Object<function(string):string> */ filters = {};
+  const /** !Object */ logcache = {};
   var /** function(...) */ debuglog = console.debug;
   var /** function(...) */ log = console.error;
 
@@ -1216,7 +1217,10 @@ nobody:             do
           }
       }
     }
-    return obj + "return H})";
+    obj += "return H})";
+    if (Doc && DEBUG && !logcache[obj])
+      logcache[obj] = rxmls;
+    return obj;
   }
 
   function /** function(!Object):!Array */ js2obj(/** string */ jssrc)
@@ -1231,8 +1235,11 @@ nobody:             do
       if (ASSERT)
         constructor = function() { return ""; };
     }
-    if (Doc && DEBUG)
-      debuglog(constructor);
+    var /** number|string */ s;
+    if (Doc && DEBUG && (s = logcache[jssrc]) !== 1)
+    { debuglog([constructor, s]);
+      logcache[jssrc] = 1;
+    }
     return constructor;
   }
 
