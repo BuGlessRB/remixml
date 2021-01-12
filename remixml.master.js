@@ -996,7 +996,8 @@ ntoken:
                     }
                     case "eval":
                       obj += letHprefix + "n="
-                       + ((ts = getparm("recurse")) === undefined ? 1 : +ts)
+                       + ((ts = getparm("recurse")) === undefined
+			  ? 1 : ts > 0 ? +ts : 0)
 		       + ",J=W,k,m=0;";
                       continue;
                     case "unset":
