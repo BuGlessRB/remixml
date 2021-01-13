@@ -42,7 +42,6 @@
    = {"+":"%2B"," ":"+","\t":"%09","\n":"%0A","\r":"%0D","?":"%3F","&":"%26",
       "#":"%23","<":"%3C"};
   const /** !Object */ htmlmapobj = {"&":"&amp;","<":"&lt;"};
-  const /** !Object */ argmapobj = {"&":"&amp;","\"":"&dquot;"};
   const /** !Object */ currencyobj
    = {"EUR":"\u20AC", "USD":"$", "CNY":"\u00A5"};
 
@@ -88,7 +87,7 @@
   const /** !RegExp */ htmlmaprx = /[&<]/g;
   const /** !RegExp */ nonwordrx = /[^-:\w,]+/g;
   const /** !RegExp */ escaperxrx = /([\\^$*+?.|()[{])/g;
-  const /** !RegExp */ ampquotrx = /[&"]/g;
+  const /** !RegExp */ ampquotrx = /"/g;
   const /** !RegExp */ dotbrackrx = /[.[\]]+/;
   const /** !RegExp */ wnlrx =
    /(\n)\s+|[ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+(?:(\n)\s*|([ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]))/g;
@@ -106,9 +105,6 @@
 
   function /** string */ htmlmap(/** string */ s)
   { return htmlmapobj[s]; }
-
-  function /** string */ argmap(/** string */ s)
-  { return argmapobj[s]; }
 
   function udate(t) { return t.valueOf() - t.getTimezoneOffset * 60000; }
 
@@ -608,11 +604,6 @@
       x = 0;
     return x;
   };
-            // Predecode entities to unicode (only in browsers)
-  function /** string */ decodentity(/** string */ input)
-  { return (new DOMParser().parseFromString(input, "text/html")).
-     documentElement.textContent;
-  }
 
   function /** string */ substentities(/** string */ sbj)
   { var /** string */ obj = "";
@@ -627,13 +618,11 @@
       while (a5 = txtentity.exec(sbj))
       { switch ((s = a5[0])[0])
         { case "&":
-            if (s.slice(-1) === ";")
-              if (s.indexOf(".") > 0)
-              { obj += sep + "(function(){" + varent(a5)
-                 + 'return x}catch(x){}return ""})()';
-                break;
-              } else if (W)
-                s = decodentity(s);
+            if (s.slice(-1) === ";" && s.indexOf(".") > 0)
+            { obj += sep + "(function(){" + varent(a5)
+               + 'return x}catch(x){}return ""})()';
+              break;
+            }
           default:
             s = JSON.stringify(s);
             obj = obj.slice(-1) === '"'
@@ -1238,7 +1227,7 @@ nobody:             do
     }
     var /** number|string */ s;
     if (Doc && DEBUG && (s = logcache[jssrc]) !== 1)
-    { debuglog([constructor, s]);
+    { debuglog(constructor, [s]);
       logcache[jssrc] = 1;
     }
     return constructor;
@@ -1304,7 +1293,8 @@ nobody:             do
               { parent += " " + narg;
                 if (narg !== val)
                   parent += '="'
-                   + (val.replace ? val.replace(ampquotrx, argmap) : val) + '"';
+                   + (val.replace
+		     ? val.replace(ampquotrx, "&dquot;") : val) + '"';
               }
             case "_":case undefined:;
           }
