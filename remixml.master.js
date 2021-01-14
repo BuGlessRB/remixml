@@ -20,7 +20,7 @@
 
   // Cut BEGIN for externs
   // Cut BEGIN for prepend
-  var VP,B,C,D,E,F,G,K,L,M,N,O,P,Q,R,S,T,U,V,X,Y,Z,
+  var VP,CC,B,C,D,E,F,G,K,L,M,N,O,P,Q,R,S,T,U,V,X,Y,Z,
    log,sizeof,desc,abstract2txt,abstract2dom;
   // Cut END for prepend
   var A,VE,IA;
@@ -115,6 +115,12 @@
   { var /** string */ ret;
     for (i < 0 && p--, ret = i + ""; ret.length < p; ret = "0" + ret) {}
     return ret;
+  }
+
+  CC = function /** void */(/** !Object */ dst, /** !Object */ src)
+  { try
+    { Obj.assign(dst, src);
+    } catch (x) {}
   }
 
   function /** string */
@@ -803,7 +809,7 @@ ntoken:
           { let /** string */ sbj = gotparms[name];
             return sbj && substentities(sbj);
           }
-          function /** void */
+          function /** number|undefined */
            domkmapping(/** string */ init,/** string */ vname)
           { var /** string|undefined */ mapstring = getparm("mkmapping");
             if (mapstring)
@@ -813,7 +819,8 @@ ntoken:
               while (mapstring = maplist.pop())
                 obj += vname + simplemember(mapstring) + '=k['
                     + maplist.length + "];";
-            }
+            } else if (mapstring === "")
+	      return 1;
           }
           let /** string */ fw = params.exec(rxmls)[1];
           if (fw === "/")
@@ -979,7 +986,8 @@ ntoken:
                       if (ts = getparm("scope"))
                         obj += "," + ts;
                       obj += ");";
-                      domkmapping("k=(m=$._)._value;", "m");
+                      if (domkmapping("k=(m=$._)._value;", "m") === 1)
+	                obj += "CC($._,$._._value);";
                       continue;
                     }
                     case "eval":

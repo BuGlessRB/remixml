@@ -243,7 +243,11 @@ if a single `-` parameter is given.
      Create a toplevel alias for the local scope in the current for loop.
    - `mkmapping`<br />
      Assign this comma-separated list of names to the columns of an array
-     in each record.
+     in each record.  If `mkmapping=""` and the object in `_._value`
+     already has members,
+     then these members are simply copied into the `_` scope;
+     i.e. `_._value.foo` becomes accessible as `_.foo`
+     as well.
 - `<delimiter>...</delimiter>`<br />
    Should be used inside a <b>for</b> loop.  It will suppress its content
    upon the first iteration.
