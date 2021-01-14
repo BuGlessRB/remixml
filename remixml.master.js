@@ -55,15 +55,18 @@
 
   const /** !RegExp */ splc = /\s*,\s*/g;
   const /** !RegExp */ spsplsing = /\s*,\s*/;
-  const /** !RegExp */ txtentity =
-   /[^&]+|&(?:[\w$[\]:.]*(?=[^\w$.[\]:%;])|[\w]*;)|&([\w$]+(?:[.[][\w$]+]?)*\.[\w$]+)(?::([\w$]*))?(?:%([^;]*))?;/g;
+  const /** string */ entend
+   = "?:&(?:\\w*;|[\\w$[\\]:.]+(?=[^\\w$.[\\]:%;])|(?=[^\\w$[\\]:.]))";
+  const /** !RegExp */ txtentity = RegExp("[^&]+(" + entend +
+   "[^&]*)*|&([\\w$]+(?:[.[][\\w$]+]?)*\\.[\\w$]+)(?::([\\w$]*))?(?:%([^;]*))?;",
+   "g");
   const /** !RegExp */ varentity = regexpy(
          "([\\w$]+\\.[\\w$]+(?:[.[][\\w$]+]?)*)(?::([\\w$]*))?(?:%([^;]*))?;");
   const /** !RegExp */ qemrx
    = regexpy("!(?:--([\0-\xff]*?)(?:--|$)|([^-][\0-\xff]*?))(?:>|$)"
           + "|\\?([\0-\xff]*?)(?:\\?>|$)");
   const /** !RegExp */ noparserx = regexpy("(?:noparse|comment)\\s");
-  const /** !RegExp */ textrx = regexpy("[^&<]+");
+  const /** !RegExp */ textrx = regexpy("[^&<]+(" + entend + "[^&<]*)*");
   const /** !RegExp */ params
    = /\s*(?:([-\w:]+|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?|>)/g;
   const /** !RegExp */ complexlabel = /[^\w]/;
@@ -616,17 +619,13 @@
         obj += JSON.stringify(s), sep = "+";
       txtentity.lastIndex = i;
       while (a5 = txtentity.exec(sbj))
-      { switch ((s = a5[0])[0])
-        { case "&":
-            if (s.slice(-1) === ";" && s.indexOf(".") > 0)
-            { obj += sep + "(function(){" + varent(a5)
-               + 'return x}catch(x){}return ""})()';
-              break;
-            }
-          default:
-            s = JSON.stringify(s);
-            obj = obj.slice(-1) === '"'
-             ? obj.slice(0,-1) + s.slice(1) : obj + sep + s;
+      { if (a5[1])
+        { obj += sep + "(function(){" + varent(a5)
+           + 'return x}catch(x){}return ""})()';
+        } else
+        { s = JSON.stringify(a5[0]);
+          obj = obj.slice(-1) === '"'
+           ? obj.slice(0,-1) + s.slice(1) : obj + sep + s;
         }
         sep = "+";
       }

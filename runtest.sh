@@ -22,8 +22,9 @@ do
   result="$(node - <<HERE
 async function main() {
 const fs = require("fs");
-var rxml = require("remixml");
-//var rxml = require("./remixml.js");
+var rxmlpublic = require("remixml");
+var rxml = require("./remixml.min.js");
+Object.assign(rxmlpublic, rxml);
 var rxmlpathencode = require("remixml-pathencode");
 
 var remixmlsrc = fs.readFileSync("$dir/template.remixml").toString();
