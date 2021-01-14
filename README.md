@@ -10,11 +10,12 @@ Remixml is a sophisticated XML/XHTML macro language/templating compiler
 engine in Javascript.
 
 The Remixml templating engine has the following features:
-- Rich powerful language with dynamic scopes, autoescaping, macros,
+- Rich powerful language with dynamic inheritance, autoescaping, functions,
   whitespace-collapsing, asynchronous control and more.
 - Fast &amp; lean: Small 8 KB gzipped runtime with precompiled templates
   in the browser.  Compiles to Javascript.
 - Extensible with custom tags programmed in either Javascript or Remixml.
+- Custom tags in Remixml support named parameters and recursion.
 - Extensible with custom filters programmed in Javascript.
 - Everywhere available in node and all modern web browsers (including IE11),
   with thorough precompilation options.
