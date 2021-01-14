@@ -1223,7 +1223,7 @@ nobody:             do
     }
     var /** number|string */ s;
     if (Doc && DEBUG && (s = logcache[jssrc]) !== 1)
-    { debuglog(constructor, [s]);
+    { debuglog([s], constructor);
       logcache[jssrc] = 1;
     }
     return constructor;
