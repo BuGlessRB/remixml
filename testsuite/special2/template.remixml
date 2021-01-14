@@ -1,6 +1,6 @@
    <set var="_.h">x&euro;x&nbsp;x</set>A&_.h;B&_.h:;C
 x&euro;x&_.foo;x&nbsp;x
-<a href="yy&euro;ccc&nbsp;kdfj&_.foo;yy">done</a>
+<a href="BAD&euro;ccc&nbsp;kdfj&_.foo;END">done</a>
 deal &nbsp;
  &_.foo;&nbsp;
  &_.foo;a&nbsp;

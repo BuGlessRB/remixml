@@ -616,27 +616,17 @@
 
   function /** string */ substentities(/** string */ sbj)
   { var /** string */ obj = "";
-    let /** number */ i;
-    if ((i = sbj.indexOf("&")) >= 0)
-    { let /** RegExpResult */ a5;
-      let /** string */ s = sbj.substr(0, i);
-      let /** string */ sep = "";
-      if (s)
-        obj += JSON.stringify(s), sep = "+";
-      txtentity.lastIndex = i;
-      while (a5 = txtentity.exec(sbj))
-      { if (a5[1])
-        { obj += sep + "(function(){" + varent(a5)
-           + 'return x}catch(x){}return ""})()';
-        } else
-        { s = JSON.stringify(a5[0]);
-          obj = obj.slice(-1) === '"'
-           ? obj.slice(0,-1) + s.slice(1) : obj + sep + s;
-        }
-        sep = "+";
-      }
-    } else
-      obj += JSON.stringify(sbj);
+    var /** string */ sep = "";
+    var /** RegExpResult */ a5;
+    txtentity.lastIndex = 0;
+    while (a5 = txtentity.exec(sbj))
+    { if (a5[1])
+      { obj += sep + "(function(){" + varent(a5)
+         + 'return x}catch(x){}return ""})()';
+      } else
+        obj += sep + JSON.stringify(a5[0]);
+      sep = "+";
+    }
     return obj;
   }
 
@@ -1039,9 +1029,8 @@ ntoken:
                   sep = "";
                   for (fw in gotparms)
                   { if (ts = getparm(fw))
-                    { obj += sep
-                       + (complexlabel.test(fw) ? '"' + fw + '"' : fw)
-                       + ":" + getparm(fw);
+                    { obj += sep + (complexlabel.test(fw)
+		                    ? '"' + fw + '"' : fw) + ":" + ts;
                       sep = ",";
                     }
                   }
