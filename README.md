@@ -56,7 +56,7 @@ recognised by Remixml are always of the form: &amp;scope.varname;
 I.e. they distinguish themselves from regular HTML entities by always
 having at least one dot in the entity name.
 
-The following sample code will illustrate the point:
+The following sample Javascript code will illustrate the point:
 
 ```js
 Remixml.parse2txt(`
@@ -82,6 +82,51 @@ Remixml.parse2txt(`
     whatever: 7
   }
  });
+```
+
+### Native Remixml examples
+
+Simple assigment:
+
+```html
+<set var="_.variablename">the new value</set>
+```
+
+Simple calculations:
+
+```html
+<set var="_.variablename" expr="_.variablename + 1" />
+```
+
+Conditionals:
+
+```html
+<if expr="_.variablename > 1">
+ yes
+</if>
+<elif expr="_.variablename == 'foobar'">
+ second condition valid
+</elif>
+<else>
+ otherwise
+</else>
+```
+
+Counted loop:
+
+```html
+<for from="1" to="42">
+ This is line &_._recno;<br />
+</for>
+```
+
+Iterating through an object or array:
+
+```html
+<set var="_.foo" split=",">aa,b,cc,d,eee,f</set>
+<for in="_.foo">
+ This is record &_._recno; value: &_._value;<br />
+</for>
 ```
 
 ## Reference documentation
@@ -359,51 +404,6 @@ in the inline Remixml Javascript scripts.
 
 - `abstract2dom(abstract, node?)`
   A shortcut reference to `Remixml.abstract2dom()`.
-
-### Examples
-
-Simple assigment:
-
-```html
-<set var="_.variablename">the new value</set>
-```
-
-Simple calculations:
-
-```html
-<set var="_.variablename" expr="_.variablename + 1" />
-```
-
-Conditionals:
-
-```html
-<if expr="_.variablename > 1">
- yes
-</if>
-<elif expr="_.variablename == 'foobar'">
- second condition valid
-</elif>
-<else>
- otherwise
-</else>
-```
-
-Counted loop:
-
-```html
-<for from="1" to="42">
- This is line &_._recno;<br />
-</for>
-```
-
-Iterating through an object or array:
-
-```html
-<set var="_.foo" split=",">aa,b,cc,d,eee,f</set>
-<for in="_.foo">
- This is record &_._recno; value: &_._value;<br />
-</for>
-```
 
 ### API
 
