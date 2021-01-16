@@ -12,7 +12,7 @@ engine in Javascript.
 The Remixml templating engine has the following features:
 - Rich powerful language with dynamic inheritance, autoescaping, functions,
   whitespace-collapsing, asynchronous control and more.
-- Fast &amp; lean: Small 8 KB gzipped runtime which includes the compiler
+- Fast &amp; lean: Small 7 KB gzipped runtime which includes the compiler
   with precompiled templates in the browser.  Compiles to Javascript.
 - User defined HTML tags in Remixml support arbitrary named parameters and
   recursion.
@@ -44,7 +44,7 @@ It runs inside any webbrowser (starting at IE11 and up) or NodeJS environment.
 Asynchronous control requires `Promise` support (and thus does not work
 in IE11).
 
-Minified and gzip-compressed, it is less than 8 KB of code.
+Minified and gzip-compressed, it is less than 7 KB of code.
 
 It has zero dependencies on other modules.
 
