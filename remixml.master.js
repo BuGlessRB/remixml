@@ -1,5 +1,5 @@
    /** @license
-   ** Remixml v4.0.0: XML/HTML-like macro language compiler
+   ** Remixml v5: XML/HTML-like macro language compiler
   ** Copyright (c) 2018-2021 by Stephen R. van den Berg <srb@cuci.nl>
  ** License: ISC OR GPL-3.0
 ** Sponsored by: Cubic Circle, The Netherlands
