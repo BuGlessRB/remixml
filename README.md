@@ -129,6 +129,22 @@ Iterating through an object or array:
 </for>
 ```
 
+Even recursive functions are possible:
+
+```html
+<set tag="faculty">
+ <if expr="_.startvalue <= 1">
+  1
+ </if>
+ <else>
+  <set var="_.oneless" expr="_.startvalue - 1" />
+  <insert expr="">
+   _.startvalue * <faculty startvalue="&_.oneless;" />
+  </insert>
+ </else>
+</set>
+```
+
 ## Reference documentation
 
 ### Full entity syntax

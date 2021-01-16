@@ -50,7 +50,7 @@
   const /** string */ letHprefix = "{let H=L(),";
   const /** string */ vfnprefix = "w,v=function(){w();";
   const /** string */ missingg = "Missing <";
-  const /** string */ wfunction = ")};w=(function(){";
+  const /** string */ wfunction = ")};w=(function(W){";
   const /** string */ wfunclose = "});v()}";
 
   const /** !RegExp */ splc = /\s*,\s*/g;
