@@ -12,18 +12,20 @@ engine in Javascript.
 The Remixml templating engine has the following features:
 - Rich powerful language with dynamic inheritance, autoescaping, functions,
   whitespace-collapsing, asynchronous control and more.
-- Fast &amp; lean: Small 8 KB gzipped runtime with precompiled templates
-  in the browser.  Compiles to Javascript.
-- Extensible with custom tags programmed in either Javascript or Remixml.
-- Custom tags in Remixml support named parameters and recursion.
-- Extensible with custom filters programmed in Javascript.
-- Everywhere available in node and all modern web browsers (including IE11),
+- Fast &amp; lean: Small 8 KB gzipped runtime which includes the compiler
+  with precompiled templates in the browser.  Compiles to Javascript.
+- User defined HTML tags in Remixml support arbitrary named parameters and
+  recursion.
+- Extensible with custom filters and tags programmed in Javascript.
+- Available everywhere in node and all modern web browsers (including IE11),
   with thorough precompilation options.
 - It contains a fully featured fast validating XHTML parser.
 - It shields the Remixml programmer from fatal browser errors by
   trapping and logging all errors from within (even from direct javascript
   embedded in Remixml), but forgivingly continues parsing to deliver
   content regardless.
+- Comes with numerous loadable library modules to tailor functionality to the
+  specific environment leaving the core small.
 
 The language and primitives used, blend in completely with
 standard XML/XHTML syntax and therefore integrate smoothly with
@@ -133,16 +135,23 @@ Even recursive functions are possible:
 
 ```html
 <set tag="faculty">
- <if expr="_.startvalue <= 1">
-  1
- </if>
+ <if expr="_.val <= 1"> 1 </if>
  <else>
-  <set var="_.oneless" expr="_.startvalue - 1" />
-  <insert expr="">
-   _.startvalue * <faculty startvalue="&_.oneless;" />
-  </insert>
+  <set var="_.oneless" expr="_.val - 1" />
+  <insert expr=""> _.val * <faculty val="&_.oneless;" /> </insert>
  </else>
 </set>
+
+<set tag="facultyverbose">
+ <h1>Faculty calculation of &_.valinput;</h1>
+ <p>
+  &_.valinput;! = <faculty val="&_.valinput;" />
+ </p>
+</set>
+
+<comment> Now call our custom HTML tag </comment>
+
+<facultyverbose valinput="7" />
 ```
 
 ## Reference documentation
