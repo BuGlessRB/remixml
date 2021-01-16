@@ -36,14 +36,11 @@
   const W = Doc && window;
   const Obj = Object;
   const ie11 = /./.sticky != 0;
-  const Mat = Math;
 
   const /** !Object */ eumapobj
    = {"+":"%2B"," ":"+","\t":"%09","\n":"%0A","\r":"%0D","?":"%3F","&":"%26",
       "#":"%23","<":"%3C"};
   const /** !Object */ htmlmapobj = {"&":"&amp;","<":"&lt;"};
-  const /** !Object */ currencyobj
-   = {"EUR":"\u20AC", "USD":"$", "CNY":"\u00A5"};
 
   const /** string */ varinsert = "I=K($,H,x)}catch(x){I=0}";
   const /** string */ cfnprefix = "H._c=function(H,$){";
@@ -69,18 +66,12 @@
   const /** !RegExp */ complexlabel = /[^\w]/;
   const /** !RegExp */ scriptend = /<\/script>/g;
   const /** !RegExp */ styleend = /<\/style>/g;
-  const /** !RegExp */ gmtrx = /.+GMT([+-]\d+).+/;
-  const /** !RegExp */ tzrx = /.+\((.+?)\)$/;
   const /** !RegExp */ noparenplusrx = /^"([^(+]+)"$/;
   const /** !RegExp */ wordrx = /^[A-Za-z_][\w]*$/;
-  const /** !RegExp */ varentrx =
-   /^([-+0]+)?([1-9][0-9]*)?(?:\.([0-9]+))?(t([^%]*%.+)|[a-zA-Z]|[A-Z]{3})?$/;
   const /** !RegExp */ newlinerx = /\n/g;
   const /** !RegExp */ nonewlinerx = /[^\n]*$/;
   const /** !RegExp */ extractstrx = /([^=]+=).+(".*")/;
   const /** !RegExp */ spacelinerx = /^\s+$/;
-  const /** !RegExp */ alphanumsrx = /%([A-Za-z%])/g;
-  const /** !RegExp */ spacesrx = /\s+/g;
   const /** !RegExp */ spacesprx = /\s\s+/g;
   const /** !RegExp */ ltrx = /</g;
   const /** !RegExp */ uricrx = /[+ \t\n\r?&#<]/g;
@@ -94,6 +85,7 @@
 
   const /** !Object<function(string):string> */ filters = {};
   const /** !Object */ logcache = {};
+  var /** function(string,*,!Object):!Array */ procfmt;
   var /** function(...) */ debuglog = console.debug;
   var /** function(...) */ log = console.error;
 
@@ -106,123 +98,10 @@
   function /** string */ htmlmap(/** string */ s)
   { return htmlmapobj[s]; }
 
-  function udate(t) { return t.valueOf() - t.getTimezoneOffset * 60000; }
-
-  function /** string */ pad0(/** number */ i, /** number */ p)
-  { var /** string */ ret;
-    for (i < 0 && p--, ret = i + ""; ret.length < p; ret = "0" + ret) {}
-    return ret;
-  }
-
   CC = function /** void */(/** !Object */ dst, /** !Object */ src)
   { try
     { Obj.assign(dst, src);
     } catch (x) {}
-  }
-
-  function /** string */
-   strftime(/** string */ fmt, /** !Date|string */ d, /** string */ lang)
-  { var t, j1, ut;
-    if (!(d instanceof Date))
-    { t = d.match && /[A-Za-z]/.test(d);
-      d = new Date(d);
-      if (t)
-        d = new Date(2 * d.valueOf() - udate(t));	// Adjust to localtime
-    }
-    var dy = d.getDay(), md = d.getDate(), m = d.getMonth(),
-     y = d.getFullYear(), h = d.getHours(), h24 = 86400000;
-    function /** string */ ifm(/** string= */ t, /** string= */ f)
-    { var o = {};
-      o[t || "weekday"] = f || "short";
-      return new Intl.DateTimeFormat(lang, o)
-        .format(/** @type {!Date|number|undefined} */(d));
-    }
-    function thu()
-    { var t = new Date(d);
-      t.setDate(md - ((dy + 6) % 7) + 3);
-      return t;
-    }
-    return fmt.replace(alphanumsrx, function(a, p)
-    { switch(p)
-      { case "a": return ifm();
-        case "A": return ifm(undefined, "long");
-        case "b": return ifm("month");
-        case "B": return ifm("month", "long");
-        case "G": return thu().getFullYear();
-        case "g": return (thu().getFullYear() + "").slice(2);
-        case "k": return h;
-        case "n": return m + 1;
-        case "e": return md;
-        case "d": return pad0(md, 2);
-        case "H": return pad0(h, 2);
-        case "j": return pad0(Mat.floor((udate(d) - udate(Date(y))) / h24) + 1,
-                                3);
-        case "C": return Mat.floor(y / 100);
-        case "s": return Mat.round(d.valueOf() / 1000);
-        case "l": return (h + 11) % 12 + 1;
-        case "I": return pad0((h + 11) % 12 + 1, 2);
-        case "m": return pad0(m + 1, 2);
-        case "M": return pad0(d.getMinutes(), 2);
-        case "S": return pad0(d.getSeconds(), 2);
-        case "p": return h<12 ? "AM" : "PM";
-        case "P": return h<12 ? "am" : "pm";
-        case "%": return "%";
-        case "R": return strftime("%H:%M", d, lang);
-        case "T": return strftime("%H:%M:%S", d, lang);
-        case "V":
-          t = thu(); ut = t.valueOf(); t.setMonth(0, 1);
-          if ((j1 = t.getDay()) !== 4)
-            t.setMonth(0, 1 + (11 - j1) % 7);
-          return pad0(1 + Mat.ceil((ut - t) / (h24 * 7)), 2);
-        case "u": return dy || 7;
-        case "w": return dy;
-        case "Y": return y;
-        case "y": return (y + "").slice(2);
-        case "F": return d.toISOString().slice(0, 10);
-        case "c": return d.toUTCString();
-        case "x": return d.toLocaleDateString();
-        case "X": return d.toLocaleTimeString();
-        case "z": return d.toTimeString().match(gmtrx)[1];
-        case "Z": return d.toTimeString().match(tzrx)[1];
-      }
-      return a;
-    });
-  }
-
-  function /** string */ sp(/** string */ j, /** string */ s)
-  { if (j[0] === "0")
-      j[0] = s;
-    else
-      j = s + j;
-    return j;
-  }
-
-  function /** string */
-   fmtf(/** number */ k, /** string */ s, /** number */  d)
-  { var /** string */ t
-     = /** @type {function(string=, Object=):string} */(k.toLocaleString)(s,
-        {"minimumFractionDigits": d, "maximumFractionDigits": d});
-    if (t == k)
-    { s = "";
-      if (k < 0)
-        s = "-", k = -k;
-      t = Mat.round(k * Mat.pow(10, d)) + "";
-      while (t.length <= d)
-        t = "0" + t;
-      d = t.length - d; t = s + t.substr(0, d) + "." + t.substr(d);
-    }
-    return t;
-  }
-
-  function /** string */
-   fmtcur(/** number */ k, /** string */ lang, /** string */ cur)
-  { var /** string */ t
-     = /** @type {function(string=, Object=):string} */(k.toLocaleString)(lang,
-        {"style":"currency", "currency":cur});
-    if (t == k)
-      t = (currencyobj[cur] || cur)
-        + fmtf(k, lang, 2);
-    return t.replace(spacesrx, '&nbsp;');
   }
 
   D = function /** void */(/** string */ x,/** *= */ t)
@@ -511,41 +390,9 @@
       }
     } else if (- - /** @type {string|number} */(x) == x)
       /** @type {number} */(x) += "";
-    if (fmt && !x[""])
-    { let /** Array<string> */ r = fmt.match(varentrx);
-      let p = r[3], lang = $["sys"] && $["sys"]["lang"] || undefined;
-      switch (r[4])
-      { case "c": x = String.fromCharCode(+x); break;
-        case "d": x = parseInt(x, 10).toLocaleString(); break;
-        case "e":
-          x = /** @type {function((null|string)):string} */
-           ((+x).toExponential)(p > "" ? p : null);
-          break;
-        case "f":
-          if (!(p > ""))
-            p = 6;
-          x = fmtf(+x, lang, /** @type {number} */(p));
-          break;
-        case "g": x = /** @type {function((number|string)):string} */
-           ((+x).toPrecision)(p > "" ? p : 6); break;
-        case "x": x = (parseInt(x, 10) >>> 0).toString(16); break;
-        case "s":
-          if (p > "")
-            x = x.substr(0, p);
-          break;
-        default:
-          x = r[4][0] === "t"
-              ? strftime(r[5], /** @type {string} */(x), lang)
-              : /[A-Z]{3}/.test(r[4])
-	        ? (iscurrency = fmtcur(+x, lang, r[4])) : x;
-      }
-      if (r[1])
-      { if (r[1].indexOf("0") >= 0 && (p = +r[2]))
-          x = +x < 0 ? sp(pad0(- /** @type {number} */(x), p), "-")
-                     : pad0(/** @type {number} */(x), p);
-        if (r[1].indexOf("+") >= 0 && +x >= 0)
-          x = sp(/** @type {string} */(x), "+");
-      }
+    if (fmt && !x[""] && procfmt)
+    { iscurrency = (x = procfmt(fmt, x, $))[1];
+      x = x[0];
     }
     switch (quot)
     { case "json": x = JSON.stringify(x).replace(ltrx, "\\\\u003c");
@@ -1335,7 +1182,7 @@ nobody:             do
       return r;
     };
 
-  var g =
+  const /** !Object */ g =
   { "remixml2js": remixml2js,
     "js2obj": js2obj,
     "compile":compile,
@@ -1350,6 +1197,10 @@ nobody:             do
     "add_filter": function /** void */(/** string */ name,
        /** function(string):string */ filterfn)
       { filters[name] = filterfn;
+      },
+    "set_proc_fmt":
+      function /** void */(/** function(string,*,!Object):!Array */ fmtfn)
+      { procfmt = fmtfn;
       },
     "set_tag": function /** void */(/** function(!Object):!Array */ cb,
        /** !Object */ $,/** string */ name,/** string= */ scope,

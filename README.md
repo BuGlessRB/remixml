@@ -184,6 +184,8 @@ Even recursive functions are possible:
       Like `none` but immediately searches for new entities to substitute
       inside the replaced content.
 - `formatting` (optional)<br />
+  <b>Note:</b> in order to use this, the `remixml-fmt` module must have been
+  loaded.<br />
   [printf()-like formatting
    specification](https://en.wikipedia.org/wiki/Printf_format_string)
   .<br />
@@ -506,5 +508,7 @@ Exposed API-list (in NodeJS and the browser):
 - [remixml-idom](https://github.com/BuGlessRB/remixml-idom).
 - [remixml-pathencode](https://github.com/BuGlessRB/remixml-pathencode).
 - [remixml-jsobj](https://github.com/BuGlessRB/remixml-jsobj).
+- [remixml-embed](https://github.com/BuGlessRB/remixml-embed).
+- [remixml-fmt](https://github.com/BuGlessRB/remixml-fmt).
 
 Card-carrying member of the `zerodeps` movement.
