@@ -1,0 +1,8 @@
+<set tag="faculty">
+ <if expr="_.val <= 1">1</if>
+ <else>
+  <set var="_.oneless" expr="_.val - 1" />
+  <insert expr=""> _.val * <faculty val="&_.oneless;" /> </insert>
+ </else>
+</set>
+AA <faculty val="7" /> BB

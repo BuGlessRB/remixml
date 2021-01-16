@@ -41,10 +41,11 @@ var macrofn = rxml.js2obj(jssrc);
 
 data = {"_":eval("("+data+")")};
 
-var resultasync = rxml.abstract2txt(await macrofnasync(data));
+if (macrofnasync)
+  var resultasync = rxml.abstract2txt(await macrofnasync(data));
 var result = rxml.abstract2txt(macrofn(data));
 
-if (resultasync !== result) {
+if (macrofnasync && resultasync !== result) {
   fs.writeFileSync("$dir/output.remixml", resultasync);
   console.error("Async mismatch");
   return;

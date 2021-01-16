@@ -1,0 +1,10 @@
+    <set var="_.foo" split=",">aa,b,cc,d,eee,f
+     <div>
+      ,g,h,
+       <b>i,j</b>
+      k,l,m
+     </div>
+    </set>
+    <for in="_.foo">
+     <delimiter>%</delimiter>&_._recno; &_._value;
+    </for>

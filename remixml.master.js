@@ -48,10 +48,7 @@
   const /** string */ varinsert = "I=K($,H,x)}catch(x){I=0}";
   const /** string */ cfnprefix = "H._c=function(H,$){";
   const /** string */ letHprefix = "{let H=L(),";
-  const /** string */ vfnprefix = "w,v=function(){w();";
   const /** string */ missingg = "Missing <";
-  const /** string */ wfunction = ")};w=(function(W){";
-  const /** string */ wfunclose = "});v()}";
 
   const /** !RegExp */ splc = /\s*,\s*/g;
   const /** !RegExp */ spsplsing = /\s*,\s*/;
@@ -709,6 +706,10 @@
      + 'function($){"use strict";var I,W,_,H=N($);';
     var /** number */ noparse = 0;
     var /** number */ comment = 0;
+    const /** string */ vfnprefix
+     = "w,v=" + asyncf + "function(){" + awaitf + "w();";
+    const /** string */ wfunction = ")};w=(" + asyncf + "function(W){";
+    const /** string */ wfunclose = "});" + awaitf + "v()}";
     const /** string */ executecode = awaitf + "X(J,H,$)";
     const /** string */ evalcode        // FIXME not generating back to txt?
      = "do{if((k=Y(H))===m)break;H=" + awaitf + "E(m=k,$"
@@ -893,7 +894,7 @@ ntoken:
                       } else if (ts = getparm("tag"))
                       { startcfn();
                         obj += "v=0;Q(" + ts + ",$," + asyncf
-			 + "function(H,a,$){let o=$;$=C(a,$,{";
+			 + "function(H,a,$,W){let o=$;$=C(a,$,{";
                         { let /** string|undefined */ args = getparm("args");
                           if (args && (args = args.replace(nonwordrx, "")))
                             obj += '"' + args.replace(splc, '":1,"') + '":1';
