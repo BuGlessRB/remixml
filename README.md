@@ -174,6 +174,7 @@ Even recursive functions are possible:
     - `html`<br />
       Default: encodes using
       [HTML entities](https://dev.w3.org/html5/html-author/charref).
+      This is AKA auto-escaping, which prevents XSS (Cross-Site-Scripting).
     - `uric`<br />
       URI component: encodes URI arguments in an URL.
     - `json`<br />
