@@ -51,9 +51,9 @@
   const /** !RegExp */ spsplsing = /\s*,\s*/;
   const /** string */ entend
    = "?:&(?:\\w*;|[\\w$:.[\\]]+(?=[^%;\\w$:.[\\]])|(?=[^\\w$:.[\\]]))";
-  const /** !RegExp */ txtentity = RegExp("[^&]+(" + entend +
-  "[^&]*)*|&([\\w$]+(?:[.[][\\w$]+]?)*\\.[\\w$]+)(?::([\\w$]*))?(?:%([^;]*))?;",
-   "g");
+  const /** !RegExp */ txtentity = regexpy("(?:[^&]+|(" + entend +
+  "[^&]*))+|&([\\w$]+(?:[.[][\\w$]+]?)*\\.[\\w$]+)(?::([\\w$]*))?(?:%([^;]*))?;"
+  );
   const /** !RegExp */ varentity = regexpy(
          "([\\w$]+\\.[\\w$]+(?:[.[][\\w$]+]?)*)(?::([\\w$]*))?(?:%([^;]*))?;");
   const /** !RegExp */ qemrx
@@ -461,9 +461,9 @@
   function /** string */ substentities(/** string */ sbj)
   { var /** string */ obj = "";
     var /** string */ sep = "";
-    var /** RegExpResult */ a5;
+    var /** Array */ a5;
     txtentity.lastIndex = 0;
-    while (a5 = txtentity.exec(sbj))
+    while (a5 = execy(txtentity, sbj))
     { if (a5[1])
       { obj += sep + "(function(){" + varent(a5)
          + 'return x}catch(x){}return ""})()';

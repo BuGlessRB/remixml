@@ -1,1 +1,2 @@
-<set var="_.foobar">juice</set>xx&_.foo;yy
+<set var="_.foobar">juice</set>xx&_.foo;&amp;pid=&_.foo;yy
+<a href="abc&_.foo;&amp;pid=&_.foo;xx">bbc</a>bbb
