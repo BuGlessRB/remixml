@@ -6,6 +6,8 @@ test -z "$dirs" && dirs="*"
 mspertest=100
 
 ok=0
+succeeded=0
+failed=0
 
 (
   cd node_modules/remixml
@@ -74,8 +76,10 @@ HERE
   js-beautify -s 2 $dir/output.min.js >$dir/output.js
   if cmp -s $dir/target.remixml $dir/output.remixml
   then
+    succeeded=$(($succeeded + 1))
     echo "Succeed: $dir	  $result"
   else
+    failed=$(($failed + 1))
     echo "$result"
     echo "****************************************** Failed: $dir"
     ok=1
@@ -115,5 +119,7 @@ HERE
   ) >testsuite.html
   fi
 done
+
+echo "               Tests ===== succeeded: $succeeded  failed: $failed ====="
 
 exit $ok
