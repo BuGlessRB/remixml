@@ -392,7 +392,6 @@
         }
       case "":case "none":case "r":case "recurse":;
     }
-aggregate:
     switch (x.length)
     { case 0:
         x = "";
@@ -401,17 +400,6 @@ aggregate:
         if (x[""] === 1)
           x = x[0];
         break;
-      default:
-        if (x[""] === 1)
-	{ let /** string */ accu = "";
-	  let /** string */ s;
-	  for (s of /** @type {!Array} */(x))
-	  { if (s[""])
-	      break aggregate;
-	    accu += s;
-	  }
-	  x = accu;
-	}
     }
     if (quot === "r")
     { let /** string */ oldx = "";
@@ -1127,9 +1115,11 @@ nobody:             do
         for (narg of Obj.keys(vdom).splice(vdom.length))
           switch (narg[0])
           { default:
-              let /** string */ val = /** @type {Object} */(vdom)[narg];
-              if (val != null && typeof val !== "object")
-              { parent += " " + narg;
+              let /** string|!Array */ val = /** @type {Object} */(vdom)[narg];
+              if (val != null)
+              { if (val[""])
+		  val = val.join("");
+		parent += " " + narg;
                 if (narg !== val)
                   parent += '="'
                    + (val.replace
