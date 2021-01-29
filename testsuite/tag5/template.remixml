@@ -1,0 +1,4 @@
+<set var="_.yes">ind<if expr="1">ee</if>d</set>
+<set tag="xref" ->&_.foo:;<a href="&_.foo:;">bar</a>&_.foo:;</set
+><xref foo="&_.yes:;">alle</xref>
+&_.yes;<img src="&_.yes:;" />
