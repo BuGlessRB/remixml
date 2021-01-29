@@ -853,8 +853,8 @@ ntoken:
                   }
                 }
                 obj += "{let J=W,H=S({";
-                { let /** string */ sep;
-                  if (sep = gotparms["::"])
+                { let /** string */ sep = gotparms["::"];
+                  if (sep)
                     gotparms["::"] = sep.slice(0, -1) + ":;";
                   sep = "";
                   for (fw in gotparms)
