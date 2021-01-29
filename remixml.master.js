@@ -20,15 +20,15 @@
 
   // Cut BEGIN for externs
   // Cut BEGIN for prepend
-  var VP,CC,B,C,D,E,F,G,K,L,M,N,O,P,Q,R,S,T,U,V,X,Y,Z,
+  var B,C,D,E,F,G,K,L,M,N,O,P,Q,R,S,T,U,V,X,Y,Z,
    log,sizeof,desc,abstract2txt,abstract2dom;
   // Cut END for prepend
   var A,VE,IA;
   // Cut END for externs
   // Cut BEGIN for prepend
   function A(_,$,v)
-  {if(_&&!_.length&&_[""]===1)_="";return v?eval(VP(v)+"=_;"):_};
-  function VE($,v){return eval(IA(v)?v[0]:VP(v))};
+  {if(_&&!_.length&&_[""]===1)_="";return v?eval(T(v)+"=_;"):_};
+  function VE($,v){return eval(IA(v)?v[0]:T(v))};
   function IA(s){return Array.isArray(s)}
   // Cut END for prepend
 
@@ -98,7 +98,7 @@
   function /** string */ htmlmap(/** string */ s)
   { return htmlmapobj[s]; }
 
-  CC = function /** void */(/** !Object */ dst, /** !Object */ src)
+  M = function /** void */(/** !Object */ dst, /** !Object */ src)
   { try
     { Obj.assign(dst, src);
     } catch (x) {}
@@ -123,29 +123,11 @@
    simplify(/** string */ expr,/** number= */ assign)
   { var /** Array */ r = expr.match(noparenplusrx);
     if (r)
-    { expr = VP(r[1]);
+    { expr = T(r[1]);
       return assign ? [ expr ] : "[" + expr + "]";
     }
     return expr;
   }
-                           // appendChild with text (coalesce strings first)
-  T = function /** string */(/** !Array */ H,/** string */ s)
-  { let /** number */ last = H.length - 1;
-    if (isstring(H[last]))
-      H[last] += s;
-    else
-      H.push(s);
-  };
-                          // appendChild (merge into)
-  M = function /** void */(/** !Array */ H,/** !Array */ elm)
-  { var /** !Array|string */ s;
-    while (s = elm.shift())
-    { if (s[""])
-        H.push(s);
-      else
-        T(H, s);
-    }
-  };
 
   function /** function(!Object):!Array */ compile(/** string */ remixml,
                                            /** number= */ flags)
@@ -216,7 +198,7 @@
   S = function /** !Array */(/** !Object */ attr,/** string= */ tag)
   { var /** !Array */ r = L(tag);
     Obj.assign(r, attr);
-    delete /** @type{Object} */(r)["::"];
+    delete /** @type {Object} */(r)["::"];
     if (attr = attr["::"])
       Obj.assign(r, attr);
     return r;
@@ -225,7 +207,7 @@
   L = function /** !Array */(
           /** function(!Array,!Array,!Object):void|string= */ nodename)
   { var /** !Array */ r = [];
-    /** @type{Object} */(r)[""] = nodename || 1;
+    /** @type {Object} */(r)[""] = nodename || 1;
     return r;
   };
                            // Init new context
@@ -247,14 +229,14 @@
                           // Create new subcontext
   C = function /** !Object */(/** !Array */ _,
    /** !Object */ $,/** !Object= */ args,/** string= */ scope)
-  { if (/** @type{Object} */(_)[""] !== 1)
+  { if (/** @type {Object} */(_)[""] !== 1)
     { defget(_, "_contents", function()
         { let /** function(!Array,!Object):void|undefined */ cfn
-           = /** @type{Object} */(_)["_c"];
+           = /** @type {Object} */(_)["_c"];
           if (cfn)
             cfn(_.slice(), $);
           else
-            /** @type{Object} */(_)[""] = 1;
+            /** @type {Object} */(_)[""] = 1;
           return _;
         });
       if (args)
@@ -271,7 +253,7 @@
             return rest;
           });
       } else
-        return /** @type{Object} */(_);
+        return /** @type {Object} */(_);
     }
     var /** !Object */ n$;
     (n$ = Obj.assign({}, $))["_"]
@@ -291,14 +273,14 @@
                     // $: Variable context
   X = function /** Promise */(/** !Array */ J,/** !Array */ H,/** !Object */ $)
   { var /** function(!Array,!Array,!Object):Promise */ fn
-     = $["_"]["_tag"][/** @type{Object} */(H)[""]];
+     = $["_"]["_tag"][/** @type {Object} */(H)[""]];
     if (fn)
       return fn(J, H, $);
     else
     { let /** function(!Array,!Object):void|undefined */ cfn
-       = /** @type{Object} */(H)["_c"];
+       = /** @type {Object} */(H)["_c"];
       if (cfn)
-      { delete /** @type{Object} */(H)["_c"];
+      { delete /** @type {Object} */(H)["_c"];
         cfn(H, $);
       }
       J.push(H);
@@ -314,7 +296,7 @@
    /** function(...):!Array = */ ord)
   { var /** !Array */ r;
     var /** !Array|!Object */ k
-     = /** @type{!Object} */(IA(vname) ? vname[0] : VE($, vname));
+     = /** @type {!Object} */(IA(vname) ? vname[0] : VE($, vname));
     if ((k = k || 0) && k.size >= 0)
       r = k.entries();
     else
@@ -350,7 +332,7 @@
     { let /** !Array|string */ k = H[i++];
       switch (k[""])
       { default:
-          B($, res, /** @type{!Array} */(k), sel);
+          B($, res, /** @type {!Array} */(k), sel);
           return;
         case sel:		  // FIXME support more than simple nodenames
           res.push(C(k, $));
@@ -362,8 +344,8 @@
   function /** string */ simplemember(/** string */ membr)
   { return membr.match(wordrx) ? "." + membr : '["' + membr + '"]';
   }
-                               // Canonicalise variable path
-  VP = function /** string */(/** string */ vpath)
+                              // Canonicalise variable path
+  T = function /** string */(/** string */ vpath)
   { var /** !Array */ components = vpath.split(dotbrackrx);
     var /** string */ word;
     vpath = "$";
@@ -371,7 +353,7 @@
       vpath += simplemember(word);
     return vpath;
   };
-                      // Evaluate variable entity
+                     // Evaluate variable entity
   Z = function /** * */(/** !Object */ $,/** string|!Array */ vname,
    /** string= */ quot,/** string= */ fmt)
   { var /** * */ x = IA(vname) ? vname[0] : VE($, vname);
@@ -386,7 +368,7 @@
           if (!fmt)
             break;
         default:
-          x = Y(/** @type{!Array} */(x));
+          x = Y(/** @type {!Array} */(x));
       }
     } else if (- - /** @type {string|number} */(x) == x)
       /** @type {number} */(x) += "";
@@ -404,7 +386,7 @@
         { if (IA(x))
             x = x.join(", ");
 	  let /** function(string):string */ filterfn = filters[quot];
-	  x = filterfn ? filterfn(/** @type{string} */(x))
+	  x = filterfn ? filterfn(/** @type {string} */(x))
 	               : x.replace(htmlmaprx, htmlmap);
         }
       case "":case "none":case "r":case "recurse":;
@@ -420,8 +402,8 @@
     if (quot === "r")
     { let /** string */ oldx = "";
       while (x !== oldx && x.indexOf("&") >= 0)
-      { oldx = /** @type{string} */(x);
-        x = VE($, ["(" + substentities(/** @type{string} */(x)) + ")"]);
+      { oldx = /** @type {string} */(x);
+        x = VE($, ["(" + substentities(/** @type {string} */(x)) + ")"]);
       }
     }
     return x;
@@ -431,10 +413,10 @@
   { var /** * */ i;
     if (r)
     { for (i in r)
-        delete r[/** @type{?} */(i)];
+        delete r[/** @type {?} */(i)];
     } else
       r = [];
-    r = /** @type{!Array} */(Obj.assign(r, k));
+    r = /** @type {!Array} */(Obj.assign(r, k));
     i = r.length;
     while (i--)
     { if (r[i][""])
@@ -447,12 +429,12 @@
    (/** !Object */ $,/** !Array */ H,/** !Array|string|number */ x)
   { if (x[""])
     { if (x[""] === 1)
-        M(H, O(/** @type{!Array} */(x)));
+        H.push.apply(H, O(/** @type {!Array} */(x)));
       else
         H.push(x);
       x = 1;
     } else if (x || x !== undefined && (x += ""))
-      T(H, /** @type{string} */(x)), x = 1;
+      H.push(x), x = 1;
     else
       x = 0;
     return x;
@@ -507,7 +489,7 @@
   function /** string|undefined */ evalexpr(/** string|undefined */ expr)
   { if (expr)
     { if (0 > expr.indexOf("("))
-      { if ((expr = /** @type{string} */(JSON.parse(expr))).indexOf("_") >= 0)
+      { if ((expr = /** @type {string} */(JSON.parse(expr))).indexOf("_") >= 0)
           expr = "_=$._," + expr;
         expr = protectjs(expr);
       } else
@@ -560,7 +542,7 @@
     const /** string */ executecode = awaitf + "X(J,H,$)";
     const /** string */ evalcode        // FIXME not generating back to txt?
      = "do{if((k=Y(H))===m)break;H=" + awaitf + "E(m=k,$"
-       + (flags ? "," + flags : "") + ")}while(--n);M(J,H)}";
+       + (flags ? "," + flags : "") + ")}while(--n);J.push.apply(J,H)}";
     var /** number */ simpleset;      // Peephole optimiser plain string sets
     var /** !Array */ tagctx = [0, {}, STASHCONTENT, ""];
     var /** !Array */ tagstack = [tagctx];
@@ -631,7 +613,7 @@ ntoken:
               { noparserx.lastIndex = 0;
 	        if (execy(noparserx, ts = rm[3]))
 	        { if (ts[0] === "n")	// noparse or comment?
-	          { obj += "T(H,"
+	          { obj += "H.push("
 	             + JSON.stringify(ts.slice(noparserx.lastIndex)) + ");";
                     markhasbody();
 	          }
@@ -825,7 +807,7 @@ ntoken:
                         obj += "," + ts;
                       obj += ");";
                       if (domkmapping("k=(m=$._)._value;", "m") === 1)
-	                obj += "CC($._,$._._value);";
+	                obj += "M($._,$._._value);";
                       continue;
                     }
                     case "eval":
@@ -845,7 +827,7 @@ ntoken:
                           obj += "delete " + av[0] + ";";
                         else
                           obj += 'eval("delete "+'
-                               + VP(/** @type{string}*/(av)) + ");";
+                               + T(/** @type {string}*/(av)) + ");";
                       }
                       continue;
                     case "delimiter":
@@ -954,10 +936,10 @@ nobody:             do
 		            obj += wfunclose;
                           break;
                         case "replace":
-                          obj += "M(J,R(H,v))}";
+                          obj += "J.push.apply(J,R(H,v))}";
                           break;
                         case "trim":
-                          obj += "M(J,U(R(H)))}";
+                          obj += "J.push.apply(J,U(R(H)))}";
                           break;
                         case "maketag":
                           obj += "J.push(H)}";
@@ -1045,7 +1027,7 @@ nobody:             do
                      && ts.match(spacelinerx)))
 	    { ts = JSON.stringify(ts);
               obj += tagctx[TS_FLAGS] & HASBODY
-               ? (simpleset = 0, "T(H," + ts + ");")
+               ? (simpleset = 0, "H.push(" + ts + ");")
                : "H[0]=" + (markhasbody(), ts) + ";";
 	    }
           }
@@ -1060,7 +1042,7 @@ nobody:             do
   function /** function(!Object):!Array */ js2obj(/** string */ jssrc)
   { var /** function(!Object):!Array */ constructor;
     try {
-      constructor = /** @type{function(!Object):!Array} */(eval(jssrc));
+      constructor = /** @type {function(!Object):!Array} */(eval(jssrc));
     } catch(e) {
       if (RUNTIMEDEBUG)
       { D(e, jssrc);
@@ -1132,7 +1114,7 @@ nobody:             do
         for (narg of Obj.keys(vdom).splice(vdom.length))
           switch (narg[0])
           { default:
-              let /** string */ val = /** @type{Object} */(vdom)[narg];
+              let /** string */ val = /** @type {Object} */(vdom)[narg];
               if (val != null && typeof val !== "object")
               { parent += " " + narg;
                 if (narg !== val)
@@ -1163,7 +1145,7 @@ nobody:             do
   { if (ie11) {
       var /** number */ last = expr.lastIndex;
       var /** Array */ ret = expr.exec(haystack);
-      return ret && /** @type{?} */(last == ret.index) && ret;
+      return ret && /** @type {?} */(last == ret.index) && ret;
     }
     return expr.exec(haystack);
   }
@@ -1190,8 +1172,8 @@ nobody:             do
        /** string */(/** string|(function(!Object):!Array) */ tpl,
                     /** !Object */ $,/** number= */ flags)
       { if (isstring(tpl))
-          tpl = js2obj(remixml2js(/** @type{string} */(tpl), flags));
-        return Y(/** @type{function(!Object):!Array} */(tpl)($));
+          tpl = js2obj(remixml2js(/** @type {string} */(tpl), flags));
+        return Y(/** @type {function(!Object):!Array} */(tpl)($));
       },
     "abstract2txt": Y,
     "add_filter": function /** void */(/** string */ name,
@@ -1215,7 +1197,7 @@ nobody:             do
   if (typeof define == "function" && define["amd"])
     define("remixml", [], g);
   else if (typeof exports == "object")
-    Obj.assign(/** @type{!Object} */(exports), g);
+    Obj.assign(/** @type {!Object} */(exports), g);
   else
     W["Remixml"] = g;
 
