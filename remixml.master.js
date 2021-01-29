@@ -23,13 +23,12 @@
   var B,C,D,E,F,G,K,L,M,N,O,P,Q,R,S,T,U,V,X,Y,Z,
    log,sizeof,desc,abstract2txt,abstract2dom;
   // Cut END for prepend
-  var A,VE,IA;
+  var A,VE;
   // Cut END for externs
   // Cut BEGIN for prepend
   function A(_,$,v)
   {if(_&&!_.length&&_[""]===1)_="";return v?eval(T(v)+"=_;"):_};
-  function VE($,v){return eval(IA(v)?v[0]:T(v))};
-  function IA(s){return Array.isArray(s)}
+  function VE($,v){return eval(Array.isArray(v)?v[0]:T(v))};
   // Cut END for prepend
 
   const Doc = typeof document == "object" ? document : null;
@@ -88,6 +87,8 @@
   var /** function(string,*,!Object):!Array */ procfmt;
   var /** function(...) */ debuglog = console.debug;
   var /** function(...) */ log = console.error;
+
+  function /** !boolean */ IA(/** * */ s) { return Array.isArray(s); }
 
   function /** !boolean */ isstring(/** * */ s)
   { return typeof s === "string"; }
@@ -391,13 +392,26 @@
         }
       case "":case "none":case "r":case "recurse":;
     }
+aggregate:
     switch (x.length)
     { case 0:
         x = "";
-       break;
+        break;
       case 1:
         if (x[""] === 1)
           x = x[0];
+        break;
+      default:
+        if (x[""] === 1)
+	{ let /** string */ accu = "";
+	  let /** string */ s;
+	  for (s of /** @type {!Array} */(x))
+	  { if (s[""])
+	      break aggregate;
+	    accu += s;
+	  }
+	  x = accu;
+	}
     }
     if (quot === "r")
     { let /** string */ oldx = "";
@@ -1081,18 +1095,17 @@ nobody:             do
   abstract2txt = Y = function /** string */(/** !Array|string */ vdom,
    /** number= */ html)
   { for (;;)
-    { if (!IA(vdom))
-        return vdom;
-      switch (vdom.length)
-      { case 0:
-          if (vdom[""] === 1)
-            return "";
-          break;
-        case 1:
-          if (vdom[""] === 1)
-          { vdom = vdom[0];
-            continue;
-          }
+    { switch (vdom[""])
+      { case undefined:
+	  return vdom;
+	case 1:
+	  switch (vdom.length)
+	  { case 0:
+	      return "";
+	    case 1:
+	      vdom = vdom[0];
+	      continue;
+	  }
       }
       break;
     }
