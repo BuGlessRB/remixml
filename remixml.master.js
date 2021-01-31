@@ -88,7 +88,7 @@
   var /** function(...) */ debuglog = console.debug;
   var /** function(...) */ log = console.error;
 
-  function /** !boolean */ IA(/** * */ s) { return Array.isArray(s); }
+  function /** !boolean */ isa(/** * */ s) { return Array.isArray(s); }
 
   function /** !boolean */ isstring(/** * */ s)
   { return typeof s === "string"; }
@@ -294,10 +294,10 @@
   };
                        // Convert object list into iterator
   G = function /** !Object */(/** !Object */ $,/** string|!Array */ vname,
-   /** function(...):!Array = */ ord)
+   /** function(...):!Array= */ ord)
   { var /** !Array */ r;
     var /** !Array|!Object */ k
-     = /** @type {!Object} */(IA(vname) ? vname[0] : VE($, vname));
+     = /** @type {!Object} */(isa(vname) ? vname[0] : VE($, vname));
     if ((k = k || 0) && k.size >= 0)
       r = k.entries();
     else
@@ -312,7 +312,7 @@
             x = ord(a); y = ord(b);
             for (i = 0, n = x.length; i < n; i++)
             { m = 0;
-              if (IA(x[i]))
+              if (isa(x[i]))
                 m = 1, x[i] = x[i][0], y[i] = y[i][0];
               if (ret = /** @type {number} */
                        (x[i] > y[i] || -(x[i] !== y[i])))
@@ -357,7 +357,7 @@
                      // Evaluate variable entity
   Z = function /** * */(/** !Object */ $,/** string|!Array */ vname,
    /** string= */ quot,/** string= */ fmt)
-  { var /** * */ x = IA(vname) ? vname[0] : VE($, vname);
+  { var /** * */ x = isa(vname) ? vname[0] : VE($, vname);
     var iscurrency;
     if (x == null)
       x = "";
@@ -384,7 +384,7 @@
         break;
       default:
         if (!x[""] && !iscurrency)  // Don't escape &nbsp;
-        { if (IA(x))
+        { if (isa(x))
             x = x.join(", ");
 	  let /** function(string):string */ filterfn = filters[quot];
 	  x = filterfn ? filterfn(/** @type {string} */(x))
@@ -715,7 +715,7 @@ ntoken:
                         if (obj.length !== simpleset)
                           simpleset = 0;
                         let /** !Array|string */ av = simplify(vname, 1);
-                        if (IA(av))
+                        if (isa(av))
                           obj += av[0] + "=A(" +
                             (gotparms["clone"] !== undefined
                              ? (simpleset = 0, "O(H," + av[0] + ")") : "H")
@@ -825,7 +825,7 @@ ntoken:
                       } else if (ts = getparm("var") || getparm("variable"))
                       { let /** !Array|string */ av
                          = simplify(ts, 1);
-                        if (IA(av))
+                        if (isa(av))
                           obj += "delete " + av[0] + ";";
                         else
                           obj += 'eval("delete "+'
