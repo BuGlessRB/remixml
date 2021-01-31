@@ -2,3 +2,6 @@
 <set tag="xref" ->&_.foo:;<a href="&_.foo:;">bar</a>&_.foo:;</set
 ><xref foo="&_.yes:;">alle</xref>
 &_.yes;<img src="&_.yes:;" />
+<insert></insert>
+<insert expr="12" />
+<insert expr="">13<if expr="0">+3</if>+5</insert>

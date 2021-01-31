@@ -570,18 +570,10 @@
     function /** void */ markhasbody()
     { tagctx[TS_FLAGS] |= HASBODY;
     }
-    function /** void */ bodyfromparent()
-    { tagctx[TS_FLAGS] |= tagstack[tagstack.length - 2][TS_FLAGS] & HASBODY;
-    }
-    function /** void */ parenthasbody()
-    { tagstack[tagstack.length - 1][TS_FLAGS] |= HASBODY;
-    }
     function /** void */ getexclm(/** !Array */ rm,/** number */ offset)
     { if (!comment)
-      { obj += 'H.push(W=L("' + rm[0][0] + '"));W[0]='
+        obj += 'H.push(W=L("' + rm[0][0] + '"));W[0]='
          + JSON.stringify(rm[offset]) + ";";
-        markhasbody();
-      }
     }
     for (;;)
     { var /** Array */ rm;
@@ -615,10 +607,8 @@ ntoken:
               { noparserx.lastIndex = 0;
 	        if (execy(noparserx, ts = rm[3]))
 	        { if (ts[0] === "n")	// noparse or comment?
-	          { obj += "H.push("
+	            obj += "H.push("
 	             + JSON.stringify(ts.slice(noparserx.lastIndex)) + ");";
-                    markhasbody();
-	          }
 	        } else
 	          getexclm(rm, 3);
 	      }
@@ -673,9 +663,7 @@ ntoken:
               switch (tag)
               { case "noparse":
 		  if (!noparse++)
-		  { markhasbody();
 		    continue;
-		  }
 		  break;
                 case "comment":
 		  if (!noparse)
@@ -734,7 +722,6 @@ ntoken:
                         if (ts = getparm("scope"))
                           obj += "," + ts;
                         obj += ");";
-                        markhasbody();
                       }
                       continue;
                     }
@@ -773,7 +760,6 @@ ntoken:
                        + JSON.stringify(flags) + ","
                        + (evalexpr(getparm("expr")) || getparm("to"))
 		       + ");";
-                      bodyfromparent();
                       continue;
                     }
                     case "trim":
@@ -786,8 +772,7 @@ ntoken:
                       obj += letHprefix + "v=" + getparm("name") + ",J=W;";
                       continue;
                     case "for":
-                    { markhasbody();
-                      obj += "{I=0;let g,i,k,m,J=W,n=0;";
+                    { obj += "{I=0;let g,i,k,m,J=W,n=0;";
                       let /** string|undefined */ from = getparm("in");
                       if (from)
                       { obj += "g=G($," + simplify(from) +
@@ -834,7 +819,6 @@ ntoken:
                       continue;
                     case "delimiter":
                       obj += "if($._._recno>1){";
-                      bodyfromparent();
                       continue;
                     case "elif":
                       ts = "(!I&&";
@@ -842,15 +826,12 @@ ntoken:
                       obj += "if" + ts + "(I="
 		       + (evalexpr(getparm("expr")) || 0)
                        + ")" + (ts ? ")" : "") + "{";
-                      bodyfromparent();
                       continue;
                     case "then":
                       obj += "if(I){";
-                      bodyfromparent();
                       continue;
                     case "else":
                       obj += "if(!I){";
-                      bodyfromparent();
                       continue;
                   }
                 }
@@ -970,7 +951,6 @@ nobody:             do
                         case "delimiter":
                           obj += "}";
                       }
-                      parenthasbody();
                     } while (0);
                     simpleset = 0;
                   }
@@ -1003,7 +983,6 @@ nobody:             do
               if (!comment)
 	      { obj += varent(rm) + varinsert;
                 simpleset = 0;
-                markhasbody();
 	      }
               break;
             }
@@ -1027,11 +1006,7 @@ nobody:             do
             if (ts && !(tagctx[TS_FLAGS] & TRIMWHITE
                      && obj.slice(-2) !== "0}" // Not preceded by varentity?
                      && ts.match(spacelinerx)))
-	    { ts = JSON.stringify(ts);
-              obj += tagctx[TS_FLAGS] & HASBODY
-               ? (simpleset = 0, "H.push(" + ts + ");")
-               : "H[0]=" + (markhasbody(), ts) + ";";
-	    }
+              obj += "H.push(" + JSON.stringify(ts) + ");"
           }
       }
     }
