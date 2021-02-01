@@ -806,7 +806,8 @@ ntoken:
                     case "unset":
                       if (ts = getparm("tag"))
                       { startcfn();
-                        obj += "delete $._._tag[" + ts + "];";
+                        ts = "._._tag[" + ts + "]";
+                        obj += "$" + ts + "=$._._&&$._" + ts + ";";
                       } else if (ts = getparm("var") || getparm("variable"))
                       { let /** !Array|string */ av
                          = simplify(ts, 1);

@@ -261,7 +261,8 @@ if a single `-` parameter is given.
    - `var` or `variable`<br />
      Delete the named variable.
    - `tag`<br />
-     Delete the named tag.
+     Delete the named tag from the current scope, restores the
+     definition of this tag from the parentscope (if any).
 - `<if expr="">...</if>`<br />
    Attributes:
    - `expr`<br />
@@ -417,8 +418,8 @@ if a single `-` parameter is given.
 
 #### Javascript helperfunctions
 
-These are extra helperfunctions which will be available
-in the inline Remixml Javascript scripts.
+These are extra helperfunctions which are available
+in the context of inline Remixml Javascript scripts.
 
 - `sizeof(x)`<br />
   Returns the number of elements in an array or object, or the size of the
