@@ -26,6 +26,7 @@ The Remixml templating engine has the following features:
   content regardless.
 - Comes with numerous loadable library modules to tailor functionality to the
   specific environment leaving the core small.
+- Turing complete.
 
 The language and primitives used, blend in completely with
 standard XML/XHTML syntax and therefore integrate smoothly with

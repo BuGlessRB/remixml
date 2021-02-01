@@ -1,6 +1,6 @@
 {
   "name": "remixml",
-  "version": "5.1.4",
+  "version": "5.1.5",
   "description": "XML/HTML-like macro language/template compiler engine",
   "main": "remixml.min.js",
   "homepage": "https://remixml.org/",
@@ -28,11 +28,13 @@
   "keywords": [
     "templating",
     "javascript",
+    "XHTML",
     "HTML",
     "parser",
     "compiler",
     "autoescape",
     "template",
+    "asynchronous",
     "RXML",
     "XML",
     "Roxen",
