@@ -806,16 +806,24 @@ ntoken:
                     case "unset":
                       if (ts = getparm("tag"))
                       { startcfn();
-                        ts = "._._tag[" + ts + "]";
-                        obj += "$" + ts + "=$._._&&$._" + ts + ";";
-                      } else if (ts = getparm("var") || getparm("variable"))
-                      { let /** !Array|string */ av
-                         = simplify(ts, 1);
+                        let /** !Array|string */ av = simplify(ts, 1);
+			function /** void */ tagpath(/** string */ts)
+                        { ts = "._._tag" + ts;
+                          obj += "$" + ts + "=$._._&&$._" + ts + ";";
+			}
                         if (isa(av))
-                          obj += "delete " + av[0] + ";";
-                        else
-                          obj += 'eval("delete "+'
-                               + T(/** @type {string}*/(av)) + ");";
+                          tagpath(av[0].slice(1));
+			else
+                        { obj += '{let v=' + /** @type {string}*/(av) + ';';
+			  tagpath("[v]");
+			  obj += "}";
+			}
+                      } else if (ts = getparm("var") || getparm("variable"))
+                      { let /** !Array|string */ av = simplify(ts, 1);
+                        obj += isa(av)
+			 ? "delete " + av[0] + ";"
+                         : 'eval("delete $."+'
+                             + /** @type {string}*/(av) + ');';
                       }
                       continue;
                     case "delimiter":

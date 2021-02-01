@@ -22,3 +22,9 @@
    </stext>
    Faint <link>no</link> where man
   </article>
+ <unset tag="yes" />
+ <unset tag="yes-no" />
+ <unset tag="yes&_.foo:;" />
+ <unset var="_.yes-no" />
+ <unset var="_.yes" />
+ <unset var="_.yes&_.foo:;" />
