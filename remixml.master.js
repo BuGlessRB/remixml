@@ -48,8 +48,9 @@
 
   const /** !RegExp */ splc = /\s*,\s*/g;
   const /** !RegExp */ spsplsing = /\s*,\s*/;
+  const /** string */ entw = "\\w$:.[\\]]";
   const /** string */ entend
-   = "?:&(?:\\w*;|[\\w$:.[\\]]+(?=[^%;\\w$:.[\\]])|(?=[^\\w$:.[\\]]))";
+   = "?:&(?:\\w*;|[" + entw + "+(?=[^%;" + entw + ")|(?=[^" + entw + "))";
   const /** !RegExp */ txtentity = regexpy("(?:[^&]+|(" + entend +
   "[^&]*))+|&([\\w$]+(?:[.[][\\w$]+]?)*\\.[\\w$]+)(?::([\\w$]*))?(?:%([^;]*))?;"
   );
