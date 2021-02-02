@@ -239,7 +239,8 @@ if a single `-` parameter is given.
 ```html
 <div ->
  <p>
-  This will strip all fully enclose whitespace (between the div and p tags).
+  This will strip all fully enclose whitespace
+  (between the div and p tags).
  </p>
 </div>
 ```
