@@ -79,8 +79,6 @@
   const /** !RegExp */ escaperxrx = /([\\^$*+?.|()[{])/g;
   const /** !RegExp */ ampquotrx = /"/g;
   const /** !RegExp */ dotbrackrx = /[.[\]]+/;
-  const /** !RegExp */ wnlrx =
-   /(\n)\s+|[ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+(?:(\n)\s*|([ \f\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]))/g;
 
   const /** !Object<function(string):string> */ filters = {};
   const /** !Object */ logcache = {};
@@ -1000,10 +998,8 @@ nobody:             do
           ts += execy(textrx, rxmls)[0];
           lasttoken = textrx.lastIndex;
           if (!comment)
-          { if (!noparse)
-	    { if (flags & KILLWHITE)
-                ts = subws(ts);
-	    }
+          { if (!noparse && flags & KILLWHITE)
+              ts = subws(ts);
             if (ts && !(tagctx[TS_FLAGS] & TRIMWHITE
                      && obj.slice(-2) !== "0}" // Not preceded by varentity?
                      && ts.match(spacelinerx)))
