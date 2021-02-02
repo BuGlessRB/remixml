@@ -132,6 +132,26 @@ Iterating through an object or array:
 </for>
 ```
 
+Defining your own HTML to make it more readable, maintainable and
+<a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY</a>:
+
+```html
+<comment> First define some macros </comment>
+
+<set tag="literallink">
+ <a href="&_.href;">&_.href;</a>
+</set>
+
+<set tag="decorate">
+ You can click towards <literallink href="&_.link;"/>. <br/>
+</set>
+
+<comment> Now use them </comment>
+
+<decorate link="https://some.where/foo/bar" />
+<decorate link="https://some.where/bar/foo" />
+```
+
 Even recursive functions are possible:
 
 ```html
