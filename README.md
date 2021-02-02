@@ -232,8 +232,16 @@ using the following regular expression: `[_$a-zA-Z0-9]+`.
 
 ### Language tags
 
-All tags strip fully enclosed whitespace patches on the first level
+All tags strip fully enclosed whitespace patches between tags on the first level
 if a single `-` parameter is given.
+
+```html
+<div ->
+ <p>
+  This will strip all fully enclose whitespace (between the div and p tags).
+ </p>
+</div>
+```
 
 - `<set var="" variable="" expr="" regexp="" split="" join=""
     mkmapping="" selector="" json="" clone=""
@@ -469,8 +477,9 @@ Specified parameters:
   shortcut.  I.e. in Javascript `$._.foo` and `_.foo` will both refer
   to the same variable.
 - `flags` is an optional bitmask with:
-   - 1: kill all whitespace.
-   - 4: async processing (compiled code returns a `Promise` instead of
+   - 1: Kill all whitespace (different than the `-` parameter to strip whitespace
+        per tag).
+   - 4: Asynchronous processing (compiled Remixml code returns a `Promise` instead of
      a direct abstract).
 
 Exposed API-list (in NodeJS and the browser):
