@@ -148,11 +148,7 @@
   function /** string */ subws(/** string */ s)
   { return s.replace(spacesprx, " ");
   }
-                       // Replace runs of whitespace with a single space or nl
-  function /** string */ subwnl(/** string */ s)
-  { return s.replace(wnlrx, "$1$2$3");
-  }
-                           // trim a single space from both ends
+                          // Trim a single space from both ends
   U = function /** !Array */(/** !Array */ elm)
   { var /** string */ s;
     if (isstring(s = elm[0]) && s[0] === " " && !(elm[0] = s.substr(1)))
@@ -522,7 +518,6 @@
   const /** number */ VFUN = 16;
 
   const /** number */ KILLWHITE = 1;
-  const /** number */ PRESERVEWHITE = 2;
   const /** number */ ASYNC = 4;
 
   function /** string */ remixml2js(/** string */ rxmls,/** number= */ flags)
@@ -1006,11 +1001,8 @@ nobody:             do
           lasttoken = textrx.lastIndex;
           if (!comment)
           { if (!noparse)
-	    { if (flags & (KILLWHITE|PRESERVEWHITE))
-              { if (flags & KILLWHITE)
-                  ts = subws(ts);
-              } else
-                ts = subwnl(ts);	// Coalesce newlines by default
+	    { if (flags & KILLWHITE)
+                ts = subws(ts);
 	    }
             if (ts && !(tagctx[TS_FLAGS] & TRIMWHITE
                      && obj.slice(-2) !== "0}" // Not preceded by varentity?

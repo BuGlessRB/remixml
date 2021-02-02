@@ -450,8 +450,6 @@ Specified parameters:
   to the same variable.
 - `flags` is an optional bitmask with:
    - 1: kill all whitespace.
-   - 2: preserve all whitespace.  If neither kill or preserve bits are present,
-     it defaults to collapsing whitespace around newlines to a single newline.
    - 4: async processing (compiled code returns a `Promise` instead of
      a direct abstract).
 
