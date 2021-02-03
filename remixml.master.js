@@ -83,7 +83,7 @@
 
   const /** !Object<function(string):string> */ filters = {};
   const /** !Object */ logcache = {};
-  var /** function(string,*,!Object):!Array */ procfmt;
+  var /** function(string,*,!Object):* */ procfmt;
   var /** function(...) */ debuglog = console.debug;
   var /** function(...) */ log = console.error;
 
@@ -353,7 +353,6 @@
   Z = function /** * */(/** !Object */ $,/** string|!Array */ vname,
    /** string= */ quot,/** string= */ fmt)
   { var /** * */ x = isa(vname) ? vname[0] : VE($, vname);
-    var iscurrency;
     if (x == null)
       x = "";
     if (typeof x === "function")
@@ -369,16 +368,14 @@
     } else if (- - /** @type {string|number} */(x) == x)
       /** @type {number} */(x) += "";
     if (fmt && !x[""] && procfmt)
-    { iscurrency = (x = procfmt(fmt, x, $))[1];
-      x = x[0];
-    }
+      x = procfmt(fmt, x, $);
     switch (quot)
     { case "json": x = JSON.stringify(x).replace(ltrx, "\\\\u003c");
         break;
       case "uric": x = x.replace(uricrx, eumap);
         break;
       default:
-        if (!x[""] && !iscurrency)  // Don't escape &nbsp;
+        if (!x[""])
         { if (isa(x))
             x = x.join(", ");
 	  let /** function(string):string */ filterfn = filters[quot];
@@ -1157,7 +1154,7 @@ nobody:             do
       { filters[name] = filterfn;
       },
     "set_proc_fmt":
-      function /** void */(/** function(string,*,!Object):!Array */ fmtfn)
+      function /** void */(/** function(string,*,!Object):* */ fmtfn)
       { procfmt = fmtfn;
       },
     "set_tag": function /** void */(/** function(!Object):!Array */ cb,
