@@ -183,12 +183,15 @@ Even recursive functions are possible:
 `& scope . variablename : encoding % formatting ;`
 
 - `scope`<br />
-  References the primary level in the variables object (the second
-  argument to parse()).
+  References the primary level in the `context` object.
 - `variablename`<br />
-  References second and deeper levels in the variables
+  References second and deeper levels in the `context`
   object (can contain multiple dots to designate deeper levels, is used
   to access both objects and arrays).
+  Variables from the parent scope can always be referenced;
+  e.g. `&_.foo;` is a variable named foo in the current scope, whereas
+  `&_._.foo;` refers to a variable named foo in the parent scope.
+  By prepending `._` to the path every time, you go one level deeper.
 - `encoding` (optional)<br />
   Specifies the encoding to be used when substituting the variable.
   The standard encodings available are (you can add custom encodings
@@ -292,7 +295,7 @@ if a single `-` parameter is given.
      Delete the named variable.
    - `tag`<br />
      Delete the named tag from the current scope, restores the
-     definition of this tag from the parentscope (if any).
+     definition of this tag from the parent scope (if any).
 - `<if expr="">...</if>`<br />
    Attributes:
    - `expr`<br />
@@ -471,13 +474,13 @@ Specified parameters:
 - `template`<br />
   Can be text-html.
 - `context`<br />
-  Optional argument which specifies an object which can be referenced
+  Argument which specifies an object which can be referenced
   from within Remixml code.  The toplevel entries are the toplevel scopes
   in Remixml.  Within Remixml Javascript, this object will always be
   referenced using a single `$`.  The local scope will always exist
   as `$._` and that can always be referenced using a direct `_`
   shortcut.  I.e. in Javascript `$._.foo` and `_.foo` will both refer
-  to the same variable.
+  to the same variable, in Remixml both are referred to as `&_.foo;`.
 - `flags` is an optional bitmask with:
    - 1: Kill all whitespace (different than the `-` parameter to strip whitespace
         per tag).
