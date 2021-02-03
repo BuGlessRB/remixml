@@ -188,7 +188,7 @@ Even recursive functions are possible:
   References second and deeper levels in the `context`
   object (can contain multiple dots to designate deeper levels, is used
   to access both objects and arrays).
-  Variables from the parent scope can always be referenced;
+  Variables from the parent scope can always be referenced:
   e.g. `&_.foo;` is a variable named foo in the current scope, whereas
   `&_._.foo;` refers to a variable named foo in the parent scope.
   By prepending `._` to the path every time, you go one level deeper.
