@@ -1,6 +1,6 @@
 {
   "name": "remixml",
-  "version": "5.4.0",
+  "version": "5.4.1",
   "description": "XML/HTML-like macro language/template compiler engine",
   "main": "remixml.min.js",
   "homepage": "https://remixml.org/",
@@ -12,9 +12,9 @@
   "dependencies": {},
   "devDependencies": {
     "incremental-dom": "*",
-    "remixml-fmt": "*",
-    "remixml-embed": "*",
     "remixml-dom": "*",
+    "remixml-embed": "*",
+    "remixml-fmt": "*",
     "remixml-htmldom": "*",
     "remixml-idom": "*",
     "remixml-jsobj": "*",

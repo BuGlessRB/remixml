@@ -13,12 +13,12 @@ The Remixml templating engine has the following features:
 - Rich powerful language with dynamic inheritance, autoescaping, functions,
   whitespace-collapsing, asynchronous control and more.
 - Fast &amp; lean: Small 7 KB gzipped runtime which includes the compiler
-  with precompiled templates in the browser.  Compiles to Javascript.
-- User defined HTML tags in Remixml support arbitrary named parameters and
+  which can precompile templates in node and in the browser.
+- Compiles to minified Javascript.
+- User defined HTML tags in Remixml support named parameters and
   recursion.
 - Extensible with custom filters and tags programmed in Javascript.
-- Available everywhere in node and all modern web browsers (including IE11),
-  with thorough precompilation options.
+- Available everywhere in node and all modern web browsers (including IE11).
 - It contains a fully featured fast validating XHTML parser.
 - It shields the Remixml programmer from fatal browser errors by
   trapping and logging all errors from within (even from direct javascript
