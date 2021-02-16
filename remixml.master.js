@@ -254,6 +254,7 @@
     var /** !Object */ n$;
     (n$ = Obj.assign({}, $))["_"]
      = Obj.assign(_ , {"_":$["_"], "_tag":Obj.assign({}, $["_"]["_tag"])});
+    delete _[""];
     if (scope)
       n$[scope] = _;
     return n$;
