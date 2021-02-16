@@ -108,13 +108,17 @@
   { log("Remixml expression: " + (t ? JSON.stringify(t) : "") + "\n", x);
   };
 
+  function /** !Object */ marko(/** !Object */ accu,/** string */ val)
+  { accu[val] = 1;
+    return accu;
+  }
+
   function /** void */ settag(/** function(!Object):!Array */ tpl,
    /** !Object */ $,/** string */ name,/** string= */ scope,
    /** string= */ args)
   { $["_"]["_tag"][name]
      = function /** void */(/** !Array */W,/** !Array */ H,/** !Object */ $)
-      { $ = C(H, $, (args ? args.split(splc) : [])
-         .reduce(function(a,i) { a[i] = 1; return a; }, {}), scope);
+      { $ = C(H, $, args ? args.split(splc).reduce(marko, {}) : {}, scope);
         return tpl($);
       };
   }
@@ -254,7 +258,6 @@
     var /** !Object */ n$;
     (n$ = Obj.assign({}, $))["_"]
      = Obj.assign(_ , {"_":$["_"], "_tag":Obj.assign({}, $["_"]["_tag"])});
-    delete /** @type{!Object} */(_)[""];
     if (scope)
       n$[scope] = _;
     return n$;
