@@ -119,6 +119,7 @@
   { $["_"]["_tag"][name]
      = function /** void */(/** !Array */W,/** !Array */ H,/** !Object */ $)
       { $ = C(H, $, args ? args.split(splc).reduce(marko, {}) : {}, scope);
+	delete $[""];
         return tpl($);
       };
   }
