@@ -62,8 +62,8 @@
   const /** !RegExp */ noparserx = regexpy("(?:noparse|comment)\\s");
   const /** !RegExp */ textrx = regexpy("[^&<]+(" + entend + "[^&<]*)*");
   const /** !RegExp */ params
-   = /\s*(?:([-\w:]+|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?|>)/g;
-  const /** !RegExp */ complexlabel = /[^\w]/;
+   = /\s*(?:([-:_a-zA-Z][-:\w]*|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?|>)/g;
+  const /** !RegExp */ simplelabel = /^[_a-zA-Z]\w*$/;
   const /** !RegExp */ scriptend = /<\/script>/g;
   const /** !RegExp */ styleend = /<\/style>/g;
   const /** !RegExp */ noparenplusrx = /^"([^(+]+)"$/;
@@ -118,7 +118,7 @@
    /** string= */ args)
   { $["_"]["_tag"][name]
      = function /** void */(/** !Array */W,/** !Array */ H,/** !Object */ $)
-      { delete H[""];
+      { delete /** @type{Object} */(H)[""];
 	$ = C(H, $, args ? args.split(splc).reduce(marko, {}) : {}, scope);
         return tpl($);
       };
@@ -847,8 +847,8 @@ ntoken:
                   sep = "";
                   for (fw in gotparms)
                   { if (ts = getparm(fw))
-                    { obj += sep + (complexlabel.test(fw)
-		                    ? '"' + fw + '"' : fw) + ":" + ts;
+                    { obj += sep + (simplelabel.test(fw)
+		                    ? fw : '"' + fw + '"') + ":" + ts;
                       sep = ",";
                     }
                   }
