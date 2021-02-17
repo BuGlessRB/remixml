@@ -61,8 +61,8 @@
           + "|\\?([\0-\xff]*?)(?:\\?>|$)");
   const /** !RegExp */ noparserx = regexpy("(?:noparse|comment)\\s");
   const /** !RegExp */ textrx = regexpy("[^&<]+(" + entend + "[^&<]*)*");
-  const /** !RegExp */ params
-   = /\s*(?:([-:_a-zA-Z][-:\w]*|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?|>)/g;
+  const /** !RegExp */ params =
+regexpy("\\s*((?:[^-:_a-zA-Z>\\s/]\\s*)*)(?:([-:_a-zA-Z][-:\\w]*|/)\\s*(?:=\\s*(\"[^\"]*\"|'[^']*'))?|>)");
   const /** !RegExp */ simplelabel = /^[_a-zA-Z]\w*$/;
   const /** !RegExp */ scriptend = /<\/script>/g;
   const /** !RegExp */ styleend = /<\/style>/g;
@@ -630,20 +630,22 @@ ntoken:
             } else if (mapstring === "")
 	      return 1;
           }
-          let /** string */ fw = params.exec(rxmls)[1];
+          let /** string */ fw = execy(params, rxmls)[2];
           if (fw === "/")
-            gotparms[fw] = 1, fw = params.exec(rxmls)[1];
+            gotparms[fw] = 1, fw = execy(params, rxmls)[2];
           else if (!fw)
           { lasttoken = params.lastIndex;
             break ntoken;
           }
           gotparms[""] = fw;
-          while (rm = params.exec(rxmls))
-          { if (!rm[1])
+          while (rm = execy(params, rxmls))
+          { if (RUNTIMEDEBUG && rm[1])
+              logcontext(fw, "Skipping malformed parameter " + rm[1]);
+	    if (!rm[2])
             { lasttoken = params.lastIndex;
               break;
             }
-            gotparms[rm[1]] = rm[2] ? rm[2].slice(1,-1) : rm[1];
+            gotparms[rm[2]] = rm[3] ? rm[3].slice(1,-1) : rm[2];
           }
           let /** string|number */ close = gotparms["/"];
           delete gotparms["/"];
