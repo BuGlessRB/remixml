@@ -62,7 +62,7 @@
   const /** !RegExp */ noparserx = regexpy("(?:noparse|comment)\\s");
   const /** !RegExp */ textrx = regexpy("[^&<]+(" + entend + "[^&<]*)*");
   const /** !RegExp */ params =
-regexpy("\\s*((?:[^-:_a-zA-Z>\\s/]\\s*)*)(?:([-:_a-zA-Z][-:\\w]*|/)\\s*(?:=\\s*(\"[^\"]*\"|'[^']*'))?|>)");
+regexpy("\\s*((?:[^-:_a-zA-Z<&>\\s/]\\s*)*)(?:([-:_a-zA-Z][-:\\w]*|/)\\s*(?:=\\s*(\"[^\"]*\"|'[^']*'))?|[<&>])");
   const /** !RegExp */ simplelabel = /^[_a-zA-Z]\w*$/;
   const /** !RegExp */ scriptend = /<\/script>/g;
   const /** !RegExp */ styleend = /<\/style>/g;
@@ -97,6 +97,10 @@ regexpy("\\s*((?:[^-:_a-zA-Z>\\s/]\\s*)*)(?:([-:_a-zA-Z][-:\\w]*|/)\\s*(?:=\\s*(
 
   function /** string */ htmlmap(/** string */ s)
   { return htmlmapobj[s]; }
+
+  function /** string */ arraytostring(/** !Array|string */ s)
+  { return isa(s) ? s.join(", ") : /** @type {string} */(s);
+  }
 
   M = function /** void */(/** !Object */ dst, /** !Object */ src)
   { try
@@ -144,9 +148,10 @@ regexpy("\\s*((?:[^-:_a-zA-Z>\\s/]\\s*)*)(?:([-:_a-zA-Z][-:\\w]*|/)\\s*(?:=\\s*(
   { return compile(src, flags)($);
   };
                           // Generic replace function
-  P = function /** function(string):string */(/** string */ xp,
+  P = function /** function(string|!Array):string */(/** string */ xp,
    /** string */ flags,/** string|function(...):string */ to)
-  { return function (x) { return x.replace(RegExp(xp, flags), to); };
+  { return function (x)
+     { return arraytostring(x).replace(RegExp(xp, flags), to); };
   };
                           // Replace runs of whitespace with a single space
   function /** string */ subws(/** string */ s)
@@ -381,8 +386,7 @@ regexpy("\\s*((?:[^-:_a-zA-Z>\\s/]\\s*)*)(?:([-:_a-zA-Z][-:\\w]*|/)\\s*(?:=\\s*(
         break;
       default:
         if (!x[""])
-        { if (isa(x))
-            x = x.join(", ");
+        { x = arraytostring(/** @type {string|!Array} */(x));
 	  let /** function(string):string */ filterfn = filters[quot];
 	  x = filterfn ? filterfn(/** @type {string} */(x))
 	               : x.replace(htmlmaprx, htmlmap);
@@ -551,7 +555,7 @@ regexpy("\\s*((?:[^-:_a-zA-Z>\\s/]\\s*)*)(?:([-:_a-zA-Z][-:\\w]*|/)\\s*(?:=\\s*(
       var /** number */ offset = str.match(nonewlinerx)[0].length + 1;
       return line + ":" + offset;
     }
-    function /** void */ logcontext(/** string */ tag,/** string */ msg)
+    function /** void */ logcontext(/** string|number */ tag,/** string */ msg)
     { if (RUNTIMEDEBUG)
         D(msg + " at " + getposition(),
 	  rxmls.substr(lasttoken - RUNTIMEDEBUG,
@@ -595,10 +599,10 @@ ntoken:
           { lasttoken = qemrx.lastIndex;
 	    if (!comment)
 	    { if (rm[1])
-	        getexclm(rm, 1);
+	        getexclm(/** @type{!Array} */(rm), 1);
 	      else if (rm[2])
 	      { rm[0] = "<";
-	        getexclm(rm, 2);
+	        getexclm(/** @type{!Array} */(rm), 2);
 	      } else
               { noparserx.lastIndex = 0;
 	        if (execy(noparserx, ts = rm[3]))
@@ -606,7 +610,7 @@ ntoken:
 	            obj += "H.push("
 	             + JSON.stringify(ts.slice(noparserx.lastIndex)) + ");";
 	        } else
-	          getexclm(rm, 3);
+	          getexclm(/** @type{!Array} */(rm), 3);
 	      }
 	    }
 	    break;
@@ -630,22 +634,26 @@ ntoken:
             } else if (mapstring === "")
 	      return 1;
           }
-          let /** string */ fw = execy(params, rxmls)[2];
-          if (fw === "/")
-            gotparms[fw] = 1, fw = execy(params, rxmls)[2];
+          var /** string */ fw;
+	  function /** string */parseparam()
+	  { rm = execy(params, rxmls);
+	    if (RUNTIMEDEBUG && rm[1])
+              logcontext(0, 'Skipping malformed parameter "' + rm[1] + '"');
+	    return fw = rm[2];
+	  }
+          if (parseparam() === "/")
+            gotparms[fw] = 1, parseparam();
           else if (!fw)
           { lasttoken = params.lastIndex;
             break ntoken;
           }
           gotparms[""] = fw;
-          while (rm = execy(params, rxmls))
-          { if (RUNTIMEDEBUG && rm[1])
-              logcontext(fw, "Skipping malformed parameter " + rm[1]);
-	    if (!rm[2])
+          for (;;)
+          { if (!parseparam())
             { lasttoken = params.lastIndex;
               break;
             }
-            gotparms[rm[2]] = rm[3] ? rm[3].slice(1,-1) : rm[2];
+            gotparms[fw] = rm[3] ? rm[3].slice(1,-1) : fw;
           }
           let /** string|number */ close = gotparms["/"];
           delete gotparms["/"];
@@ -988,7 +996,7 @@ nobody:             do
 	  { if (rm = execy(varentity, rxmls))
             { lasttoken = varentity.lastIndex;
               if (!comment)
-	      { obj += varent(rm) + varinsert;
+	      { obj += varent(/** @type{!Array} */(rm)) + varinsert;
                 simpleset = 0;
 	      }
               break;
