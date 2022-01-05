@@ -1,0 +1,4 @@
+<set var="_.foo">really</set>
+<set var="_.bar">&_.foo:;juice&_.foo:;</set>
+<a style="url(&_.bar:;)" />
+<a style="url(&_.bar;)" />
