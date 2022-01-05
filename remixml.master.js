@@ -743,10 +743,10 @@ ntoken:
                           obj += "x=F(x," + ts +
                            (vname !== undefined ? "," + vname : "") + ");";
                         obj += varinsert;
-                      } else if ((vname = getparm("expr")) !== undefined) {
-                          obj += letHprefix + vfnprefix + execexpr(vname)
-			   + "W.push(A(H)" + wfunction;
-			  markhasbody();
+                      } else if ((vname = getparm("expr")) !== undefined)
+                      { obj += letHprefix + vfnprefix + execexpr(vname)
+			 + "W.push(A(H)" + wfunction;
+			markhasbody();
 		      } else
                       { switch(getparm("variables"))
                         { case "dump":
@@ -890,12 +890,31 @@ ntoken:
             } while(0);
           }
           if (close)
-          {
-closelp:    for (;;)
+          { for (;;)
             { tagctx = tagstack.pop();
               let /** string|number */ shouldtag = tagctx[TS_TAG];
-skipdef:      do {
-                switch (shouldtag)
+	      let /** number */ closelp = 0;
+              if ((RUNTIMEDEBUG || ASSERT) && tag !== shouldtag)
+              { logcontext(tag,
+                 (shouldtag ? "Expected </" + shouldtag + "> got </"
+                            : missingg) + tag + ">");
+                if (ASSERT)
+                { let /** number */ i = tagstack.length;
+                  while (i)
+                  { if (tagstack[--i][TS_TAG] === tag)
+                    { closelp = 1;
+                      break;
+                    }
+                  }
+                  if (!closelp)
+                  { tagstack.push(tagctx);
+                    break;		      // Just ignore the closing tag
+                  }
+                }
+              }
+skipdef:      do
+              {
+		switch (shouldtag)
                 { case "noparse":
 		    if(!--noparse)
 		      break skipdef;
@@ -971,20 +990,9 @@ nobody:             do
                   }
                 }
               } while (0);
-              if ((RUNTIMEDEBUG || ASSERT) && tag !== shouldtag)
-              { logcontext(tag,
-		 (shouldtag ? "Expected </" + shouldtag + "> got </"
-		            : missingg) + tag + ">");
-                if (ASSERT)
-                { let /** number */ i = tagstack.length;
-		  if (!i)
-                    tagstack.push(tagctx);
-                  while (i)
-                    if (tagstack[--i][TS_TAG] === tag)
-                      continue closelp;
-                }
-              }
               obj = tagctx[TS_PREFIX] + obj;
+              if (ASSERT && closelp)
+                continue;
               tagctx = tagstack[tagstack.length - 1];
               break;
             }
@@ -1028,10 +1036,10 @@ nobody:             do
 
   function /** function(!Object):!Array */ js2obj(/** string */ jssrc)
   { var /** function(!Object):!Array */ constructor;
-    try {
-      constructor = /** @type {function(!Object):!Array} */(eval(jssrc));
-    } catch(e) {
-      if (RUNTIMEDEBUG)
+    try
+    { constructor = /** @type {function(!Object):!Array} */(eval(jssrc));
+    } catch(e)
+    { if (RUNTIMEDEBUG)
       { D(e, jssrc);
         debuglog(jssrc);
       }
@@ -1130,8 +1138,8 @@ nobody:             do
   }
 
   function /** Array */ execy(/** !RegExp */ expr,/** string */ haystack)
-  { if (ie11) {
-      var /** number */ last = expr.lastIndex;
+  { if (ie11)
+    { var /** number */ last = expr.lastIndex;
       var /** Array */ ret = expr.exec(haystack);
       return ret && /** @type {?} */(last == ret.index) && ret;
     }
