@@ -34,7 +34,6 @@
   const Doc = typeof document == "object" ? document : null;
   const W = Doc && window;
   const Obj = Object;
-  const ie11 = /./.sticky != 0;
 
   const /** !Object */ eumapobj
    = {"+":"%2B"," ":"+","\t":"%09","\n":"%0A","\r":"%0D","?":"%3F","&":"%26",
@@ -54,15 +53,14 @@
   const /** !RegExp */ txtentity = regexpy("(?:[^&]+|(" + entend +
   "[^&]*))+|&([\\w$]+(?:[.[][\\w$]+]?)*\\.[\\w$]+)(?::([\\w$]*))?(?:%([^;]*))?;"
   );
-  const /** !RegExp */ varentity = regexpy(
-         "([\\w$]+\\.[\\w$]+(?:[.[][\\w$]+]?)*)(?::([\\w$]*))?(?:%([^;]*))?;");
+  const /** !RegExp */ varentity
+   = /([\w$]+\.[\w$]+(?:[.[][\w$]+]?)*)(?::([\w$]*))?(?:%([^;]*))?;/y;
   const /** !RegExp */ qemrx
-   = regexpy("!(?:--([\0-\xff]*?)(?:--|$)|([^-][\0-\xff]*?))(?:>|$)"
-          + "|\\?([\0-\xff]*?)(?:\\?>|$)");
-  const /** !RegExp */ noparserx = regexpy("(?:noparse|comment)\\s");
+   = /!(?:--(.*?)(?:--|$)|([^-].*?))(?:>|$)|\?(.*?)(?:\?>|$)/ys;
+  const /** !RegExp */ noparserx = /(?:noparse|comment)\s/y;
   const /** !RegExp */ textrx = regexpy("[^&<]+(" + entend + "[^&<]*)*");
   const /** !RegExp */ params =
-regexpy("\\s*((?:[^-:_a-zA-Z<&>\\s/]\\s*)*)(?:([-:_a-zA-Z][-:\\w]*|/)\\s*(?:=\\s*(\"[^\"]*\"|'[^']*'))?|[<&>])");
+/\s*((?:[^-:_a-zA-Z<&>\s\/]\s*)*)(?:([-:_a-zA-Z][-:\w]*|\/)\s*(?:=\s*("[^"]*"|'[^']*'))?|[<&>])/y;
   const /** !RegExp */ simplelabel = /^[_a-zA-Z]\w*$/;
   const /** !RegExp */ scriptend = /<\/script>/g;
   const /** !RegExp */ styleend = /<\/style>/g;
@@ -448,7 +446,7 @@ regexpy("\\s*((?:[^-:_a-zA-Z<&>\\s/]\\s*)*)(?:([-:_a-zA-Z][-:\\w]*|/)\\s*(?:=\\s
     var /** string */ sep = "";
     var /** Array */ a5;
     txtentity.lastIndex = 0;
-    while (a5 = execy(txtentity, sbj))
+    while (a5 = txtentity.exec(sbj))
     { if (a5[1])
       { obj += sep + "(function(){" + varent(a5)
          + 'return x}catch(x){}return ""})()';
@@ -595,7 +593,7 @@ ntoken:
       switch (rxmls[lasttoken])
       { case "<":
 	  qemrx.lastIndex = ++lasttoken;
-	  if (rm = execy(qemrx, rxmls))
+	  if (rm = qemrx.exec(rxmls))
           { lasttoken = qemrx.lastIndex;
 	    if (!comment)
 	    { if (rm[1])
@@ -605,7 +603,7 @@ ntoken:
 	        getexclm(/** @type{!Array} */(rm), 2);
 	      } else
               { noparserx.lastIndex = 0;
-	        if (execy(noparserx, ts = rm[3]))
+	        if (noparserx.exec(ts = rm[3]))
 	        { if (ts[0] === "n")	// noparse or comment?
 	            obj += "H.push("
 	             + JSON.stringify(ts.slice(noparserx.lastIndex)) + ");";
@@ -636,7 +634,7 @@ ntoken:
           }
           var /** string */ fw;
 	  function /** string */parseparam()
-	  { rm = execy(params, rxmls);
+	  { rm = params.exec(rxmls);
 	    if (RUNTIMEDEBUG && rm[1])
               logcontext(0, 'Skipping malformed parameter "' + rm[1] + '"');
 	    return fw = rm[2];
@@ -1001,7 +999,7 @@ nobody:             do
         case "&":
 	  varentity.lastIndex = ++lasttoken;
 	  if (!noparse)
-	  { if (rm = execy(varentity, rxmls))
+	  { if (rm = varentity.exec(rxmls))
             { lasttoken = varentity.lastIndex;
               if (!comment)
 	      { obj += varent(/** @type{!Array} */(rm)) + varinsert;
@@ -1013,10 +1011,10 @@ nobody:             do
           ts = "&";	    // No variable, fall back to normal text
         default:
           textrx.lastIndex = lasttoken;
-          if (!execy(textrx, rxmls))
+          if (!textrx.exec(rxmls))
 	    console.error("**" + rxmls + "**");
           textrx.lastIndex = lasttoken;
-          ts += execy(textrx, rxmls)[0];
+          ts += textrx.exec(rxmls)[0];
           lasttoken = textrx.lastIndex;
           if (!comment)
           { if (!noparse && flags & KILLWHITE)
@@ -1134,31 +1132,8 @@ nobody:             do
   };
 
   function /** !RegExp */ regexpy(/** string */ expr)
-  { return RegExp(expr, ie11 ? "g" : "y");
+  { return RegExp(expr, "y");
   }
-
-  function /** Array */ execy(/** !RegExp */ expr,/** string */ haystack)
-  { if (ie11)
-    { var /** number */ last = expr.lastIndex;
-      var /** Array */ ret = expr.exec(haystack);
-      return ret && /** @type {?} */(last == ret.index) && ret;
-    }
-    return expr.exec(haystack);
-  }
-
-  if (!Obj.assign)
-    Obj.defineProperty(Obj, "assign",
-    { "value": function(d, s, i)
-      { if (s) for (i in s) d[i] = s[i]; return d;
-      }
-    });
-  if (!Obj.entries)
-    Obj.entries = function(m)
-    { var k = m ? Obj.keys(m) : [], i = k.length, r = new Array(i);
-      while (i--)
-        r[i] = [k[i], m[k[i]]];
-      return r;
-    };
 
   const /** !Object */ g =
   { "remixml2js": remixml2js,

@@ -26,7 +26,7 @@ google-closure-compiler \
  --strict_mode_input --assume_function_wrapper \
  --compilation_level ADVANCED \
  --language_in ECMASCRIPT_NEXT \
- --language_out ECMASCRIPT5 \
+ --language_out ECMASCRIPT_2018 \
  --use_types_for_optimization \
  --rewrite_polyfills=false \
  --source_map_format V3 \
