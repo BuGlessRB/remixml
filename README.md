@@ -18,7 +18,7 @@ The Remixml templating engine has the following features:
 - User defined HTML tags in Remixml support named parameters and
   recursion.
 - Extensible with custom filters and tags programmed in Javascript.
-- Available everywhere in node and all modern web browsers (including IE11).
+- Available everywhere in node and all modern web browsers.
 - It contains a fully featured fast validating XHTML parser.
 - It shields the Remixml programmer from fatal browser errors by
   trapping and logging all errors from within (even from direct javascript
@@ -45,7 +45,7 @@ code quality.
 It runs inside any webbrowser or NodeJS environment supporting at least
 ECMAScript ES2018.
 
-Minified and gzip-compressed, it is less than 7 KB of code.
+Minified and gzip-compressed, it is less than 6 KB of code.
 
 It has zero dependencies on other modules.
 
