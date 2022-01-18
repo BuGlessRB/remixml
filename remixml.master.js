@@ -1,6 +1,6 @@
    /** @license
-   ** Remixml v5: XML/HTML-like macro language compiler
-  ** Copyright (c) 2018-2021 by Stephen R. van den Berg <srb@cuci.nl>
+   ** Remixml v6: XML/HTML-like macro language compiler
+  ** Copyright (c) 2018-2022 by Stephen R. van den Berg <srb@cuci.nl>
  ** License: ISC OR GPL-3.0
 ** Sponsored by: Cubic Circle, The Netherlands
 */
@@ -55,8 +55,8 @@
   );
   const /** !RegExp */ varentity
    = /([\w$]+\.[\w$]+(?:[.[][\w$]+]?)*)(?::([\w$]*))?(?:%([^;]*))?;/y;
-  const /** !RegExp */ qemrx
-   = /!(?:--(.*?)(?:--|$)|([^-].*?))(?:>|$)|\?(.*?)(?:\?>|$)/ys;
+  const /** !RegExp */ qemrx =
+/!(?:--([\0-\xff]*?)(?:--|$)|([^-][\0-\xff]*?))(?:>|$)|\?([\0-\xff]*?)(?:\?>|$)/y;
   const /** !RegExp */ noparserx = /(?:noparse|comment)\s/y;
   const /** !RegExp */ textrx = regexpy("[^&<]+(" + entend + "[^&<]*)*");
   const /** !RegExp */ params =
@@ -634,7 +634,10 @@ ntoken:
           }
           var /** string */ fw;
 	  function /** string */parseparam()
-	  { rm = params.exec(rxmls);
+	  { var safaribug = params.lastIndex;
+	    rm = params.exec(rxmls);
+	    if (safaribug > params.lastIndex) // Safari <= v15.1 messes this up
+	      params.lastIndex = safaribug;
 	    if (RUNTIMEDEBUG && rm[1])
               logcontext(0, 'Skipping malformed parameter "' + rm[1] + '"');
 	    return fw = rm[2];
