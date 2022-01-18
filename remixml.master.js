@@ -642,7 +642,8 @@ ntoken:
           if (parseparam() === "/")
             gotparms[fw] = 1, parseparam();
           else if (!fw)
-          { lasttoken = params.lastIndex;
+          { if (rm)
+	      lasttoken = params.lastIndex;
             break ntoken;
           }
           gotparms[""] = fw;
@@ -1011,11 +1012,16 @@ nobody:             do
           ts = "&";	    // No variable, fall back to normal text
         default:
           textrx.lastIndex = lasttoken;
-          if (!textrx.exec(rxmls))
-	    console.error("**" + rxmls + "**");
-          textrx.lastIndex = lasttoken;
-          ts += textrx.exec(rxmls)[0];
-          lasttoken = textrx.lastIndex;
+          rm = textrx.exec(rxmls);
+          if (rm || !ASSERT)
+          { ts += rm[0];
+            lasttoken = textrx.lastIndex;
+	  } else {
+            if (RUNTIMEDEBUG)
+	      log("Parse error **" + rxmls + "**");
+	    ts += rxmls.substr(lasttoken);
+            lasttoken = rxmls.length;
+	  }
           if (!comment)
           { if (!noparse && flags & KILLWHITE)
               ts = subws(ts);
