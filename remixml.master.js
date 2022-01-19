@@ -1151,22 +1151,12 @@ nobody:             do
   { return RegExp(expr, "y");
   }
 
-  var /** number|string */ safarireported = 0;
-
+  /** @noinline */
   function /** Array */ execy(/** !RegExp */ expr,/** string */ haystack)
-  { var /** number */ safariprev = expr.lastIndex;
-    var /** Array */ rm;
-    // Kludge for the Safari regex engine (in versions <=15.1)
-    // we need to loop here, the Safari engine is not deterministic for
-    // the params regex.
-    while (rm = expr.exec(haystack))
-    { if (expr.lastIndex >= safariprev)
-	break;
-      expr.lastIndex = safariprev;
-      if (RUNTIMEDEBUG && !safarireported)
-        D(safarireported = "Safari regexp.sticky bug triggered");
-    }
-    return rm;
+  { // Kludge for the Safari regex engine (in versions <=15.1)
+    // if inlined, the Safari engine is not deterministic for
+    // some sticky regular expressions.
+    return expr.exec(haystack);
   }
 
   const /** !Object */ g =
