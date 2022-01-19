@@ -573,6 +573,9 @@
         obj += 'H.push(W=L("' + rm[0][0] + '"));W[0]='
          + JSON.stringify(rm[offset]) + ";";
     }
+    function /** void */ logparseerror()
+    { logcontext(0, "Parse error");
+    }
     for (;;)
     { var /** Array */ rm;
       let /** string|undefined */ ts = "";
@@ -613,7 +616,6 @@ ntoken:
 	    }
 	    break;
           }
-          params.lastIndex = lasttoken;
           let /** !Object */ gotparms = {};
           function /** string|undefined */ getparm(/** string */ name)
           { let /** string */ sbj = gotparms[name];
@@ -635,10 +637,15 @@ ntoken:
           var /** string */ fw;
 	  function /** string */parseparam()
 	  { rm = params.exec(rxmls);
-	    if (RUNTIMEDEBUG && rm[1])
-              logcontext(0, 'Skipping malformed parameter "' + rm[1] + '"');
+	    if (RUNTIMEDEBUG)
+	    { if (rm[1])
+                logcontext(0, 'Skipping malformed parameter "' + rm[1] + '"');
+	      else if (!rm)
+		logparseerror();
+	    }
 	    return fw = rm[2];
 	  }
+          params.lastIndex = lasttoken;
           if (parseparam() === "/")
             gotparms[fw] = 1, parseparam();
           else if (!fw)
@@ -649,7 +656,8 @@ ntoken:
           gotparms[""] = fw;
           for (;;)
           { if (!parseparam())
-            { lasttoken = params.lastIndex;
+            { if (rm)
+	        lasttoken = params.lastIndex;
               break;
             }
             gotparms[fw] = rm[3] ? rm[3].slice(1,-1) : fw;
@@ -1013,14 +1021,15 @@ nobody:             do
         default:
           textrx.lastIndex = lasttoken;
           rm = textrx.exec(rxmls);
-          if (rm || !ASSERT)
+          if (rm || !ASSERT && !RUNTIMEDEBUG)
           { ts += rm[0];
             lasttoken = textrx.lastIndex;
 	  } else {
-            if (RUNTIMEDEBUG)
-	      log("Parse error **" + rxmls + "**");
-	    ts += rxmls.substr(lasttoken);
-            lasttoken = rxmls.length;
+            logparseerror();
+	    if (ASSERT) {
+	      ts += rxmls.substr(lasttoken);
+              lasttoken = rxmls.length;
+	    }
 	  }
           if (!comment)
           { if (!noparse && flags & KILLWHITE)
