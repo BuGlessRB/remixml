@@ -446,7 +446,7 @@
     var /** string */ sep = "";
     var /** Array */ a5;
     txtentity.lastIndex = 0;
-    while (a5 = txtentity.exec(sbj))
+    while (a5 = execy(txtentity, sbj))
     { if (a5[1])
       { obj += sep + "(function(){" + varent(a5)
          + 'return x}catch(x){}return ""})()';
@@ -523,8 +523,6 @@
   const /** number */ KILLWHITE = 1;
   const /** number */ ASYNC = 4;
 
-  var /** number|string */ safarireported = 0;
-
   function /** string */ remixml2js(/** string */ rxmls,/** number= */ flags)
   {    // H: Current element to append in
       // W: Temporary parent element
@@ -598,7 +596,7 @@ ntoken:
       switch (rxmls[lasttoken])
       { case "<":
 	  qemrx.lastIndex = ++lasttoken;
-	  if (rm = qemrx.exec(rxmls))
+	  if (rm = execy(qemrx, rxmls))
           { lasttoken = qemrx.lastIndex;
 	    if (!comment)
 	    { if (rm[1])
@@ -608,7 +606,7 @@ ntoken:
 	        getexclm(/** @type{!Array} */(rm), 2);
 	      } else
               { noparserx.lastIndex = 0;
-	        if (noparserx.exec(ts = rm[3]))
+	        if (execy(noparserx, ts = rm[3]))
 	        { if (ts[0] === "n")	// noparse or comment?
 	            obj += "H.push("
 	             + JSON.stringify(ts.slice(noparserx.lastIndex)) + ");";
@@ -638,17 +636,7 @@ ntoken:
           }
           var /** string */ fw;
 	  function /** string */parseparam()
-	  { var safariprev = params.lastIndex;
-	    // Kludge for the Safari regex engine (in versions <=15.1)
-	    // we need to loop here, the Safari engine is not deterministic for
-	    // the params regex.
-	    while (rm = params.exec(rxmls))
-	    { if (params.lastIndex >= safariprev)
-		break;
-	      params.lastIndex = safariprev;
-	      if (RUNTIMEDEBUG && !safarireported)
-	        D(safarireported = "Safari regexp.sticky bug triggered");
-	    }
+	  { rm = execy(params, rxmls);
 	    if (RUNTIMEDEBUG)
 	    { if (rm[1])
                 logcontext(0, 'Skipping malformed parameter "' + rm[1] + '"');
@@ -890,7 +878,8 @@ ntoken:
 		   tag === "style" ? styleend : 0;
 		if (rxend)
                 { rxend.lastIndex = lasttoken;
-                  let /** number */ i = rxend.exec(rxmls)
+                  let /** number */ i
+		    = execy(/** @type{!RegExp} */(rxend), rxmls)
 		    ? rxend.lastIndex : rxmls.length + 3 + tag.length;
                   obj += ";";
                   if (!comment)				// substract closing tag
@@ -1020,7 +1009,7 @@ nobody:             do
         case "&":
 	  varentity.lastIndex = ++lasttoken;
 	  if (!noparse)
-	  { if (rm = varentity.exec(rxmls))
+	  { if (rm = execy(varentity, rxmls))
             { lasttoken = varentity.lastIndex;
               if (!comment)
 	      { obj += varent(/** @type{!Array} */(rm)) + varinsert;
@@ -1032,7 +1021,7 @@ nobody:             do
           ts = "&";	    // No variable, fall back to normal text
         default:
           textrx.lastIndex = lasttoken;
-          rm = textrx.exec(rxmls);
+          rm = execy(textrx, rxmls);
           if (rm || !ASSERT && !RUNTIMEDEBUG)
           { ts += rm[0];
             lasttoken = textrx.lastIndex;
@@ -1160,6 +1149,24 @@ nobody:             do
 
   function /** !RegExp */ regexpy(/** string */ expr)
   { return RegExp(expr, "y");
+  }
+
+  var /** number|string */ safarireported = 0;
+
+  function /** Array */ execy(/** !RegExp */ expr,/** string */ haystack)
+  { var /** number */ safariprev = expr.lastIndex;
+    var /** Array */ rm;
+    // Kludge for the Safari regex engine (in versions <=15.1)
+    // we need to loop here, the Safari engine is not deterministic for
+    // the params regex.
+    while (rm = expr.exec(haystack))
+    { if (expr.lastIndex >= safariprev)
+	break;
+      expr.lastIndex = safariprev;
+      if (RUNTIMEDEBUG && !safarireported)
+        D(safarireported = "Safari regexp.sticky bug triggered");
+    }
+    return rm;
   }
 
   const /** !Object */ g =
