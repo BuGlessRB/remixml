@@ -523,6 +523,8 @@
   const /** number */ KILLWHITE = 1;
   const /** number */ ASYNC = 4;
 
+  var /** number|string */ safarireported = 0;
+
   function /** string */ remixml2js(/** string */ rxmls,/** number= */ flags)
   {    // H: Current element to append in
       // W: Temporary parent element
@@ -636,7 +638,17 @@ ntoken:
           }
           var /** string */ fw;
 	  function /** string */parseparam()
-	  { rm = params.exec(rxmls);
+	  { var safariprev = params.lastIndex;
+	    // Kludge for the Safari regex engine (in versions <=15.1)
+	    // we need to loop here, the Safari engine is not deterministic for
+	    // the params regex.
+	    while (rm = params.exec(rxmls))
+	    { if (params.lastIndex >= safariprev)
+		break;
+	      params.lastIndex = safariprev;
+	      if (RUNTIMEDEBUG && !safarireported)
+	        D(safarireported = "Safari regexp.sticky bug triggered");
+	    }
 	    if (RUNTIMEDEBUG)
 	    { if (rm[1])
                 logcontext(0, 'Skipping malformed parameter "' + rm[1] + '"');
@@ -878,8 +890,8 @@ ntoken:
 		   tag === "style" ? styleend : 0;
 		if (rxend)
                 { rxend.lastIndex = lasttoken;
-                  rxend.exec(rxmls);
-                  let /** number */ i = rxend.lastIndex;
+                  let /** number */ i = rxend.exec(rxmls)
+		    ? rxend.lastIndex : rxmls.length + 3 + tag.length;
                   obj += ";";
                   if (!comment)				// substract closing tag
                   { if (ts = rxmls.slice(lasttoken, i - 3 - tag.length))
