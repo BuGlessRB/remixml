@@ -418,7 +418,7 @@
     } else
       r = [];
     if (!isa(k))
-      k.length = 0;	  // Obj.assign bails out otherwise Object->Array
+      k["length"] = 0;	  // Obj.assign bails out otherwise Object->Array
     r = /** @type {!Array} */(Obj.assign(r, k));
     i = r.length;
     while (i--)
