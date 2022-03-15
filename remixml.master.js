@@ -38,7 +38,10 @@
   const /** !Object */ eumapobj
    = {" ":"+","\t":"%09","\n":"%0A","\r":"%0D","\"":"%22","#":"%23","%":"%25",
       "&":"%26","'":"%27","+":"%2B","<":"%3C","?":"%3F"};
+  const /** !RegExp */ uricrx = /[ \t\n\r#%&'"+<?]/g;
+
   const /** !Object */ htmlmapobj = {"&":"&amp;","<":"&lt;"};
+  const /** !RegExp */ htmlmaprx = /[&<]/g;
 
   const /** string */ varinsert = "I=K($,H,x)}catch(x){I=0}";
   const /** string */ cfnprefix = "H._c=function(H,$){";
@@ -72,8 +75,6 @@
   const /** !RegExp */ spacelinerx = /^\s+$/;
   const /** !RegExp */ spacesprx = /\s\s+/g;
   const /** !RegExp */ ltrx = /</g;
-  const /** !RegExp */ uricrx = /[+ \t\n\r?&#<]/g;
-  const /** !RegExp */ htmlmaprx = /[&<]/g;
   const /** !RegExp */ nonwordrx = /[^-:\w,]+/g;
   const /** !RegExp */ escaperxrx = /([\\^$*+?.|()[{])/g;
   const /** !RegExp */ ampquotrx = /"/g;
