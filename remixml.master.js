@@ -403,7 +403,7 @@
     }
     if (quot === "r")
     { let /** string */ oldx = "";
-      while (x !== oldx && x.indexOf("&") >= 0)
+      while (x !== oldx && x.includes("&"))
       { oldx = /** @type {string} */(x);
         x = VE($, ["(" + substentities(/** @type {string} */(x)) + ")"]);
       }
@@ -493,14 +493,14 @@
   function /** string|undefined */ evalexpr(/** string|undefined */ expr)
   { if (expr)
     { if (0 > expr.indexOf("("))
-      { if ((expr = /** @type {string} */(JSON.parse(expr))).indexOf("_") >= 0)
+      { if ((expr = /** @type {string} */(JSON.parse(expr))).includes("_"))
           expr = "_=$._," + expr;
         expr = protectjs(expr);
       } else
       { expr = expr.slice(-1) === '"'
          ? (expr[0] === '"' ? expr.slice(1,-1) : '"+' + expr.slice(0,-1))
          : (expr[0] === '"' ? expr.slice(1): '"+' + expr) + '+"';
-        if (expr.indexOf("{") >= 0)
+        if (expr.includes("{"))
           expr = "(" + expr + ")";
         expr = protectjs('eval("' + expr + '")');
         expr = 0 > expr.indexOf("_") ? expr : "(_=$._," + expr + ")";
