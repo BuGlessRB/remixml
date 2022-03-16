@@ -433,14 +433,16 @@ if a single `-` parameter is given.
    Treated exactly like `<script>` tags.
 - `<noparse>...</noparse>`<br />
    Copy the contents of this tag verbatim without further parsing
-   (but strip the `noparse` tag itself).
+   (but strip the `noparse` tag itself).  The content needs to be well-formed
+   XHTML (no dangling tags).
 - `<?noparse ...?>`<br />
    Copy the contents of this tag verbatim without further parsing
    (but strip the `noparse` tag itself).
 - `<nooutput>...</nooutput>`<br />
    Suppress output inside this tag.
 - `<comment>...</comment>`<br />
-   Strip and skip this tag with content.
+   Strip and skip this tag with content.  The content needs to be well-formed
+   XHTML (no dangling tags).
 - `<?comment ...?>`<br />
    Strip and skip this tag with content.
 - `<cache>...</cache>`<br />
@@ -481,10 +483,10 @@ Specified parameters:
   shortcut.  I.e. in Javascript `$._.foo` and `_.foo` will both refer
   to the same variable, in Remixml both are referred to as `&_.foo;`.
 - `flags` is an optional bitmask with:
-   - 1: Kill all whitespace (different than the `-` parameter to strip whitespace
-        per tag).
-   - 4: Asynchronous processing (compiled Remixml code returns a `Promise` instead of
-     a direct abstract).
+   - 1: Kill all whitespace (different than the `-` parameter to strip
+        whitespace per tag).
+   - 4: Asynchronous processing (compiled Remixml code returns a `Promise`
+        instead of a direct abstract).
 
 Exposed API-list (in NodeJS and the browser):
 - `Remixml.remixml2js(remixmlsrc, flags?)`<br />
