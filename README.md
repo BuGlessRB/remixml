@@ -439,7 +439,8 @@ if a single `-` parameter is given.
    Copy the contents of this tag verbatim without further parsing
    (but strip the `noparse` tag itself).
 - `<nooutput>...</nooutput>`<br />
-   Suppress output inside this tag.
+   Suppress output inside this tag.  The content needs to be well-formed
+   XHTML (no dangling tags).
 - `<comment>...</comment>`<br />
    Strip and skip this tag with content.  The content needs to be well-formed
    XHTML (no dangling tags).
