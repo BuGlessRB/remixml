@@ -425,7 +425,7 @@
     }
     return r;
   };
-                // varinsert
+                  // varinsert
   K = /** number */
    (/** !Object */ $,/** !Array */ H,/** !Array|string|number */ x) =>
   { if (x[""])
@@ -441,6 +441,11 @@
     return x;
   };
 
+  function /** string */ protectjs(/** string */ expr, /** number= */ nocatch)
+  { return "(()=>{try{return " + expr + "}catch(x){"
+     + (nocatch ? "" : "D(x)") + '}return ""})()';
+  }
+
   function /** string */ substentities(/** string */ sbj)
   { var /** string */ obj = "";
     var /** string */ sep = "";
@@ -448,8 +453,7 @@
     txtentity.lastIndex = 0;
     while (a5 = execy(txtentity, sbj))
     { if (a5[1])
-      { obj += sep + "(()=>{try{return " + varent(a5)
-         + '}catch(x){}return ""})()';
+      { obj += sep + protectjs(varent(a5), 1);
       } else
         obj += sep + JSON.stringify(a5[0]);
       sep = "+";
@@ -476,10 +480,6 @@
     return vareval(JSON.stringify(mtchs[1]),
      isstring(quot) && JSON.stringify(quot),
      fmt && JSON.stringify(fmt));
-  }
-
-  function /** string */ protectjs(/** string */ expr)
-  { return "(()=>{try{return " + expr + '}catch(x){D(x)}return ""})()';
   }
 
   function /** string */ runexpr(/** string */ expr)
