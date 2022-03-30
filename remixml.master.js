@@ -476,28 +476,27 @@
   }
 
   function /** string */ protectjs(/** string */ expr)
-  { return "(()=>{try{return(" + expr +
-     ')}catch(x){D(x)}return ""})()';
+  { return "(()=>{try{return " + expr + '}catch(x){D(x)}return ""})()';
   }
 
   function /** string */ runexpr(/** string */ expr)
-  { return "(_=$._," + (expr ? protectjs(expr) : '""') + ")";
+  { return "(_=$._," + protectjs(expr) + ")";
   }
 
   function /** string|undefined */ evalexpr(/** string|undefined */ expr)
   { if (expr)
-    { if (0 > expr.indexOf("("))
-      { if ((expr = /** @type {string} */(JSON.parse(expr))).includes("_"))
-          expr = "_=$._," + expr;
-        expr = protectjs(expr);
-      } else
+    { if (expr.includes("("))
       { expr = expr.slice(-1) === '"'
          ? (expr[0] === '"' ? expr.slice(1,-1) : '"+' + expr.slice(0,-1))
          : (expr[0] === '"' ? expr.slice(1): '"+' + expr) + '+"';
         if (expr.includes("{"))
           expr = "(" + expr + ")";
         expr = protectjs('eval("' + expr + '")');
-        expr = 0 > expr.indexOf("_") ? expr : "(_=$._," + expr + ")";
+        expr = expr.includes("_") ? "(_=$._," + expr + ")" : expr;
+      } else
+      { if ((expr = /** @type {string} */(JSON.parse(expr))).includes("_"))
+          expr = "(_=$._," + expr + ")";
+        expr = protectjs(expr);
       }
     }
     return expr;
