@@ -43,7 +43,6 @@
   const /** !Object */ htmlmapobj = {"&":"&amp;","<":"&lt;"};
   const /** !RegExp */ htmlmaprx = /[&<]/g;
 
-  const /** string */ varinsert = "I=K($,H,x)}catch(x){I=0}";
   const /** string */ cfnprefix = "H._c=(H,$)=>{";
   const /** string */ letHprefix = "{let H=L(),";
   const /** string */ missingg = "Missing <";
@@ -99,6 +98,10 @@
 
   function /** string */ arraytostring(/** !Array|string */ s)
   { return isa(s) ? s.join(", ") : /** @type {string} */(s);
+  }
+
+  function /** string */ varinsert(/** string */ s)
+  { return "I=K($,H," + s + ")}catch(x){I=0}";
   }
 
   M = /** void */(/** !Object */ dst, /** !Object */ src) =>
@@ -445,8 +448,8 @@
     txtentity.lastIndex = 0;
     while (a5 = execy(txtentity, sbj))
     { if (a5[1])
-      { obj += sep + "(()=>{" + varent(a5)
-         + 'return x}catch(x){}return ""})()';
+      { obj += sep + "(()=>{try{return " + varent(a5)
+         + '}catch(x){}return ""})()';
       } else
         obj += sep + JSON.stringify(a5[0]);
       sep = "+";
@@ -456,7 +459,7 @@
 
   function /** string */ vareval(/** string */ vname,
               /** string|boolean|undefined */ quot,/** string|undefined */ fmt)
-  { var /** string */ obj = "try{let x=Z($," + simplify(vname);
+  { var /** string */ obj = "Z($," + simplify(vname);
     if (quot)
       obj += "," + quot;
     if (fmt)
@@ -464,7 +467,7 @@
         obj += ",0";
       obj += "," + fmt;
     }
-    return obj + ");";
+    return obj + ")";
   }
 
   function /** string */ varent(/** !Array */ mtchs)
@@ -737,15 +740,22 @@ ntoken:
                     case "insert":
                     { let vname = getparm("var") || getparm("variable");
                       if (vname)
-                      { obj +=
+                      { let /** string|number */ vval =
                          vareval(vname, getparm("quote"), getparm("format"));
+			obj += "try{";
+			function /** void */ flushvval() {
+			  if (vval)
+			    obj += "let x=" + vval + ";", vval = 0;
+			}
                         if (ts = getparm("join"))
-                          obj += "x=x.join?x.join(" + ts + "):x;";
+                          flushvval(), obj += "x=x.join?x.join(" + ts + "):x;";
                         vname = getparm("limit");
-                        if ((ts = getparm("offset")) || vname !== undefined)
+                        if ((ts = getparm("offset")) || vname !== undefined) {
+			  flushvval();
                           obj += "x=F(x," + ts +
                            (vname !== undefined ? "," + vname : "") + ");";
-                        obj += varinsert;
+			}
+                        obj += varinsert(/** @type {string} */(vval) || "x");
                       } else if ((vname = getparm("expr")) !== undefined)
                       { obj += letHprefix + vfnprefix + execexpr(vname)
 			 + "W.push(A(H)" + wfunction;
@@ -1008,7 +1018,7 @@ nobody:             do
 	  { if (rm = execy(varentity, rxmls))
             { lasttoken = varentity.lastIndex;
               if (!comment)
-	      { obj += varent(/** @type{!Array} */(rm)) + varinsert;
+	      { obj += "try{" + varinsert(varent(/** @type{!Array} */(rm)));
                 simpleset = 0;
 	      }
               break;
