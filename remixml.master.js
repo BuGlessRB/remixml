@@ -119,7 +119,7 @@
    /** !Object */ $,/** string */ name,/** string= */ scope,
    /** string= */ args)
   { $["_"]["_tag"][name]
-     = function /** void */(/** !Array */W,/** !Array */ H,/** !Object */ $)
+     = /** void */(/** !Array */ W,/** !Array */ H,/** !Object */ $) =>
       { delete /** @type{Object} */(H)[""];
 	$ = C(H, $, args ? args.split(splc).reduce(marko, {}) : {}, scope);
         return tpl($);
@@ -147,7 +147,7 @@
                           // Generic replace function
   P = /** function(string|!Array):string */(/** string */ xp,
    /** string */ flags,/** string|function(...):string */ to) =>
-    (x) => arraytostring(x).replace(RegExp(xp, flags), to);
+    x => arraytostring(x).replace(RegExp(xp, flags), to);
                           // Replace runs of whitespace with a single space
   function /** string */ subws(/** string */ s)
   { return s.replace(spacesprx, " ");
@@ -529,12 +529,12 @@
     const /** string */ asyncf = isasync ? "async " : "";
     const /** string */ awaitf = isasync ? "await " : "";
     var /** string */ obj = "(" + asyncf
-     + '($)=>{"use strict";var I,W,_,H=N($);';
+     + '$=>{"use strict";var I,W,_,H=N($);';
     var /** number */ noparse = 0;
     var /** number */ comment = 0;
     const /** string */ vfnprefix
      = "w,v=" + asyncf + "()=>{" + awaitf + "w();";
-    const /** string */ wfunction = ")};w=(" + asyncf + "(W)=>{";
+    const /** string */ wfunction = ")};w=(" + asyncf + "W=>{";
     const /** string */ wfunclose = "});" + awaitf + "v()}";
     const /** string */ executecode = awaitf + "X(J,H,$)";
     const /** string */ evalcode        // FIXME not generating back to txt?
@@ -787,7 +787,7 @@ ntoken:
                       if (from)
                       { obj += "g=G($," + simplify(from) +
                          ((ts = getparm("orderby")) ?
-                       ",(m=$._,(_)=>{let _index=_[0];$._=_=_[1];return["
+                       ",(m=$._,_=>{let _index=_[0];$._=_=_[1];return["
                             + evalexpr(ts) + "]}));$._=m"
                           : ")")
                          + ";while(!(m=g.next()).done)"
