@@ -14,7 +14,7 @@
 /** @define {number} */ var VERBOSE = 0;
 
 // Cut BEGIN delete
-(function()
+(() =>
 { "use strict";
 // Cut END delete
 
@@ -44,7 +44,7 @@
   const /** !RegExp */ htmlmaprx = /[&<]/g;
 
   const /** string */ varinsert = "I=K($,H,x)}catch(x){I=0}";
-  const /** string */ cfnprefix = "H._c=function(H,$){";
+  const /** string */ cfnprefix = "H._c=(H,$)=>{";
   const /** string */ letHprefix = "{let H=L(),";
   const /** string */ missingg = "Missing <";
 
@@ -149,8 +149,7 @@
                           // Generic replace function
   P = function /** function(string|!Array):string */(/** string */ xp,
    /** string */ flags,/** string|function(...):string */ to)
-  { return function (x)
-     { return arraytostring(x).replace(RegExp(xp, flags), to); };
+  { return (x) => arraytostring(x).replace(RegExp(xp, flags), to);
   };
                           // Replace runs of whitespace with a single space
   function /** string */ subws(/** string */ s)
@@ -235,7 +234,7 @@
   C = function /** !Object */(/** !Array */ _,
    /** !Object */ $,/** !Object= */ args,/** string= */ scope)
   { if (/** @type {Object} */(_)[""] !== 1)
-    { defget(_, "_contents", function()
+    { defget(_, "_contents", () =>
         { let /** function(!Array,!Object):void|undefined */ cfn
            = /** @type {Object} */(_)["_c"];
           if (cfn)
@@ -245,7 +244,7 @@
           return _;
         });
       if (args)
-      { defget(_, "_restargs", function()
+      { defget(_, "_restargs", function() // Cannot use () => because of "this"
           { var /** string */ vname;
             var /** !Object */ rest = {};
             for (vname in this)
@@ -310,7 +309,7 @@
         r.splice(k.length);
       if (ord)
       { try
-        { r = r.sort(function(a, b)
+        { r = r.sort((a, b) =>
           { var x, y, i, n, m;
             var /** number */ ret;
             x = ord(a); y = ord(b);
@@ -451,7 +450,7 @@
     txtentity.lastIndex = 0;
     while (a5 = execy(txtentity, sbj))
     { if (a5[1])
-      { obj += sep + "(function(){" + varent(a5)
+      { obj += sep + "(()=>{" + varent(a5)
          + 'return x}catch(x){}return ""})()';
       } else
         obj += sep + JSON.stringify(a5[0]);
@@ -482,7 +481,7 @@
   }
 
   function /** string */ protectjs(/** string */ expr)
-  { return "(function(){try{return(" + expr +
+  { return "(()=>{try{return(" + expr +
      ')}catch(x){D(x)}return ""})()';
   }
 
@@ -535,12 +534,12 @@
     const /** string */ asyncf = isasync ? "async " : "";
     const /** string */ awaitf = isasync ? "await " : "";
     var /** string */ obj = "(" + asyncf
-     + 'function($){"use strict";var I,W,_,H=N($);';
+     + '($)=>{"use strict";var I,W,_,H=N($);';
     var /** number */ noparse = 0;
     var /** number */ comment = 0;
     const /** string */ vfnprefix
-     = "w,v=" + asyncf + "function(){" + awaitf + "w();";
-    const /** string */ wfunction = ")};w=(" + asyncf + "function(W){";
+     = "w,v=" + asyncf + "()=>{" + awaitf + "w();";
+    const /** string */ wfunction = ")};w=(" + asyncf + "(W)=>{";
     const /** string */ wfunclose = "});" + awaitf + "v()}";
     const /** string */ executecode = awaitf + "X(J,H,$)";
     const /** string */ evalcode        // FIXME not generating back to txt?
@@ -729,7 +728,7 @@ ntoken:
                       } else if (ts = getparm("tag"))
                       { startcfn();
                         obj += "v=0;Q(" + ts + ",$," + asyncf
-			 + "function(H,a,$,W){let o=$;$=C(a,$,{";
+			 + "(H,a,$,W)=>{let o=$;$=C(a,$,{";
                         { let /** string|undefined */ args = getparm("args");
                           if (args && (args = args.replace(nonwordrx, "")))
                             obj += '"' + args.replace(splc, '":1,"') + '":1';
@@ -793,7 +792,7 @@ ntoken:
                       if (from)
                       { obj += "g=G($," + simplify(from) +
                          ((ts = getparm("orderby")) ?
-                       ",(m=$._,function(_){let _index=_[0];$._=_=_[1];return["
+                       ",(m=$._,(_)=>{let _index=_[0];$._=_=_[1];return["
                             + evalexpr(ts) + "]}));$._=m"
                           : ")")
                          + ";while(!(m=g.next()).done)"
@@ -1061,7 +1060,7 @@ nobody:             do
         debuglog(jssrc);
       }
       if (ASSERT)
-        constructor = function() { return ""; };
+        constructor = () => "";
     }
     var /** number|string */ s;
     if (Doc && DEBUG && (s = logcache[jssrc]) !== 1)
