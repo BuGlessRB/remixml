@@ -101,15 +101,14 @@
   { return isa(s) ? s.join(", ") : /** @type {string} */(s);
   }
 
-  M = function /** void */(/** !Object */ dst, /** !Object */ src)
+  M = /** void */(/** !Object */ dst, /** !Object */ src) =>
   { try
     { Obj.assign(dst, src);
     } catch (x) {}
   }
 
-  D = function /** void */(/** string */ x,/** *= */ t)
-  { log("Remixml expression: " + (t ? JSON.stringify(t) : "") + "\n", x);
-  };
+  D = /** void */(/** string */ x,/** *= */ t) =>
+    log("Remixml expression: " + (t ? JSON.stringify(t) : "") + "\n", x);
 
   function /** !Object */ marko(/** !Object */ accu,/** string */ val)
   { accu[val] = 1;
@@ -142,21 +141,19 @@
   { return js2obj(remixml2js(remixml, flags));
   }
                            // Convert to text and back to abstract
-  E = function /** !Array|!Promise */(
-    /** string */ src,/** !Object */ $,/** number= */ flags)
-  { return compile(src, flags)($);
-  };
+  E = /** !Array|!Promise */(
+    /** string */ src,/** !Object */ $,/** number= */ flags) =>
+    compile(src, flags)($);
                           // Generic replace function
-  P = function /** function(string|!Array):string */(/** string */ xp,
-   /** string */ flags,/** string|function(...):string */ to)
-  { return (x) => arraytostring(x).replace(RegExp(xp, flags), to);
-  };
+  P = /** function(string|!Array):string */(/** string */ xp,
+   /** string */ flags,/** string|function(...):string */ to) =>
+    (x) => arraytostring(x).replace(RegExp(xp, flags), to);
                           // Replace runs of whitespace with a single space
   function /** string */ subws(/** string */ s)
   { return s.replace(spacesprx, " ");
   }
                           // Trim a single space from both ends
-  U = function /** !Array */(/** !Array */ elm)
+  U = /** !Array */(/** !Array */ elm) =>
   { var /** string */ s;
     if (isstring(s = elm[0]) && s[0] === " " && !(elm[0] = s.substr(1)))
       elm.splice(0, 1);
@@ -167,16 +164,16 @@
     return elm;
   };
                                   // Get substring slice
-  F = function /** !Array|string */(/** !Array|string */ x,
-   /** number|string */ offset,/** number|string= */ limit)
-  { offset = +(offset || 0); limit = +limit;
-    return limit < 0 ? x.slice(offset, limit)
+  F = /** !Array|string */(/** !Array|string */ x,
+   /** number|string */ offset,/** number|string= */ limit) =>
+  ( offset = +(offset || 0), limit = +limit,
+    limit < 0 ? x.slice(offset, limit)
      : limit > 0 ? x.slice(offset, offset + limit)
-     : limit == 0 ? x.slice(offset) : "";
-  };
+     : limit == 0 ? x.slice(offset) : ""
+  );
                            // Run filter fn() tree hierarchy
-  R = function /** !Array */
-   (/** !Array */ parent,/** function((!Array|string)):(!Array|string)= */ fn)
+  R = /** !Array */(/** !Array */ parent,
+                    /** function((!Array|string)):(!Array|string)= */ fn) =>
   { var /** !Array|string */ val;
     var /** number */ i = parent.length;
     var /** function((!Array|string)):(!Array|string) */ rfn = fn || subws;
@@ -199,7 +196,7 @@
     return parent;
   };
                                           // Populate attributes on node
-  S = function /** !Array */(/** !Object */ attr,/** string= */ tag)
+  S = /** !Array */(/** !Object */ attr,/** string= */ tag) =>
   { var /** !Array */ r = L(tag);
     Obj.assign(r, attr);
     delete /** @type {Object} */(r)["::"];
@@ -208,14 +205,14 @@
     return r;
   };
                                   // New node
-  L = function /** !Array */(
-          /** function(!Array,!Array,!Object):void|string= */ nodename)
+  L = /** !Array */(
+          /** function(!Array,!Array,!Object):void|string= */ nodename) =>
   { var /** !Array */ r = [];
     /** @type {Object} */(r)[""] = nodename || 1;
     return r;
   };
                            // Init new context
-  N = function /** !Array */(/** !Object */ $)
+  N = /** !Array */(/** !Object */ $) =>
   { var /** !Object */ _ = $["_"];
     if (!_)
       $["_"] = _ = {};
@@ -231,8 +228,8 @@
   { Obj.defineProperty(o, name, { get: fn, configurable: true });
   }
                           // Create new subcontext
-  C = function /** !Object */(/** !Array */ _,
-   /** !Object */ $,/** !Object= */ args,/** string= */ scope)
+  C = /** !Object */(/** !Array */ _,
+   /** !Object */ $,/** !Object= */ args,/** string= */ scope) =>
   { if (/** @type {Object} */(_)[""] !== 1)
     { defget(_, "_contents", () =>
         { let /** function(!Array,!Object):void|undefined */ cfn
@@ -267,7 +264,7 @@
     return n$;
   };
                             // Process attrib value
-  V = function /** void */(/** !Array */ H,/** string */ n,/** !Object */ _)
+  V = /** void */(/** !Array */ H,/** string */ n,/** !Object */ _) =>
   { if (_[n] === undefined)
       _[n] = H.length === 1 && !H[0][""] ? H[0] : !H.length ? "" : H;
   };
@@ -275,7 +272,7 @@
                       // J: Element to append to
                      // H: Container content
                     // $: Variable context
-  X = function /** Promise */(/** !Array */ J,/** !Array */ H,/** !Object */ $)
+  X = /** Promise */(/** !Array */ J,/** !Array */ H,/** !Object */ $) =>
   { var /** function(!Array,!Array,!Object):Promise */ fn
      = $["_"]["_tag"][/** @type {Object} */(H)[""]];
     if (fn)
@@ -290,14 +287,12 @@
       J.push(H);
     }
   };
-                            // Define new remixml macro
-  Q = function /** void */(/** string */ n,/** !Object */ $,
-   /** function(string,!Array,!Array):void */ fn)
-  { $["_"]["_tag"][n] = fn;
-  };
+                          // Define new remixml macro
+  Q = /** void */(/** string */ n,/** !Object */ $,
+   /** function(string,!Array,!Array):void */ fn) => $["_"]["_tag"][n] = fn;
                        // Convert object list into iterator
-  G = function /** !Object */(/** !Object */ $,/** string|!Array */ vname,
-   /** function(...):!Array= */ ord)
+  G = /** !Object */(/** !Object */ $,/** string|!Array */ vname,
+   /** function(...):!Array= */ ord) =>
   { var /** !Array */ r;
     var /** !Array|!Object */ k
      = /** @type {!Object} */(isa(vname) ? vname[0] : VE($, vname));
@@ -329,8 +324,8 @@
     return r[Symbol.iterator]();
   };
                           // Run CSS selector over abstract notation
-  B = function /** void */(/** !Object */ $,
-       /** !Array */ res,/** !Array */ H,/** string */ sel)
+  B = /** void */(/** !Object */ $,
+       /** !Array */ res,/** !Array */ H,/** string */ sel) =>
   { var /** number */ i = 0;
     while (i < H.length)
     { let /** !Array|string */ k = H[i++];
@@ -349,7 +344,7 @@
   { return membr.match(wordrx) ? "." + membr : '["' + membr + '"]';
   }
                               // Canonicalise variable path
-  T = function /** string */(/** string */ vpath)
+  T = /** string */(/** string */ vpath) =>
   { var /** !Array */ components = vpath.split(dotbrackrx);
     var /** string */ word;
     vpath = "$";
@@ -358,8 +353,8 @@
     return vpath;
   };
                      // Evaluate variable entity
-  Z = function /** * */(/** !Object */ $,/** string|!Array */ vname,
-   /** string= */ quot,/** string= */ fmt)
+  Z = /** * */(/** !Object */ $,/** string|!Array */ vname,
+   /** string= */ quot,/** string= */ fmt) =>
   { var /** * */ x = isa(vname) ? vname[0] : VE($, vname);
     if (x == null)
       x = "";
@@ -410,7 +405,7 @@
     return x;
   };
                 // cloneabstract
-  O = function /** !Array */ (/** !Array */ k,/** !Array= */ r)
+  O = /** !Array */ (/** !Array */ k,/** !Array= */ r) =>
   { var /** * */ i;
     if (r)
     { for (i in r)
@@ -428,8 +423,8 @@
     return r;
   };
                 // varinsert
-  K = function /** number */
-   (/** !Object */ $,/** !Array */ H,/** !Array|string|number */ x)
+  K = /** number */
+   (/** !Object */ $,/** !Array */ H,/** !Array|string|number */ x) =>
   { if (x[""])
     { if (x[""] === 1)
         H.push.apply(H, O(/** @type {!Array} */(x)));
@@ -1071,26 +1066,22 @@ nobody:             do
   }
 
   // For use in Javascript Remixml
-  sizeof = function /** number */(/** * */ s)
-  { return Number(s) === s ? 1
+  sizeof = /** number */(/** * */ s) =>
+    Number(s) === s ? 1
      : s ? s.length || s[""] !== 1
       || Obj.keys(/** @type {!Object} */(s)).length : 0;
-  };
 
   // For use in Javascript Remixml
-  desc = function /** !Array|number */(/** number */ i)
-  { return- -i===i?-i:[i,1];
-  };
+  desc = /** !Array|number */(/** number */ i) => - -i===i?-i:[i,1];
 
   // For use in Javascript Remixml
   abstract2dom
-   = function /** !Node */(/** !Array */ abstract,/** !Node= */ node)
-  { return g["abstract2dom"](abstract, node);
-  }
+   = /** !Node */(/** !Array */ abstract,/** !Node= */ node) =>
+   g["abstract2dom"](abstract, node);
 
   // For use in Javascript Remixml
-  abstract2txt = Y = function /** string */(/** !Array|string */ vdom,
-   /** number= */ html)
+  abstract2txt = Y = /** string */(/** !Array|string */ vdom,
+   /** number= */ html) =>
   { for (;;)
     { switch (vdom[""])
       { case undefined:
@@ -1165,30 +1156,25 @@ nobody:             do
   { "remixml2js": remixml2js,
     "js2obj": js2obj,
     "compile":compile,
-    "parse2txt": function
+    "parse2txt":
        /** string */(/** string|(function(!Object):!Array) */ tpl,
-                    /** !Object */ $,/** number= */ flags)
+                    /** !Object */ $,/** number= */ flags) =>
       { if (isstring(tpl))
           tpl = js2obj(remixml2js(/** @type {string} */(tpl), flags));
         return Y(/** @type {function(!Object):!Array} */(tpl)($));
       },
     "abstract2txt": Y,
-    "add_filter": function /** void */(/** string */ name,
-       /** function(string):string */ filterfn)
-      { filters[name] = filterfn;
-      },
-    "set_proc_fmt":
-      function /** void */(/** function(string,*,!Object):* */ fmtfn)
-      { procfmt = fmtfn;
-      },
-    "set_tag": function /** void */(/** function(!Object):!Array */ cb,
+    "add_filter": /** void */(/** string */ name,
+       /** function(string):string */ filterfn) =>
+        filters[name] = filterfn,
+    "set_proc_fmt": /** void */(/** function(string,*,!Object):* */ fmtfn) =>
+        procfmt = fmtfn,
+    "set_tag": /** void */(/** function(!Object):!Array */ cb,
        /** !Object */ $,/** string */ name,/** string= */ scope,
-       /** string= */ args)
+       /** string= */ args) =>
       { N($); settag(cb, $, name, scope, args);
       },
-    "set_log_callback": function /** void */(/** function(...) */ cb)
-      { log = cb;
-      }
+    "set_log_callback": /** void */(/** function(...) */ cb) => log = cb
   };
 
   if (typeof define == "function" && define["amd"])
