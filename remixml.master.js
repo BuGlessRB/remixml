@@ -1171,9 +1171,7 @@ nobody:             do
         procfmt = fmtfn,
     "set_tag": /** void */(/** function(!Object):!Array */ cb,
        /** !Object */ $,/** string */ name,/** string= */ scope,
-       /** string= */ args) =>
-      { N($); settag(cb, $, name, scope, args);
-      },
+       /** string= */ args) => ( N($), settag(cb, $, name, scope, args) ),
     "set_log_callback": /** void */(/** function(...) */ cb) => log = cb
   };
 
