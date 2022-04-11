@@ -191,7 +191,7 @@ Even recursive functions are possible:
   Variables from the parent scope can always be referenced:
   e.g. `&_.foo;` is a variable named foo in the current scope, whereas
   `&_._.foo;` refers to a variable named foo in the parent scope.
-  By prepending `._` to the path every time, you go one level deeper.
+  By prepending `_.` to the path every time, you go one level deeper.
 - `encoding` (optional)<br />
   Specifies the encoding to be used when substituting the variable.
   The standard encodings available are (you can add custom encodings
