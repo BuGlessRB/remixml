@@ -20,7 +20,7 @@
 
   // Cut BEGIN for externs
   // Cut BEGIN for prepend
-  var B,C,D,E,F,G,K,L,M,N,O,P,Q,R,S,T,U,V,X,Y,Z,
+  var B,C,CG,CS,D,E,F,G,K,L,M,N,O,P,Q,R,S,T,U,V,X,Y,Z,
    log,sizeof,desc,abstract2txt,abstract2dom;
   // Cut END for prepend
   var A,VE;
@@ -80,7 +80,10 @@
   const /** !RegExp */ dotbrackrx = /[.[\]]+/;
 
   const /** !Object<function(string):string> */ filters = {};
+  // <cache> storage
+  const /** !Object<!Object<!Array>> */ abstractcache = {};
   const /** !Object */ logcache = {};
+  var /** number */ cachetags = 0;
   var /** function(string,*,!Object):* */ procfmt;
   var /** function(...) */ debuglog = console.debug;
   var /** function(...) */ log = console.error;
@@ -154,6 +157,19 @@
                           // Replace runs of whitespace with a single space
   function /** string */ subws(/** string */ s)
   { return s.replace(spacesprx, " ");
+  }
+			  // Cache-get for abstracts
+  CG = /** Array */(/** !Array */ key) =>
+      // FIXME Expiration of the cache
+  { try
+    { return abstractcache[key[0]][key[1]];
+    } catch(e)
+    { abstractcache[key[0]] = {};
+    }
+  }
+			  // Cache-set for abstracts
+  CS = /** void */(/** !Array */ key,/** !Array */ value) =>
+  { abstractcache[key[0]][key[1]] = value;
   }
                           // Trim a single space from both ends
   U = /** !Array */(/** !Array */ elm) =>
@@ -725,7 +741,7 @@ ntoken:
                       } else if (ts = getparm("tag"))
                       { startcfn();
                         obj += "v=0;Q(" + ts + ",$," + asyncf
-			 + "(H,a,$,W)=>{let o=$;$=C(a,$,{";
+			     + "(H,a,$,W)=>{$=C(a,$,{";
                         { let /** string|undefined */ args = getparm("args");
                           if (args && (args = args.replace(nonwordrx, "")))
                             obj += '"' + args.replace(splc, '":1,"') + '":1';
@@ -786,6 +802,11 @@ ntoken:
                       continue;
                     case "maketag":
                       obj += "{let H=L(" + getparm("name") + "),J=W;";
+                      continue;
+                    case "cache":
+                      obj += "{let v=[" + (getparm("shared")||++cachetags)
+			   + "," + (getparm("key")||0)
+			   + "],J=W,H=CG(v);if(!H){H=L();";
                       continue;
                     case "attrib":
                       obj += letHprefix + "v=" + getparm("name") + ",J=W;";
@@ -975,6 +996,9 @@ nobody:             do
                         case "maketag":
                           obj += "J.push(H)}";
                           break;
+                        case "cache":
+                          obj += "CS(v,H)}J.push(H)}";
+                          continue;
                         case "attrib":
                           obj += "V(H,v,J)}";
                         case "unset":

@@ -1,0 +1,13 @@
+ <set var="_.a">abc</set>
+ A1
+ <cache key="a" shared="aha">B1&_.a;C1</cache>
+ <set var="_.a">def</set>
+ D1
+ <cache key="a">E1&_.a;F1</cache>
+ <set var="_.a">ghi</set>
+ G1
+ <cache key="b">H1&_.a;I1</cache>
+ <set var="_.a">jkl</set>
+ J1
+ <cache key="a" shared="aha">K1&_.a;L1</cache>
+ M1
