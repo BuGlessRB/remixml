@@ -81,12 +81,20 @@
 
   const /** !Object<function(string):string> */ filters = {};
   // <cache> storage
-  const /** !Object<!Object<!Array>> */ abstractcache = {};
+  const /** !Map */ abstractcache = new Map();
   const /** !Object */ logcache = {};
   var /** number */ cachetags = 0;
   var /** function(string,*,!Object):* */ procfmt;
   var /** function(...) */ debuglog = console.debug;
   var /** function(...) */ log = console.error;
+
+  var /** number */ abstractcache_maxttl = 32768;      // in ms
+  var /** number */ abstractcache_maxentries = 1024;  // total max entries
+  var /** number */ abstractcache_intervaltime = 256;  // in ms time to next
+  var /** number */ abstractcache_intervalentries = 32;  // every allocs check
+
+  var /** number */ abstractcache_tnextcheck;
+  var /** number */ abstractcache_countdowncheck;
 
   function /** !boolean */ isa(/** * */ s) { return Array.isArray(s); }
 
@@ -158,18 +166,55 @@
   function /** string */ subws(/** string */ s)
   { return s.replace(spacesprx, " ");
   }
+
+  function /** string */ arraytokey(/** !Array */ key)
+  { return key.join("\x01");
+  }
 			  // Cache-get for abstracts
   CG = /** Array */(/** !Array */ key) =>
-      // FIXME Expiration of the cache
-  { try
-    { return abstractcache[key[0]][key[1]];
-    } catch(e)
-    { abstractcache[key[0]] = {};
+  { var /** string */ skey = arraytokey(key);
+    var /** Array */ value = abstractcache.get(skey);
+    if (value)
+    { let /** number */ t = Date.now();
+      abstractcache.delete(skey);
+      if (value[1] > t)
+      { abstractcache.set(skey, value);	  // Move to front
+	return value[0];
+      }
     }
   }
 			  // Cache-set for abstracts
   CS = /** void */(/** !Array */ key,/** !Array */ value) =>
-  { abstractcache[key[0]][key[1]] = value;
+  { var /** number */ t = Date.now();
+    var /** number */ last = abstractcache.size;
+    if (abstractcache_countdowncheck--
+     || abstractcache_tnextcheck < t
+     || last > abstractcache_maxentries)
+    { abstractcache_tnextcheck = t + abstractcache_intervaltime;
+      abstractcache_countdowncheck = abstractcache_intervalentries;
+      let /** !Array */ keys = Array.from(abstractcache.keys());
+      let /** number */ first = 0;
+      if (last >= abstractcache_maxentries)
+	last = abstractcache_maxentries - 1;
+      // Binary search for first entry to expire
+      while (first < last)
+      { let /** number */ halfway = (first + last) >> 1;
+	// Due LRU reordering this comparison is just an approximation
+	if (abstractcache.get(keys[halfway])[1] > t)
+	  last = halfway;
+	else
+	  first = halfway;
+      }
+      last = abstractcache.size;
+      // Expire from first to last
+      while (first < last)
+      { let /** string */ ikey = keys[first++];
+	if (first >= abstractcache_maxentries
+	 || abstractcache.get(ikey)[1] > t)
+	  abstractcache.delete(ikey);
+      }
+    }
+    abstractcache.set(arraytokey(key), [value, t + abstractcache_maxttl]);
   }
                           // Trim a single space from both ends
   U = /** !Array */(/** !Array */ elm) =>
