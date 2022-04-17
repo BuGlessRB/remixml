@@ -852,7 +852,8 @@ ntoken:
                     case "cache":
                       obj += "{let v=[" + (getparm("shared")||++cachetags)
 			   + "," + (getparm("key")||0)
-			   + "],J=W,H=CG(v);if(!H){H=L();";
+			   + "],g=" + (getparm("ttl")||0)
+			   + ",J=W,H=CG(v);if(!H){H=L();";
                       continue;
                     case "attrib":
                       obj += letHprefix + "v=" + getparm("name") + ",J=W;";
@@ -1043,7 +1044,7 @@ nobody:             do
                           obj += "J.push(H)}";
                           break;
                         case "cache":
-                          obj += "CS(v,H)}J.push(H)}";
+                          obj += "CS(v,H,g)}J.push(H)}";
                           continue;
                         case "attrib":
                           obj += "V(H,v,J)}";

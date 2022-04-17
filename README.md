@@ -447,8 +447,22 @@ if a single `-` parameter is given.
    XHTML (no dangling tags).
 - `<?comment ...?>`<br />
    Strip and skip this tag with content.
-- `<cache>...</cache>`<br />
-   Reserved for future use.
+- `<cache var="" variable="" key="" shared="" ttl="">...</cache>`<br />
+   Caches the content.<br />
+   Attributes:
+   - `var` or `variable`<br />
+     Comma separated list of variable names that the cached content
+     should depend on.
+   - `key`<br />
+     Use the stringvalue of this parameter as a direct key for the cached
+     content to depend on.  It's usually better to use `var` instead.
+   - `shared`<br />
+     Normally all instances of `<cache>` reference distinct caches that
+     use an integer number to indicate different cache contexts.
+     By defining this you can explicitly define the cache context to
+     store and retrieve from.
+   - `ttl`<br />
+     Time to live for new cache entries in ms.
 - `<nocache>...</nocache>`<br />
    Reserved for future use.
 
