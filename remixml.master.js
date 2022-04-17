@@ -184,7 +184,7 @@
     }
   }
 			  // Cache-set for abstracts
-  CS = /** void */(/** !Array */ key,/** !Array */ value) =>
+  CS = /** void */(/** !Array */ key,/** !Array */ value,/** number= */ ttl) =>
   { var /** number */ t = Date.now();
     var /** number */ last = abstractcache.size;
     if (abstractcache_countdowncheck--
@@ -214,7 +214,8 @@
 	  abstractcache.delete(ikey);
       }
     }
-    abstractcache.set(arraytokey(key), [value, t + abstractcache_maxttl]);
+    abstractcache.set(arraytokey(key),
+                      [value, t + (ttl||abstractcache_maxttl)]);
   }
                           // Trim a single space from both ends
   U = /** !Array */(/** !Array */ elm) =>
