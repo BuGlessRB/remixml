@@ -168,7 +168,7 @@
   }
 
   function /** string */ arraytokey(/** !Array */ key)
-  { return key.join("\x01");
+  { return key.join("\x01");		  // Concatenate keyvalues using \1
   }
 			  // Cache-get for abstracts
   CG = /** Array */(/** !Array */ key) =>
@@ -524,7 +524,8 @@
   }
 
   function /** string */ vareval(/** string */ vname,
-              /** string|boolean|undefined */ quot,/** string|undefined */ fmt)
+                                /** string|boolean|undefined */ quot,
+                               /** string|undefined= */ fmt)
   { var /** string */ obj = "Z($," + simplify(vname);
     if (quot)
       obj += "," + quot;
@@ -682,12 +683,14 @@ ntoken:
           { let /** string */ sbj = gotparms[name];
             return sbj && substentities(sbj);
           }
+          function /** !Array */splitparam(/** string */ mapstring)
+          { return mapstring.slice(1,-1).split(spsplsing);
+          }
           function /** number|undefined */
            domkmapping(/** string */ init,/** string */ vname)
           { var /** string|undefined */ mapstring = getparm("mkmapping");
             if (mapstring)
-            { let /** !Array */ maplist
-               = mapstring.slice(1,-1).split(spsplsing);
+            { let /** !Array */ maplist = splitparam(mapstring);
               obj += init;
               while (mapstring = maplist.pop())
                 obj += vname + simplemember(mapstring) + '=k['
@@ -705,6 +708,9 @@ ntoken:
 		logparseerror();
 	    }
 	    return fw = rm[2];
+	  }
+	  function /** string|undefined */getvarparm()
+	  { return getparm("var") || getparm("variable");
 	  }
           params.lastIndex = lasttoken;
           if (parseparam() === "/")
@@ -751,7 +757,7 @@ ntoken:
                 { switch (tag)
                   { case "set":
                     { obj += letHprefix;
-                      let vname = getparm("var") || getparm("variable");
+                      let vname = getvarparm();
                       simpleset = 0;
                       if (vname)
                       { let /** string|undefined */ xp = getparm("expr");
@@ -800,7 +806,7 @@ ntoken:
                       continue;
                     }
                     case "insert":
-                    { let vname = getparm("var") || getparm("variable");
+                    { let vname = getvarparm();
                       if (vname)
                       { let /** string|number */ vval =
                          vareval(vname, getparm("quote"), getparm("format"));
@@ -850,11 +856,19 @@ ntoken:
                       obj += "{let H=L(" + getparm("name") + "),J=W;";
                       continue;
                     case "cache":
-                      obj += "{let v=[" + (getparm("shared")||++cachetags)
-			   + "," + (getparm("key")||0)
-			   + "],g=" + (getparm("ttl")||0)
+		    { let /** string|undefined */ key = getparm("key");
+                      obj += "{let v=[" + (getparm("shared") || ++cachetags);
+		      if (!key && (key = getvarparm())) {
+                        let /** !Array */ varlist = splitparam(key);
+			let /** string */ s;
+			for (s of varlist)
+			  obj += "," + vareval(s, "json");  // Ensure strings
+		      } else
+		        obj += "," + (key||0);
+		      obj += "],g=" + (getparm("ttl")||0)
 			   + ",J=W,H=CG(v);if(!H){H=L();";
                       continue;
+		    }
                     case "attrib":
                       obj += letHprefix + "v=" + getparm("name") + ",J=W;";
                       continue;
@@ -905,7 +919,7 @@ ntoken:
 			  tagpath("[v]");
 			  obj += "}";
 			}
-                      } else if (ts = getparm("var") || getparm("variable"))
+                      } else if (ts = getvarparm())
                       { let /** !Array|string */ av = simplify(ts, 1);
                         obj += isa(av)
 			 ? "delete " + av[0] + ";"

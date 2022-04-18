@@ -451,7 +451,7 @@ if a single `-` parameter is given.
    Caches the content.<br />
    Attributes:
    - `var` or `variable`<br />
-     Comma separated list of variable names that the cached content
+     Comma-separated list of variable names that the cached content
      should depend on.
    - `key`<br />
      Use the stringvalue of this parameter as a direct key for the cached
