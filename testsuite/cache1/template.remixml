@@ -3,6 +3,12 @@
  <cache key="a" shared="aha">B1&_.a;C1</cache>
  <set var="_.a">def</set>
  D1
+ <cache var="_.a,_.b,_.k.c">e1&_.a;f1</cache>
+ <set var="_.a">GHI</set>
+ d1
+ <cache var="_.a,_.b">e2&_.a;f2</cache>
+ <set var="_.a">GHi</set>
+ g1
  <cache key="a">E1&_.a;F1</cache>
  <set var="_.a">ghi</set>
  G1

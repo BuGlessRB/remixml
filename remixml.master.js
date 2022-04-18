@@ -172,51 +172,55 @@
   }
 			  // Cache-get for abstracts
   CG = /** Array */(/** !Array */ key) =>
-  { var /** string */ skey = arraytokey(key);
-    var /** Array */ value = abstractcache.get(skey);
-    if (value)
-    { let /** number */ t = Date.now();
-      abstractcache.delete(skey);
-      if (value[1] > t)
-      { abstractcache.set(skey, value);	  // Move to front
-	return value[0];
+  { if (key)
+    { var /** string */ skey = arraytokey(key);
+      var /** Array */ value = abstractcache.get(skey);
+      if (value)
+      { let /** number */ t = Date.now();
+        abstractcache.delete(skey);
+        if (value[1] > t)
+        { abstractcache.set(skey, value);	  // Move to front
+          return value[0];
+        }
       }
     }
-  }
+  };
 			  // Cache-set for abstracts
   CS = /** void */(/** !Array */ key,/** !Array */ value,/** number= */ ttl) =>
-  { var /** number */ t = Date.now();
-    var /** number */ last = abstractcache.size;
-    if (abstractcache_countdowncheck--
-     || abstractcache_tnextcheck < t
-     || last > abstractcache_maxentries)
-    { abstractcache_tnextcheck = t + abstractcache_intervaltime;
-      abstractcache_countdowncheck = abstractcache_intervalentries;
-      let /** !Array */ keys = Array.from(abstractcache.keys());
-      let /** number */ first = 0;
-      if (last >= abstractcache_maxentries)
-	last = abstractcache_maxentries - 1;
-      // Binary search for first entry to expire
-      while (first < last)
-      { let /** number */ halfway = (first + last) >> 1;
-	// Due LRU reordering this comparison is just an approximation
-	if (abstractcache.get(keys[halfway])[1] > t)
-	  last = halfway;
-	else
-	  first = halfway;
+  { if (key)
+    { var /** number */ t = Date.now();
+      var /** number */ last = abstractcache.size;
+      if (abstractcache_countdowncheck--
+       || abstractcache_tnextcheck < t
+       || last > abstractcache_maxentries)
+      { abstractcache_tnextcheck = t + abstractcache_intervaltime;
+        abstractcache_countdowncheck = abstractcache_intervalentries;
+        let /** !Array */ keys = Array.from(abstractcache.keys());
+        let /** number */ first = 0;
+        if (last >= abstractcache_maxentries)
+          last = abstractcache_maxentries - 1;
+        // Binary search for first entry to expire
+        while (first < last)
+        { let /** number */ halfway = (first + last) >> 1;
+          // Due LRU reordering this comparison is just an approximation
+          if (abstractcache.get(keys[halfway])[1] > t)
+            last = halfway;
+          else
+            first = halfway;
+        }
+        last = abstractcache.size;
+        // Expire from first to last
+        while (first < last)
+        { let /** string */ ikey = keys[first++];
+          if (first >= abstractcache_maxentries
+           || abstractcache.get(ikey)[1] > t)
+            abstractcache.delete(ikey);
+        }
       }
-      last = abstractcache.size;
-      // Expire from first to last
-      while (first < last)
-      { let /** string */ ikey = keys[first++];
-	if (first >= abstractcache_maxentries
-	 || abstractcache.get(ikey)[1] > t)
-	  abstractcache.delete(ikey);
-      }
+      abstractcache.set(arraytokey(key),
+                        [value, t + (ttl||abstractcache_maxttl)]);
     }
-    abstractcache.set(arraytokey(key),
-                      [value, t + (ttl||abstractcache_maxttl)]);
-  }
+  };
                           // Trim a single space from both ends
   U = /** !Array */(/** !Array */ elm) =>
   { var /** string */ s;
@@ -811,15 +815,15 @@ ntoken:
                       { let /** string|number */ vval =
                          vareval(vname, getparm("quote"), getparm("format"));
 			obj += "try{";
-			function /** void */ flushvval() {
-			  if (vval)
+			function /** void */ flushvval()
+			{ if (vval)
 			    obj += "let x=" + vval + ";", vval = 0;
 			}
                         if (ts = getparm("join"))
                           flushvval(), obj += "x=x.join?x.join(" + ts + "):x;";
                         vname = getparm("limit");
-                        if ((ts = getparm("offset")) || vname !== undefined) {
-			  flushvval();
+                        if ((ts = getparm("offset")) || vname !== undefined)
+			{ flushvval();
                           obj += "x=F(x," + ts +
                            (vname !== undefined ? "," + vname : "") + ");";
 			}
@@ -856,17 +860,21 @@ ntoken:
                       obj += "{let H=L(" + getparm("name") + "),J=W;";
                       continue;
                     case "cache":
-		    { let /** string|undefined */ key = getparm("key");
-                      obj += "{let v=[" + (getparm("shared") || ++cachetags);
-		      if (!key && (key = getvarparm())) {
-                        let /** !Array */ varlist = splitparam(key);
+		    { obj += "{let v,J=W,H,g=" + (getparm("ttl") || 0) + ";";
+		      let /** string */ tobj
+		       = "v=[" + (getparm("shared") || ++cachetags);
+		      let /** string|undefined */ key = getparm("key");
+		      let /** string */ tobjafter = "";
+		      if (!key && (key = getvarparm()))
+                      { let /** !Array */ varlist = splitparam(key);
+			tobj = "try{" + tobj;
+			tobjafter = "}catch(e){v=0}";
 			let /** string */ s;
-			for (s of varlist)
-			  obj += "," + vareval(s, "json");  // Ensure strings
+			for (s of varlist)             // Force strings
+			  tobj += "," + vareval(s, "\"json\"");
 		      } else
-		        obj += "," + (key||0);
-		      obj += "],g=" + (getparm("ttl")||0)
-			   + ",J=W,H=CG(v);if(!H){H=L();";
+		        tobj += "," + (key||0), tobjafter = ";";
+		      obj += tobj + "]" + tobjafter + "H=CG(v);if(!H){H=L();";
                       continue;
 		    }
                     case "attrib":
@@ -1116,10 +1124,10 @@ nobody:             do
           if (rm || !ASSERT && !RUNTIMEDEBUG)
           { ts += rm[0];
             lasttoken = textrx.lastIndex;
-	  } else {
-            logparseerror();
-	    if (ASSERT) {
-	      ts += rxmls.substr(lasttoken);
+	  } else
+          { logparseerror();
+	    if (ASSERT)
+	    { ts += rxmls.substr(lasttoken);
               lasttoken = rxmls.length;
 	    }
 	  }
