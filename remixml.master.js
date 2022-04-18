@@ -180,7 +180,7 @@
         abstractcache.delete(skey);
         if (value[1] > t)
         { abstractcache.set(skey, value);	  // Move to front
-          return value[0];
+          return O(value[0]);
         }
       }
     }
