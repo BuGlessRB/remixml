@@ -867,7 +867,7 @@ ntoken:
 		      let /** string */ tobjafter = "";
 		      if (!key && (key = getvarparm()))
                       { let /** !Array */ varlist = splitparam(key);
-			tobj = "try{" + tobj;
+			tobj = "_=$._;try{" + tobj;
 			tobjafter = "}catch(e){v=0}";
 			let /** string */ s;
 			for (s of varlist)             // Force strings
