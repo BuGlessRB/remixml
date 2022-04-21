@@ -536,6 +536,16 @@ Exposed API-list (in NodeJS and the browser):
 - `Remixml.set_log_callback(callback)`<br />
   If not set, it defaults to `console.error()`.  This callback function is used
   to log remixml runtime errors.
+- `Remixml.set_cache_options(maxttl, maxentries?, intervaltime?, intervalentries?)`<br />
+   Sets the various cache-option defaults; if any parameters are zero or
+   unspecified they stay unaltered.
+   - maxttl: Maximum time to live in ms for cache entries
+             (defaults to 32768 ms).
+   - maxentries: Maximum number of entries in the cache (defaults to 1024).
+   - intervaltime: Interval in ms between garbage collections
+                   (defaults to 256 ms).
+   - intervalentries: Every `intervalentries` allocations it performs
+     a garbage collection (defaults to 32).
 - `Remixml.abstract2dom(abstract, node?)`<br />
   Converts a DOM `abstract` into DOM nodes.  If the optional `node` argument
   is specified, it replaces the children of `node` with the content

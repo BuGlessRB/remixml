@@ -1103,7 +1103,8 @@ nobody:             do
                           obj += "J.push(H)}";
                           break;
                         case "cache":
-                          obj += "H=CS(v,H,c)}H=" + awaito + "(H,0,$);J.push(H)}";
+                          obj += "H=CS(v,H,c)}H="
+			            + awaito + "(H,0,$);J.push(H)}";
                           break;
                         case "nocache":
                           // Use c >= 0 as a runtime
@@ -1316,7 +1317,18 @@ nobody:             do
     "set_tag": /** void */(/** function(!Object):!Array */ cb,
        /** !Object */ $,/** string */ name,/** string= */ scope,
        /** string= */ args) => ( N($), settag(cb, $, name, scope, args) ),
-    "set_log_callback": /** void */(/** function(...) */ cb) => log = cb
+    "set_log_callback": /** void */(/** function(...) */ cb) => log = cb,
+    "set_cache_options": /** void */(/** number */ maxttl,
+                                     /** number= */ maxentries,
+                                     /** number= */ intervaltime,
+                                     /** number= */ intervalentries) => {
+        abstractcache_maxttl =         maxttl || abstractcache_maxttl;
+        abstractcache_maxentries = maxentries || abstractcache_maxentries;
+        abstractcache_intervaltime
+			       = intervaltime || abstractcache_intervaltime;
+        abstractcache_intervalentries
+			    = intervalentries || abstractcache_intervalentries;
+      },
   };
 
   if (typeof define == "function" && define["amd"])
