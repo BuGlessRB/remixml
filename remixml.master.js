@@ -1109,7 +1109,7 @@ nobody:             do
                         case "nocache":
                           // Use c >= 0 as a runtime
 			  // validation that we are inside a cache context
-                          obj += "});c>=0||W.pop()(H,$);";
+                          obj += "});c+1||W.pop()(H,$);";
                           break;
                         case "attrib":
                           obj += "V(H,v,J)}";

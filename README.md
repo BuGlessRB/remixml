@@ -463,7 +463,8 @@ if a single `-` parameter is given.
      By defining this you can explicitly define the cache context to
      store and retrieve from.
    - `ttl`<br />
-     Time to live for new cache entries in ms.
+     Time to live for new cache entries in ms; if unspecified or zero
+     it defaults to `maxttl`.
 - `<nocache>...</nocache>`<br />
    Mark sections inside a `<cache>` section to be uncached instead.
 
