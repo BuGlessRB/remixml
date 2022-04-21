@@ -620,16 +620,19 @@
   const /** number */ ASYNC = 4;
 
   function /** string */ remixml2js(/** string */ rxmls,/** number= */ flags)
-  {    // H: Current element to append in
-      // W: Temporary parent element
-     // I: Most recent truth value
-    // J: Parent element to append the current element to when finished
+  {     // H: Current element to append in
+       // W: Temporary parent element
+      // I: Most recent truth value
+     // J: Parent element to append the current element to when finished
+    // c: If c >= 0 it indicates an active <cache> context
     const /** number */ isasync = flags & ASYNC;
     const /** string */ asyncf = isasync ? "async " : "";
     const /** string */ awaitf = isasync ? "await " : "";
     const /** string */ awaito = isasync ? "await OA" : "O";
-    const /** string */ cacheasync = isasync ? "\"\x02\"+" : "";   // Async cache prefix
-    var /** string */ obj = "(" + asyncf + '$=>{"use strict";var I,W,_,H=N($);';
+                                                 // Async cache prefix
+    const /** string */ cacheasync = isasync ? "\"\x02\"+" : "";
+    var /** string */ obj
+     = "(" + asyncf + '$=>{"use strict";var I,W,c,_,H=N($);';
     var /** number */ noparse = 0;
     var /** number */ comment = 0;
     const /** string */ vfnprefix
@@ -890,7 +893,7 @@ ntoken:
                       obj += "{let H=L(" + getparm("name") + "),J=W;";
                       continue;
                     case "cache":
-		    { obj += "{let v,J=W,H,g=" + (getparm("ttl") || 0) + ";";
+		    { obj += "{let v,J=W,H,c=" + (getparm("ttl") || 0) + ";";
 		      let /** string */ tobj
 		       = "v=[" + cacheasync + (getparm("shared") || ++cachetags);
 		      let /** string|undefined */ key = getparm("key");
@@ -909,7 +912,7 @@ ntoken:
                       continue;
 		    }
                     case "nocache":
-		      obj += "W.push(" + asyncf + "(H,$,W)=>{";
+		      obj += "W.push(" + asyncf + "(H,$,W)=>{var c;";
                       continue;
                     case "attrib":
                       obj += letHprefix + "v=" + getparm("name") + ",J=W;";
@@ -1100,10 +1103,12 @@ nobody:             do
                           obj += "J.push(H)}";
                           break;
                         case "cache":
-                          obj += "H=CS(v,H,g)}H=" + awaito + "(H,0,$);J.push(H)}";
+                          obj += "H=CS(v,H,c)}H=" + awaito + "(H,0,$);J.push(H)}";
                           break;
                         case "nocache":
-                          obj += "});";
+                          // Use c >= 0 as a runtime
+			  // validation that we are inside a cache context
+                          obj += "});c>=0||W.pop()(H,$);";
                           break;
                         case "attrib":
                           obj += "V(H,v,J)}";
