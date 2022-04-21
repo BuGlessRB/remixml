@@ -491,22 +491,14 @@
   { var /** number */ i;
     dst = targetclear(src, dst);
     i = dst.length;
-    if ($)			    // Speed optimisation only
-    { while (i--)
-      { let /** !Object */ value = dst[i];
-        if (value[""])
-          dst[i] = O(value);	    // clone recursively
-        else if (typeof value === "function")
-        { let /** !Array */ H = [i, 1];
-	  value(H, $);		    // Fill in the <nocache> element
-          Array.prototype.splice.apply(dst, H);  // Replace it with the content
-        }
-      }
-    } else			    // Faster iteration for simple case
-    { while (i--)
-      { let /** !Object */ value = dst[i];
-        if (value[""])
-          dst[i] = O(value);	    // clone recursively
+    while (i--)
+    { let /** !Object */ value = dst[i];
+      if (value[""])
+        dst[i] = O(value, 0, $);	    // clone recursively
+      else if (typeof value === "function")
+      { let /** !Array */ H = [i, 1];
+        value(H, $);		    // Fill in the <nocache> element
+        Array.prototype.splice.apply(dst, H);  // Replace it with the content
       }
     }
     return dst;
@@ -517,22 +509,14 @@
   { var /** number */ i;
     dst = targetclear(src, dst);
     i = dst.length;
-    if ($)			    // Speed optimisation only
-    { while (i--)
-      { let /** !Object */ value = dst[i];
-        if (value[""])
-          dst[i] = await OA(value);	    // clone recursively
-        else if (typeof value === "function")
-        { let /** !Array */ H = [i, 1];
-	  await value(H, $);	     // Fill in the <nocache> element
-          Array.prototype.splice.apply(dst, H);  // Replace it with the content
-        }
-      }
-    } else			    // Faster iteration for simple case
-    { while (i--)
-      { let /** !Object */ value = dst[i];
-        if (value[""])
-          dst[i] = await OA(value);	    // clone recursively
+    while (i--)
+    { let /** !Object */ value = dst[i];
+      if (value[""])
+        dst[i] = await OA(value, 0, $);	    // clone recursively
+      else if (typeof value === "function")
+      { let /** !Array */ H = [i, 1];
+        await value(H, $);	     // Fill in the <nocache> element
+        Array.prototype.splice.apply(dst, H);  // Replace it with the content
       }
     }
     return dst;
