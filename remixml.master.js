@@ -20,7 +20,7 @@
 
   // Cut BEGIN for externs
   // Cut BEGIN for prepend
-  var B,C,CG,CS,D,E,F,G,K,L,M,N,O,P,Q,R,S,T,U,V,X,Y,Z,
+  var B,C,CG,CS,D,E,F,G,K,L,M,N,O,OA,P,Q,R,S,T,U,V,X,Y,Z,
    log,sizeof,desc,abstract2txt,abstract2dom;
   // Cut END for prepend
   var A,VE;
@@ -180,13 +180,13 @@
         abstractcache.delete(skey);
         if (value[1] > t)
         { abstractcache.set(skey, value);	  // Move to front
-          return O(value[0]);
+          return value[0];
         }
       }
     }
   };
 			  // Cache-set for abstracts
-  CS = /** void */(/** !Array */ key,/** !Array */ value,/** number= */ ttl) =>
+  CS = /** !Array */(/** !Array */ key,/** !Array */ value,/** number= */ ttl) =>
   { if (key)
     { var /** number */ t = Date.now();
       var /** number */ last = abstractcache.size;
@@ -220,6 +220,7 @@
       abstractcache.set(arraytokey(key),
                         [value, t + (ttl||abstractcache_maxttl)]);
     }
+    return value;
   };
                           // Trim a single space from both ends
   U = /** !Array */(/** !Array */ elm) =>
@@ -473,23 +474,68 @@
     }
     return x;
   };
-                // cloneabstract
-  O = /** !Array */ (/** !Array */ k,/** !Array= */ r) =>
-  { var /** * */ i;
-    if (r)
-    { for (i in r)
-        delete r[/** @type {?} */(i)];
+
+  function /** !Array */ targetclear(/** !Array */ src,/** !Array= */ dst)
+  { var /** string */ i;
+    if (dst)
+    { for (i in dst)
+        delete dst[/** @type {?} */(i)];	  // clear target attributes
     } else
-      r = [];
-    if (!isa(k))
-      /** @type {!Object} */(k)["length"] = 0;	  // Object->Array kludge
-    r = /** @type {!Array} */(Obj.assign(r, k));
-    i = r.length;
-    while (i--)
-    { if (r[i][""])
-        r[i] = O(r[i]);
+      dst = [];
+    if (!isa(src))
+      /** @type {!Object} */(src)["length"] = 0;  // Object->Array kludge
+    return /** @type {!Array} */(Obj.assign(dst, src));  // clone array values
+  }
+                  // cloneabstract
+  O = /** !Array */(/** !Array */ src,/** !Array= */ dst,/** !Object= */ $) =>
+  { var /** number */ i;
+    dst = targetclear(src, dst);
+    i = dst.length;
+    if ($)			    // Speed optimisation only
+    { while (i--)
+      { let /** !Object */ value = dst[i];
+        if (value[""])
+          dst[i] = O(value);	    // clone recursively
+        else if (typeof value === "function")
+        { let /** !Array */ H = [i, 1];
+	  value(H, $);		    // Fill in the <nocache> element
+          Array.prototype.splice.apply(dst, H);  // Replace it with the content
+        }
+      }
+    } else			    // Faster iteration for simple case
+    { while (i--)
+      { let /** !Object */ value = dst[i];
+        if (value[""])
+          dst[i] = O(value);	    // clone recursively
+      }
     }
-    return r;
+    return dst;
+  };
+                  // async cloneabstract
+  OA = async /** !Array */(/** !Array */ src,
+                          /** !Array= */ dst,/** !Object= */ $) =>
+  { var /** number */ i;
+    dst = targetclear(src, dst);
+    i = dst.length;
+    if ($)			    // Speed optimisation only
+    { while (i--)
+      { let /** !Object */ value = dst[i];
+        if (value[""])
+          dst[i] = await OA(value);	    // clone recursively
+        else if (typeof value === "function")
+        { let /** !Array */ H = [i, 1];
+	  await value(H, $);	     // Fill in the <nocache> element
+          Array.prototype.splice.apply(dst, H);  // Replace it with the content
+        }
+      }
+    } else			    // Faster iteration for simple case
+    { while (i--)
+      { let /** !Object */ value = dst[i];
+        if (value[""])
+          dst[i] = await OA(value);	    // clone recursively
+      }
+    }
+    return dst;
   };
                   // varinsert
   K = /** number */
@@ -597,8 +643,9 @@
     const /** number */ isasync = flags & ASYNC;
     const /** string */ asyncf = isasync ? "async " : "";
     const /** string */ awaitf = isasync ? "await " : "";
-    var /** string */ obj = "(" + asyncf
-     + '$=>{"use strict";var I,W,_,H=N($);';
+    const /** string */ awaito = isasync ? "await OA" : "O";
+    const /** string */ cacheasync = isasync ? "\"\x02\"+" : "";   // Async cache prefix
+    var /** string */ obj = "(" + asyncf + '$=>{"use strict";var I,W,_,H=N($);';
     var /** number */ noparse = 0;
     var /** number */ comment = 0;
     const /** string */ vfnprefix
@@ -796,8 +843,7 @@ ntoken:
                         obj += wfunction;
                       } else if (ts = getparm("tag"))
                       { startcfn();
-                        obj += "v=0;Q(" + ts + ",$," + asyncf
-			     + "(H,a,$,W)=>{$=C(a,$,{";
+                        obj += "v=0;Q(" + ts + ",$," + asyncf + "(H,a,$,W)=>{$=C(a,$,{";
                         { let /** string|undefined */ args = getparm("args");
                           if (args && (args = args.replace(nonwordrx, "")))
                             obj += '"' + args.replace(splc, '":1,"') + '":1';
@@ -862,7 +908,7 @@ ntoken:
                     case "cache":
 		    { obj += "{let v,J=W,H,g=" + (getparm("ttl") || 0) + ";";
 		      let /** string */ tobj
-		       = "v=[" + (getparm("shared") || ++cachetags);
+		       = "v=[" + cacheasync + (getparm("shared") || ++cachetags);
 		      let /** string|undefined */ key = getparm("key");
 		      let /** string */ tobjafter = "";
 		      if (!key && (key = getvarparm()))
@@ -874,9 +920,13 @@ ntoken:
 			  tobj += "," + vareval(s, "\"json\"");
 		      } else
 		        tobj += "," + (key||0), tobjafter = ";";
-		      obj += tobj + "]" + tobjafter + "H=CG(v);if(!H){H=L();";
+		      obj += tobj + "]" + tobjafter
+		          + "H=CG(v);if(!H){H=L();";
                       continue;
 		    }
+                    case "nocache":
+		      obj += "W.push(" + asyncf + "(H,$,W)=>{";
+                      continue;
                     case "attrib":
                       obj += letHprefix + "v=" + getparm("name") + ",J=W;";
                       continue;
@@ -1066,8 +1116,11 @@ nobody:             do
                           obj += "J.push(H)}";
                           break;
                         case "cache":
-                          obj += "CS(v,H,g)}J.push(H)}";
-                          continue;
+                          obj += "H=CS(v,H,g)}H=" + awaito + "(H,0,$);J.push(H)}";
+                          break;
+                        case "nocache":
+                          obj += "});";
+                          break;
                         case "attrib":
                           obj += "V(H,v,J)}";
                         case "unset":

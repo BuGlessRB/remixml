@@ -13,12 +13,13 @@ The Remixml templating engine has the following features:
 - It don't need no stinkin' artificial magic delimiters.
 - Rich powerful language with dynamic inheritance, autoescaping, functions,
   whitespace-collapsing, asynchronous control and more.
-- Fast &amp; lean: Small 6 KB gzipped runtime which includes the compiler
+- Fast &amp; lean: Small 7 KB gzipped runtime which includes the compiler
   which can precompile templates in node and in the browser.
 - Compiles to minified Javascript.
 - User defined HTML tags in Remixml support named parameters and
   recursion.
 - Extensible with custom filters and tags programmed in Javascript.
+- Easy multi-level caching for even more speed.
 - Available everywhere in node and all modern web browsers.
 - It contains a fully featured fast validating XHTML parser.
 - It shields the Remixml programmer from fatal browser errors by
@@ -46,7 +47,7 @@ code quality.
 It runs inside any webbrowser or NodeJS environment supporting at least
 ECMAScript ES2018.
 
-Minified and gzip-compressed, it is less than 6 KB of code.
+Minified and gzip-compressed, it is less than 7 KB of code.
 
 It has zero dependencies on other modules.
 
@@ -464,7 +465,7 @@ if a single `-` parameter is given.
    - `ttl`<br />
      Time to live for new cache entries in ms.
 - `<nocache>...</nocache>`<br />
-   Reserved for future use.
+   Mark sections inside a `<cache>` section to be uncached instead.
 
 #### Javascript helperfunctions
 
