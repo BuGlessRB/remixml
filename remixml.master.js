@@ -478,7 +478,8 @@
   function /** !Array */ targetclear(/** !Array */ src,/** !Array= */ dst)
   { var /** string */ i;
     if (dst)
-    { for (i in dst)
+    { dst.length = 0;				  // Fast truncate
+      for (i in dst)
         delete dst[/** @type {?} */(i)];	  // clear target attributes
     } else
       dst = [];
@@ -490,8 +491,7 @@
   O = /** !Array */(/** !Array */ src,/** !Array= */ dst,/** !Object= */ $) =>
   { var /** number */ i;
     dst = targetclear(src, dst);
-    i = dst.length;
-    while (i--)
+    for (i = dst.length; i--;)
     { let /** !Object */ value = dst[i];
       if (value[""])
         dst[i] = O(value, 0, $);	    // clone recursively
@@ -508,8 +508,7 @@
                           /** !Array= */ dst,/** !Object= */ $) =>
   { var /** number */ i;
     dst = targetclear(src, dst);
-    i = dst.length;
-    while (i--)
+    for (i = dst.length; i--;)
     { let /** !Object */ value = dst[i];
       if (value[""])
         dst[i] = await OA(value, 0, $);	    // clone recursively
