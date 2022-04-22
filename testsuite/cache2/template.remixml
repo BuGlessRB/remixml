@@ -2,7 +2,10 @@
  <set var="_.b">xyz</set>
  A1
  <cache key="a" shared="aha"
-  >1B1<nocache>X&_.b;Y</nocache>h&_.a;C1<nocache>X&_.b;Y</nocache>1</cache>
+  >1B1<nocache>X&_.b;Y
+   <set tag="yes"></set>
+   <yes></yes>
+  </nocache>h&_.a;C1<nocache>X&_.b;Y</nocache>1</cache>
  <set var="_.b">pqr</set>
 Yes
  <cache key="a" shared="aha"
