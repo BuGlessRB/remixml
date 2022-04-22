@@ -829,7 +829,8 @@ ntoken:
                         obj += wfunction;
                       } else if (ts = getparm("tag"))
                       { startcfn();
-                        obj += "v=0;Q(" + ts + ",$," + asyncf + "(H,a,$,W)=>{$=C(a,$,{";
+                        obj += "v=0;Q(" + ts + ",$,"
+			    + asyncf + "(H,a,$,W)=>{$=C(a,$,{";
                         { let /** string|undefined */ args = getparm("args");
                           if (args && (args = args.replace(nonwordrx, "")))
                             obj += '"' + args.replace(splc, '":1,"') + '":1';
