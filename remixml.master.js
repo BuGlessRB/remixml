@@ -40,8 +40,9 @@
       "&":"%26","'":"%27","+":"%2B","<":"%3C","?":"%3F"};
   const /** !RegExp */ uricrx = /[ \t\n\r#%&'"+<?]/g;
 
-  const /** !Object */ htmlmapobj = {"&":"&amp;","<":"&lt;"};
-  const /** !RegExp */ htmlmaprx = /[&<]/g;
+  // Include > here to avoid running into "-->" or "?>" sequences.
+  const /** !Object */ htmlmapobj = {"&":"&amp;","<":"&lt;",">":"&gt;"};
+  const /** !RegExp */ htmlmaprx = /[&<>]/g;
 
   const /** string */ cfnprefix = "H._c=(H,$)=>{";
   const /** string */ letHprefix = "{let H=L(),";
