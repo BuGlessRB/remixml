@@ -288,6 +288,8 @@ if a single `-` parameter is given.
      Using something like `<img ::="&_._restargs;" />` allows you to pass
      on all the remaining arguments.  The special argument `::` accepts
      an object and spreads out the elements as individual attributes.
+     Note that all locally defined variables in the current `_.` scope
+     not mentioned in the `args` argument will be included in `&_._restargs;`.
    - `scope`<br />
      Create a toplevel alias for the local scope in this tag definition.
 - `<unset var="" variable="" tag=""></unset>`<br />

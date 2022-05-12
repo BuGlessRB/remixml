@@ -316,12 +316,13 @@
           { var /** string */ vname;
             var /** !Object */ rest = {};
             for (vname in this)
-              switch (vname[0])
+            { switch (vname[0])
               { default:
                   if (!(vname >= 0 || args[vname]))
                     rest[vname] = this[vname];
                 case "_":case undefined:;
               }
+            }
             return rest;
           });
       } else
