@@ -35,7 +35,7 @@ var data = fs.readFileSync("$dir/data.json").toString();
 var jssrcasync = rxml.remixml2js(remixmlsrc, 4);
 var jssrc = rxml.remixml2js(remixmlsrc);
 
-//fs.writeFileSync("$dir/output.min.js", jssrcasync);
+fs.writeFileSync("$dir/output.async.min.js", jssrcasync);
 fs.writeFileSync("$dir/output.min.js", jssrc);
 
 var macrofnasync = rxml.js2obj(jssrcasync);
@@ -73,6 +73,7 @@ fs.writeFileSync("$dir/output.remixml", rxml.abstract2txt(abstract));
 main();
 HERE
   )"
+  js-beautify -s 2 $dir/output.async.min.js >$dir/output.async.js
   js-beautify -s 2 $dir/output.min.js >$dir/output.js
   if cmp -s $dir/target.remixml $dir/output.remixml
   then

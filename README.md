@@ -513,7 +513,7 @@ Exposed API-list (in NodeJS and the browser):
   Compile remixml-javascript source into object code.
   Running the object code with a `context` parameter
   returns a DOM-abstract structure (AKA virtual DOM), or a `Promise` to return
-  a DOM-abstract structure when `flags & 4` is true.
+  a DOM-abstract structure when `flags` has the async-processing bit set.
 - `Remixml.abstract2txt(abstract, html?)`<br />
   Converts a DOM-abstract into an XHTML/Remixml-string.
   By default it produces valid XHTML, if it must be HTML compliant
@@ -534,6 +534,8 @@ Exposed API-list (in NodeJS and the browser):
   the replacing DOM-abstract.  E.g. when the tag
   is referenced as `<name foo="bar"></name>` then inside the
   callback function `context._.foo` will have the value `bar`.
+  Please take note that the provided callback can only return a `Promise` when
+  `flags` has the async-processing bit set.
 - `Remixml.set_log_callback(callback)`<br />
   If not set, it defaults to `console.error()`.  This callback function is used
   to log remixml runtime errors.
