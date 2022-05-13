@@ -522,7 +522,7 @@ Exposed API-list (in NodeJS and the browser):
   (e.g. for parsing by the browser built-in HTML parser)
   set the optional argument `html` to `1`.
 - `Remixml.compile(remixmlsrc, flags?)`<br />
-  Shorthand for `Remixml.js2obj(Remixml.remixml2js(remixmlsrc))`
+  Shorthand for `Remixml.js2obj(Remixml.remixml2js(remixmlsrc, flags))`
 - `Remixml.parse2txt(template, context, flags?)`<br />
   `template` can either be direct remixml source, or a precompiled object
   from `Remixml.compile`.  Returns an XHTML/Remixml-string.
