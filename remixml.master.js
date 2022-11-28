@@ -1232,7 +1232,8 @@ nobody:             do
   { for (;;)
     { switch (vdom[""])
       { case undefined:
-	  return vdom;
+	  if (!isa(vdom))
+	    return vdom;
 	case 1:
 	  switch (vdom.length)
 	  { case 0:
