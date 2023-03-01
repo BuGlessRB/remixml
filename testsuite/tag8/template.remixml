@@ -1,0 +1,3 @@
+<set var="_.ghi">jkl</set><set var="_.def">a&_.ghi:r;b</set>
+<set var="_.abc">x&_.def:r;y</set>
+x0<b><eval>&_.abc:r;</eval></b>x3
