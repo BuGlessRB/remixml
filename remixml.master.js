@@ -137,7 +137,7 @@
      = /** void */(/** !Array */ W,/** !Array */ H,/** !Object */ $) =>
       { delete /** @type{Object} */(H)[""];
 	$ = C(H, $, args ? args.split(splc).reduce(marko, {}) : {}, scope);
-        return tpl($);
+	W.push(tpl($));
       };
   }
 
