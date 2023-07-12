@@ -20,7 +20,7 @@
 
   // Cut BEGIN for externs
   // Cut BEGIN for prepend
-  var B,C,CG,CS,D,E,F,G,K,L,M,N,O,OA,P,Q,R,S,T,U,V,X,Y,Z,
+  var B,C,CG,CS,D,E,F,G,K,L,M,N,O,OA,P,PW,Q,R,S,T,U,V,WT,X,Y,Z,
    log,sizeof,desc,abstract2txt,abstract2dom;
   // Cut END for prepend
   var A,VE;
@@ -116,6 +116,10 @@
   { return "I=K($,H," + s + ")}catch(x){I=0}";
   }
 
+  function /** !Array */splitparam(/** string */ mapstring)
+  { return mapstring.slice(1,-1).split(spsplsing);
+  }
+
   M = /** void */(/** !Object */ dst, /** !Object */ src) =>
   { try
     { Obj.assign(dst, src);
@@ -159,10 +163,22 @@
   E = /** !Array|!Promise */(
     /** string */ src,/** !Object */ $,/** number= */ flags) =>
     compile(src, flags)($);
-                          // Generic replace function
+                          // Generic string-replace function
   P = /** function(string|!Array):string */(/** string */ xp,
    /** string */ flags,/** string|function(...):string */ to) =>
     x => arraytostring(x).replace(RegExp(xp, flags), to);
+                          // Generic tag-wash function
+  PW = /** function(string|number):(string|number) */(/** !Array|number */ keep,
+   /** !Array= */ strip) => {
+    let /** Set */ keepset
+     = /** @type{Set} */(keep && new Set(/** @type{!Array} */(keep)));
+    let /** Set */ stripset
+     = /** @type{Set} */(strip && new Set(/** @type{!Array} */(strip)));
+    return (/** string|number */ tagname) =>
+      (keepset ? !keepset.has(tagname)
+               : stripset && stripset.has(tagname)) + 0
+      || tagname;
+  };
                           // Replace runs of whitespace with a single space
   function /** string */ subws(/** string */ s)
   { return s.replace(spacesprx, " ");
@@ -242,7 +258,7 @@
      : limit > 0 ? x.slice(offset, offset + limit)
      : limit == 0 ? x.slice(offset) : ""
   );
-                           // Run filter fn() tree hierarchy
+                           // Run stringfilter fn() on tree hierarchy
   R = /** !Array */(/** !Array */ parent,
                     /** function((!Array|string)):(!Array|string)= */ fn) =>
   { var /** !Array|string */ val;
@@ -263,6 +279,20 @@
             continue;
       }
       parent.splice(i, 1);
+    }
+    return parent;
+  };
+                           // Run tagfilter fn() on tree hierarchy
+  WT = /** !Array */(/** !Array */ parent,
+                    /** function(!Array):!Array */ fn) =>
+  { var /** !Array|string */ val;
+    var /** string */ tag;
+    var /** number */ i = parent.length;
+    while (i--)
+    { if ((tag = (val = parent[i])[""]) !== undefined)
+      { WT(val, fn);
+	parent[i][""] = fn(tag);
+      }
     }
     return parent;
   };
@@ -722,9 +752,6 @@ ntoken:
           { let /** string */ sbj = gotparms[name];
             return sbj && substentities(sbj);
           }
-          function /** !Array */splitparam(/** string */ mapstring)
-          { return mapstring.slice(1,-1).split(spsplsing);
-          }
           function /** number|undefined */
            domkmapping(/** string */ init,/** string */ vname)
           { var /** string|undefined */ mapstring = getparm("mkmapping");
@@ -885,6 +912,15 @@ ntoken:
 		       + ","
                        + JSON.stringify(flags) + ","
                        + (evalexpr(getparm("expr")) || getparm("to"))
+		       + ");";
+                      continue;
+                    }
+                    case "washtags":
+                    { let /** string|undefined */ keep = getparm("keep");
+                      let /** string|undefined */ strip = getparm("strip");
+                      obj += letHprefix + "J=W,v=PW("
+		             + (keep ? JSON.stringify(splitparam(keep)) : 0)
+		       + (strip ? "," + JSON.stringify(splitparam(strip)) : "")
 		       + ");";
                       continue;
                     }
@@ -1097,6 +1133,9 @@ nobody:             do
                           break;
                         case "replace":
                           obj += "J.push.apply(J,R(H,v))}";
+                          break;
+                        case "washtags":
+                          obj += "J.push.apply(J,WT(H,v))}";
                           break;
                         case "trim":
                           obj += "J.push.apply(J,U(R(H)))}";

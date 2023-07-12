@@ -1,0 +1,17 @@
+abc<washtags keep="br,x"><h1>abc</h1>
+<p>lskdjfls</p>
+<br>lsk<strong>djfl</strong>skjdf</br>
+<x>sldkfjk</x>
+</washtags>
+abc<washtags keep="p" strip="br,x"><h1>abc</h1>
+<p>lskdjfls</p>
+<br>lsk<strong>djfl</strong>skjdf</br>
+<x>sldkfjk</x>
+</washtags>
+def
+abc<washtags strip="br,x"><h1>abc</h1>
+<p>lskdjfls</p>
+<br>lsk<strong>djfl</strong>skjdf</br>
+<x>sldkfjk</x>
+</washtags>
+def

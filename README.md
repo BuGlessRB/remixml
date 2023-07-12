@@ -406,6 +406,12 @@ if a single `-` parameter is given.
      [`$` characters here have special meaning](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#Specifying_a_string_as_a_parameter).
    - `expr`<br />
      Replace found occurrences with this javascript expression.
+- `<washtags keep="" strip="">...</washtags>`<br />
+   Attributes:
+   - `keep`<br />
+     A comma separated list of all tags that need to be preserved.
+   - `strip`<br />
+     A comma separated list of all tags that need to be stripped.
 - `<trim>...</trim>`<br />
    Truncates whitespace at both ends, and reduce other whitespace runs of
    more than one character to a single space.
