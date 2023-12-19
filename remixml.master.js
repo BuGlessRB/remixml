@@ -138,10 +138,11 @@
    /** !Object */ $,/** string */ name,/** string= */ scope,
    /** string= */ args)
   { $["_"]["_tag"][name]
-     = /** void */(/** !Array */ W,/** !Array */ H,/** !Object */ $) =>
+     = async function
+      /** !Promise */(/** !Array */ W,/** !Array */ H,/** !Object */ $)
       { delete /** @type{Object} */(H)[""];
 	$ = C(H, $, args ? args.split(splc).reduce(marko, {}) : {}, scope);
-	W.push(tpl($));
+	W.push(await tpl($));
       };
   }
 
