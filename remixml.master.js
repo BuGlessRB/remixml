@@ -1345,11 +1345,13 @@ nobody:             do
     "js2obj": js2obj,
     "compile":compile,
     "parse2txt":
-       /** string */(/** string|(function(!Object):!Array) */ tpl,
+       /** string|!Promise */(/** string|(function(!Object):!Array) */ tpl,
                     /** !Object */ $,/** number= */ flags) =>
       { if (isstring(tpl))
           tpl = js2obj(remixml2js(/** @type {string} */(tpl), flags));
-        return Y(/** @type {function(!Object):!Array} */(tpl)($));
+	return flags & ASYNC ?
+	  tpl($).then((abstract) => Y(abstract)) :
+	  Y(/** @type {function(!Object):!Array} */(tpl)($));
       },
     "abstract2txt": Y,
     "add_filter": /** void */(/** string */ name,
