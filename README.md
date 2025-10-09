@@ -347,7 +347,9 @@ if a single `-` parameter is given.
      iteration
      through an object by.  When the function <b>desc()</b> is applied to
      the expression, the order of that expression will be reversed.
-     Use the `_` scope to designate elements from the current element.
+     Use the `_` scope to designate elements from the current element; if
+     we are iterating over an array, then a mere `_` thus will have the value
+     of the element.
      There is shortcut reference `_index` which refers to the index
      of the current element.
    - `scope`<br />
