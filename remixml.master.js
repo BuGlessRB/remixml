@@ -768,10 +768,10 @@ ntoken:
 	  function /** string */parseparam()
 	  { rm = execy(params, rxmls);
 	    if (RUNTIMEDEBUG)
-	    { if (rm[1])
-                logcontext(0, 'Skipping malformed parameter "' + rm[1] + '"');
-	      else if (!rm)
+	    { if (!rm)
 		logparseerror();
+	      else if (rm[1])
+                logcontext(0, 'Skipping malformed parameter "' + rm[1] + '"');
 	    }
 	    return fw = rm[2];
 	  }
