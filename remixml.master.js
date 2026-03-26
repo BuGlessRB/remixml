@@ -1322,8 +1322,10 @@ nobody:             do
     }
     var /** !Array|string */ child;
     var /** number */ i = 0;
+    let /** !Array<string> */ children = [];
     while ((child = vdom[i++]) !== undefined)
-      parent += child[""] ? Y(child, html) : child;
+      children.push(child[""] ? Y(child, html) : child);
+    parent += children.join("");
     if (name)
       parent += "</" + name + ">";
     return parent;
