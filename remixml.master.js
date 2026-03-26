@@ -23,12 +23,13 @@
   var B,C,CG,CS,D,E,F,G,K,L,M,N,O,OA,P,PW,Q,R,S,T,U,V,WT,X,Y,Z,
    log,sizeof,desc,abstract2txt,abstract2dom;
   // Cut END for prepend
-  var A,VE;
+  var A,VE,VT;
   // Cut END for externs
   // Cut BEGIN for prepend
   function A(_,$,v)
   {if(_&&!_.length&&_[""]===1)_="";return v?eval(T(v)+"=_;"):_};
-  function VE($,v){return eval(Array.isArray(v)?v[0]:T(v))};
+  function VE($,v){return eval(v)};
+  function VT($,v){return eval(T(v))};
   // Cut END for prepend
 
   const Doc = typeof document == "object" ? document : null;
@@ -397,7 +398,7 @@
    /** function(...):!Array= */ ord) =>
   { var /** !Array */ r;
     var /** !Array|!Object */ k
-     = /** @type {!Object} */(isa(vname) ? vname[0] : VE($, vname));
+     = /** @type {!Object} */(isa(vname) ? vname[0] : VT($, vname));
     if ((k = k || 0) && k.size >= 0)
       r = k.entries();
     else
@@ -457,7 +458,7 @@
                      // Evaluate variable entity
   Z = /** * */(/** !Object */ $,/** string|!Array */ vname,
    /** string= */ quot,/** string= */ fmt) =>
-  { var /** * */ x = isa(vname) ? vname[0] : VE($, vname);
+  { var /** * */ x = isa(vname) ? vname[0] : VT($, vname);
     if (x == null)
       x = "";
     if (typeof x === "function")
@@ -501,7 +502,7 @@
     { let /** string */ oldx = "";
       while (x !== oldx && x.includes("&"))
       { oldx = /** @type {string} */(x);
-        x = VE($, ["(" + substentities(/** @type {string} */(x)) + ")"]);
+        x = VE($, "(" + substentities(/** @type {string} */(x)) + ")");
       }
     }
     return x;
