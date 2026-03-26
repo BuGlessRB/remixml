@@ -1312,7 +1312,7 @@ nobody:             do
                 if (narg !== val)
                   parent += '="'
                    + (val.replace
-		     ? val.replace(ampquotrx, "&dquot;") : val) + '"';
+		     ? val.replace(ampquotrx, "&quot;") : val) + '"';
               }
             case "_":case undefined:;
           }
