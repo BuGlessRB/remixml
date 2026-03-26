@@ -773,7 +773,7 @@ ntoken:
 	      else if (rm[1])
                 logcontext(0, 'Skipping malformed parameter "' + rm[1] + '"');
 	    }
-	    return fw = rm[2];
+	    return fw = rm && rm[2];
 	  }
 	  function /** string|undefined */getvarparm()
 	  { return getparm("var") || getparm("variable");
