@@ -96,6 +96,9 @@
   // <cache> storage
   const /** !Map */ abstractcache = new Map();
   const /** !Object */ logcache = {};
+  const /** !Map */ compilecache = new Map();   // Compiled template cache
+  const /** !Map */ templatecache = new Map();  // Compiled source cache
+  const /** number */ compilecache_max = 128;   // Max compiled templates
   var /** number */ cachetags = 0;
   var /** function(string,*,!Object):* */ procfmt;
   var /** function(...) */ debuglog = console.debug;
@@ -158,7 +161,15 @@
 
   function /** function(!Object):!Array */ compile(/** string */ remixml,
                                            /** number= */ flags)
-  { return js2obj(remixml2js(remixml, flags));
+  { var /** string */ key = JSON.stringify([remixml, flags || 0]);
+    var /** function(!Object):!Array */ constructor = templatecache.get(key);
+    if (constructor)
+      return constructor;
+    constructor = js2obj(remixml2js(remixml, flags));
+    if (templatecache.size >= compilecache_max)
+      templatecache.delete(/** @type {string} */(templatecache.keys().next().value));
+    templatecache.set(key, constructor);
+    return constructor;
   }
                            // Convert to text and back to abstract
   E = /** !Array|!Promise */(
@@ -1244,7 +1255,9 @@ nobody:             do
   }
 
   function /** function(!Object):!Array */ js2obj(/** string */ jssrc)
-  { var /** function(!Object):!Array */ constructor;
+  { var /** function(!Object):!Array */ constructor = compilecache.get(jssrc);
+    if (constructor)
+      return constructor;
     try
     { constructor = /** @type {function(!Object):!Array} */(eval(jssrc));
     } catch(e)
@@ -1259,6 +1272,11 @@ nobody:             do
     if (Doc && DEBUG && (s = logcache[jssrc]) !== 1)
     { debuglog([s], constructor);
       logcache[jssrc] = 1;
+    }
+    if (constructor)
+    { if (compilecache.size >= compilecache_max)
+        compilecache.delete(/** @type {string} */(compilecache.keys().next().value));
+      compilecache.set(jssrc, constructor);
     }
     return constructor;
   }
@@ -1361,7 +1379,7 @@ nobody:             do
        /** string|!Promise */(/** string|(function(!Object):!Array) */ tpl,
                     /** !Object */ $,/** number= */ flags) =>
       { if (isstring(tpl))
-          tpl = js2obj(remixml2js(/** @type {string} */(tpl), flags));
+          tpl = compile(/** @type {string} */(tpl), flags);
 	return flags & ASYNC ?
 	  tpl($).then((abstract) => Y(abstract)) :
 	  Y(/** @type {function(!Object):!Array} */(tpl)($));
