@@ -566,6 +566,10 @@ Exposed API-list (in NodeJS and the browser):
   nodes.  This API-function is only available from this module if
   one of the optional `remixml-*dom` modules has been loaded.
 
+Note: the JavaScript emitted by `remixml2js()` is an internal intermediate
+format, not a stable contract — precompiled templates must be regenerated with
+the same Remixml version that runs them.
+
 #### Reserved object variables
 
 - `$.sys.lang`<br />

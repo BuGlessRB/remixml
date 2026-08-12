@@ -36,6 +36,17 @@
   const W = Doc && window;
   const Obj = Object;
 
+  /* The DOM-abstract model.
+     Every node is a plain Array.  Its special "" property carries the tag:
+     a string tag for elements and special nodes, 1 for a plain list of
+     children, or a compiled content function stored as "_c".  Attributes are
+     named properties on the array; children are array elements.  Plain
+     strings represent text nodes.  This one representation is shared by the
+     runner, the cache and every serialiser.
+     The "::" attribute spreads a nested object over the node's attributes.
+     The context machinery adds the lazy "_contents" and "_restargs"
+     accessors on demand.  */
+
   const /** !Object */ eumapobj
    = {" ":"+","\t":"%09","\n":"%0A","\r":"%0D","\"":"%22","#":"%23","%":"%25",
       "&":"%26","'":"%27","+":"%2B","<":"%3C","?":"%3F"};
@@ -633,6 +644,17 @@
       // I: Most recent truth value
      // J: Parent element to append the current element to when finished
     // c: If c >= 0 it indicates an active <cache> context
+    /* Emitted-code local variables beyond the preamble:
+         v  a value: content-runner, filter, tagwasher, attribute name or key
+         w  a function: runs the content of a construct exactly once
+         n  a counter: record number or remaining <eval> recursion depth
+         g  an iterator for <for>
+         k  the current element, key or evaluation result
+         m  loop bookkeeping, or the previous <eval> result sentinel
+         o  the saved parent context restored after a <for> body
+         x  the value being inserted or assigned
+       The letters are deliberately short because they are emitted into every
+       compiled template.  */
     const /** number */ isasync = flags & ASYNC;
     const /** string */ asyncf = isasync ? "async " : "";
     const /** string */ awaitf = isasync ? "await " : "";
@@ -643,6 +665,15 @@
      = "(" + asyncf + '$=>{"use strict";var I,W,c,_,H=N($);';
     var /** number */ noparse = 0;
     var /** number */ comment = 0;
+    /* Generated construct shape.
+       A content-bearing construct compiles to a self-contained block:
+         {let H=L(),w,v=()=>{w();...};w=(W=>{H.push(...)});v()}
+       H is a fresh node, w is the content function, v the one-shot invoker
+       that runs w and then performs the construct's assignment or insertion.
+       The emitted fragments use "W=H" to make a nested construct's parent the
+       current node, "J=W" to record the node to append into, "I=" to track
+       the last truth value for <then>/<elif>/<else>, and "_" as the local
+       scope.  */
     const /** string */ vfnprefix
      = "w,v=" + asyncf + "()=>{" + awaitf + "w();";
     const /** string */ wfunction = ")};w=(" + asyncf + "W=>{";
