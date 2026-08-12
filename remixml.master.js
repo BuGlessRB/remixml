@@ -462,7 +462,8 @@
         { x = arraytostring(/** @type {string|!Array} */(x));
 	  let /** function(string):string */ filterfn = filters[quot];
 	  x = filterfn ? filterfn(/** @type {string} */(x))
-	               : x.replace(htmlmaprx, htmlmap);
+	               : x.includes("&") || x.includes("<") || x.includes(">")
+	                 ? x.replace(htmlmaprx, htmlmap) : x;
         }
       case "":case "none":case "r":case "recurse":;
     }
@@ -533,8 +534,9 @@
                   // varinsert
   K = /** number */
    (/** !Object */ $,/** !Array */ H,/** !Array|string|number */ x) =>
-  { if (x[""])
-    { if (x[""] === 1)
+  { var /** string|number|!Array */ t = x[""];
+    if (t)
+    { if (t === 1)
         H.push.apply(H, O(/** @type {!Array} */(x)));
       else
         H.push(x);
