@@ -384,11 +384,20 @@
                        // Convert object list into iterator
   G = /** !Object */(/** !Object */ $,/** string|!Array */ vname,
    /** function(...):!Array= */ ord) =>
-  { var /** !Array */ r;
+  { var /** !Array|!Object */ r;
     var /** !Array|!Object */ k
      = /** @type {!Object} */(isa(vname) ? vname[0] : VT($, vname));
     if ((k = k || 0) && k.size >= 0)
       r = k.entries();
+    else if (isa(k) && !ord)
+    { let /** !Array */ src = k.slice();
+      let /** number */ i = 0;
+      let /** number */ len = src.length;
+      r = { [Symbol.iterator]() { return this; },
+            next() { while (i < len && !(i in src)) i++;
+                     return i < len ? { value: [i, src[i++]], done: false }
+                                    : { done: true }; } };
+    }
     else
     { r = Obj.entries(k);
       if (k.length >= 0)
