@@ -135,18 +135,6 @@
     return accu;
   }
 
-  function /** void */ settag(/** function(!Object):!Array */ tpl,
-   /** !Object */ $,/** string */ name,/** string= */ scope,
-   /** string= */ args)
-  { $["_"]["_tag"][name]
-     = async function
-      /** !Promise */(/** !Array */ W,/** !Array */ H,/** !Object */ $)
-      { delete /** @type{Object} */(H)[""];
-	$ = C(H, $, args ? args.split(splc).reduce(marko, {}) : {}, scope);
-	W.push(await tpl($));
-      };
-  }
-
   function /** !Array|string */
    simplify(/** string */ expr,/** number= */ assign)
   { var /** Array */ r = expr.match(noparenplusrx);
@@ -216,23 +204,11 @@
         abstractcache_countdowncheck = abstractcache_intervalentries;
         let /** !Array */ keys = Array.from(abstractcache.keys());
         let /** number */ first = 0;
-        if (last >= abstractcache_maxentries)
-          last = abstractcache_maxentries - 1;
-        // Binary search for first entry to expire
-        while (first < last)
-        { let /** number */ halfway = (first + last) >> 1;
-          // Due LRU reordering this comparison is just an approximation
-          if (abstractcache.get(keys[halfway])[1] > t)
-            last = halfway;
-          else
-            first = halfway;
-        }
-        last = abstractcache.size;
         // Expire from first to last
         while (first < last)
         { let /** string */ ikey = keys[first++];
-          if (first >= abstractcache_maxentries
-           || abstractcache.get(ikey)[1] > t)
+          if (last - first >= abstractcache_maxentries
+           || abstractcache.get(ikey)[1] <= t)
             abstractcache.delete(ikey);
         }
       }
@@ -612,10 +588,6 @@
      fmt && JSON.stringify(fmt));
   }
 
-  function /** string */ runexpr(/** string */ expr)
-  { return "(_=$._," + protectjs(expr) + ")";
-  }
-
   function /** string|undefined */ evalexpr(/** string|undefined */ expr)
   { if (expr)
     { if (expr.includes("("))
@@ -636,7 +608,8 @@
   }
 
   function /** string */ execexpr(/** string|undefined */ xp)
-  { return "H=" + (evalexpr(xp) || runexpr("eval(Y(H))")) + ";";
+  { return "H=" + (evalexpr(xp)
+    || "(_=$._," + protectjs("eval(Y(H))") + ")") + ";";
   }
 
   const /** number */ TS_TAG = 0;
@@ -680,26 +653,21 @@
     var /** !Array */ tagctx = [0, {}, STASHCONTENT, ""];
     var /** !Array */ tagstack = [tagctx];
     var /** number */ lasttoken = 0;
-    function /** string */ getposition()
-    { var /** string */ str = rxmls.slice(0, lasttoken);
-      var /** number */ line = (str.match(newlinerx) || "").length + 1;
-      var /** number */ offset = str.match(nonewlinerx)[0].length + 1;
-      return line + ":" + offset;
-    }
     function /** void */ logcontext(/** string|number */ tag,/** string */ msg)
     { if (RUNTIMEDEBUG)
-        D(msg + " at " + getposition(),
+      { var /** string */ str = rxmls.slice(0, lasttoken);
+        var /** number */ line = (str.match(newlinerx) || "").length + 1;
+        var /** number */ offset = str.match(nonewlinerx)[0].length + 1;
+        D(msg + " at " + line + ":" + offset,
 	  rxmls.substr(lasttoken - RUNTIMEDEBUG,
                RUNTIMEDEBUG*2 + (tag ? tag.length : 0)));
+      }
     }
     function /** void */ startcfn()
     { if ((tagctx[TS_FLAGS] & (USERTAG|STASHCONTENT)) === USERTAG)
       { tagctx[TS_FLAGS] |= STASHCONTENT;
         obj += cfnprefix;
       }
-    }
-    function /** void */ markhasbody()
-    { tagctx[TS_FLAGS] |= HASBODY;
     }
     function /** void */ getexclm(/** !Array */ rm,/** number */ offset)
     { if (!comment)
@@ -895,7 +863,7 @@ ntoken:
                       } else if ((vname = getparm("expr")) !== undefined)
                       { obj += letHprefix + vfnprefix + execexpr(vname)
 			 + "W.push(A(H)" + wfunction;
-			markhasbody();
+			tagctx[TS_FLAGS] |= HASBODY;
 		      } else
                       { switch(getparm("variables"))
                         { case "dump":
@@ -1364,7 +1332,13 @@ nobody:             do
         procfmt = fmtfn,
     "set_tag": /** void */(/** function(!Object):!Array */ cb,
        /** !Object */ $,/** string */ name,/** string= */ scope,
-       /** string= */ args) => ( N($), settag(cb, $, name, scope, args) ),
+       /** string= */ args) => ( N($),
+         $["_"]["_tag"][name] = async function
+          /** !Promise */(/** !Array */ W,/** !Array */ H,/** !Object */ $)
+          { delete /** @type{Object} */(H)[""];
+	    $ = C(H, $, args ? args.split(splc).reduce(marko, {}) : {}, scope);
+	    W.push(await cb($));
+          } ),
     "set_log_callback": /** void */(/** function(...) */ cb) => log = cb,
     "set_cache_options": /** void */(/** number */ maxttl,
                                      /** number= */ maxentries,
