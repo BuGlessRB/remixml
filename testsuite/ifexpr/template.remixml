@@ -1,0 +1,6 @@
+<if expr="&_.n; > 10">big</if><elif expr="&_.n; === 5">five-strict</elif><elif expr="&_.n; == 5">five-loose</elif><else>small</else>
+<if expr="&_.s; == 'x'">sx</if><else>s-other</else>
+<if expr="&_.missing; >= 0">missing-coerces</if><else>missing-false</else>
+<if expr="(_.n + 1) > 10">paren-big</if><else>paren-small</else>
+<if expr="&_.a; > &_.b;">a-gt-b</if><else>a-lt-b</else>
+<if expr="&_.n; >= 5">ge5</if><if expr="&_.n; < 5">lt5</if>

@@ -91,6 +91,9 @@
   const /** !RegExp */ escaperxrx = /([\\^$*+?.|()[{])/g;
   const /** !RegExp */ ampquotrx = /"/g;
   const /** !RegExp */ dotbrackrx = /[.[\]]+/;
+  // Numeric comparison with an operator and a number literal
+  const /** !RegExp */ compoprx
+   = /^\s*(===|==|!==|!=|>=|<=|>|<)\s*(-?\d+(?:\.\d+)?)\s*$/;
 
   const /** !Object<function(string):string> */ filters = {};
   // <cache> storage
@@ -623,7 +626,20 @@
 
   function /** string|undefined */ evalexpr(/** string|undefined */ expr)
   { if (expr)
-    { if (expr.includes("("))
+    { var /** Array */ m;
+      var /** number */ e;
+      var /** string */ sep = ')}catch(x){}return ""})()+"';
+      if (expr.includes("Z($,")
+       && expr.slice(0, 21) === "(()=>{try{return Z($,"
+       && (e = expr.indexOf(sep, 21)) > 21
+       && expr.slice(-1) === '"'
+       && (m = /** @type {string} */(JSON.parse('"'
+              + expr.slice(e + sep.length, -1) + '"')).match(compoprx)) !== null)
+      { expr = protectjs("(" + (m[1] === "===" || m[1] === "!==" ? "+" : "")
+           + expr.slice(0, e + sep.length - 2) + m[1] + m[2] + ")");
+        if (expr.includes("_"))
+          expr = "(_=$._," + expr + ")";
+      } else if (expr.includes("Z($,"))
       { expr = expr.slice(-1) === '"'
          ? (expr[0] === '"' ? expr.slice(1,-1) : '"+' + expr.slice(0,-1))
          : (expr[0] === '"' ? expr.slice(1): '"+' + expr) + '+"';
